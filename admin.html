@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="ar">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#0a0a1a">
+<title>لوحة المطوّر · Smart Sport</title>
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0a0a1a; --bg2:#12122a; --card:rgba(255,255,255,.045);
+  --bd:rgba(255,255,255,.09); --tx:#eef0f8; --tx2:#aab; --tx3:#778;
+  --grn:#00d97e; --grnd:#00875a; --blu:#4ea5ff; --blud:#1a56db;
+  --vio:#a78bfa; --viod:#6d28d9; --red:#ff5959;
+  --ff:'Tajawal',system-ui,'Segoe UI',Tahoma,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{background:var(--bg);color:var(--tx);font-family:var(--ff);direction:rtl;min-height:100vh}
+body{background:radial-gradient(1200px 600px at 50% -10%,rgba(109,40,217,.18),transparent 60%),radial-gradient(900px 500px at 100% 10%,rgba(0,217,126,.10),transparent 55%),var(--bg);padding:16px 14px 32px}
+.wrap{max-width:680px;margin:0 auto}
+
+/* HEADER */
+.hdr{display:flex;align-items:center;gap:12px;margin-bottom:18px;padding:4px 2px}
+.hdr-ic{width:48px;height:48px;flex:none;border-radius:14px;background:linear-gradient(135deg,var(--viod),var(--vio));display:flex;align-items:center;justify-content:center;font-size:24px;box-shadow:0 6px 20px rgba(109,40,217,.4)}
+.hdr-tx h1{font-size:19px;font-weight:900;letter-spacing:-.3px}
+.hdr-tx .sub{font-size:11.5px;color:var(--tx3);font-weight:600;margin-top:2px}
+
+/* CARD */
+.card{background:var(--card);border:1px solid var(--bd);border-radius:18px;padding:18px;margin-bottom:14px;backdrop-filter:blur(8px)}
+
+/* LOGIN */
+.login-ttl{font-size:15px;font-weight:800;margin-bottom:4px}
+.login-hint{font-size:11.5px;color:var(--tx3);margin-bottom:16px;font-weight:500}
+.fld{position:relative;margin-bottom:11px}
+.fld-ic{position:absolute;right:13px;top:50%;transform:translateY(-50%);font-size:15px;opacity:.6;pointer-events:none}
+input{width:100%;padding:13px 40px 13px 14px;background:rgba(255,255,255,.05);border:1.5px solid var(--bd);border-radius:12px;color:#fff;font-size:14px;font-family:var(--ff);font-weight:600;direction:ltr;text-align:left;transition:border-color .2s,background .2s}
+input::placeholder{color:var(--tx3);font-family:var(--ff)}
+input:focus{outline:none;border-color:var(--vio);background:rgba(167,139,250,.07)}
+.btn{width:100%;padding:14px;border:none;border-radius:12px;color:#fff;font-size:14px;font-weight:900;font-family:var(--ff);cursor:pointer;touch-action:manipulation;transition:opacity .15s,transform .1s;display:flex;align-items:center;justify-content:center;gap:7px}
+.btn:active{transform:scale(.985)}
+.btn-vio{background:linear-gradient(135deg,var(--viod),var(--vio))}
+.btn-grn{background:linear-gradient(135deg,var(--grnd),var(--grn))}
+.btn-red{background:rgba(255,89,89,.12);border:1px solid rgba(255,89,89,.3);color:var(--red)}
+.btn-ghost{background:rgba(255,255,255,.05);border:1px solid var(--bd);color:var(--tx2);font-size:12px;padding:9px 14px;width:auto}
+.err{color:var(--red);font-size:12px;margin-top:11px;font-weight:600;line-height:1.6;display:none}
+.err.show{display:block}
+
+/* STATS */
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px}
+.stat{background:var(--card);border:1px solid var(--bd);border-radius:16px;padding:15px 8px;text-align:center;position:relative;overflow:hidden}
+.stat::before{content:'';position:absolute;inset:0 0 auto 0;height:3px;background:var(--accent,var(--grn))}
+.stat.s1{--accent:var(--grn)} .stat.s2{--accent:var(--blu)} .stat.s3{--accent:var(--vio)}
+.stat-num{font-size:26px;font-weight:900;color:var(--accent,var(--grn));line-height:1}
+.stat-lbl{font-size:10.5px;color:var(--tx3);margin-top:6px;font-weight:700}
+
+/* SECTION TITLE */
+.sec-hd{display:flex;align-items:center;justify-content:space-between;margin:4px 2px 12px}
+.sec-hd h2{font-size:14px;font-weight:900;display:flex;align-items:center;gap:7px}
+.sec-hd .cnt{background:rgba(167,139,250,.15);color:var(--vio);font-size:11px;font-weight:800;padding:3px 10px;border-radius:20px}
+
+/* TEACHER CARD */
+.tcard{background:var(--card);border:1px solid var(--bd);border-radius:16px;padding:15px;margin-bottom:11px;transition:border-color .2s}
+.tcard:active{border-color:rgba(167,139,250,.4)}
+.tc-top{display:flex;align-items:center;gap:11px;margin-bottom:13px}
+.tc-av{width:42px;height:42px;flex:none;border-radius:12px;background:linear-gradient(135deg,var(--blud),var(--blu));display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:900;color:#fff}
+.tc-id{min-width:0;flex:1}
+.tc-name{font-size:14.5px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tc-mail{font-size:11px;color:var(--tx3);font-weight:600;direction:ltr;text-align:right;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px}
+.tc-school{display:inline-flex;align-items:center;gap:5px;font-size:11.5px;color:var(--blu);font-weight:700;background:rgba(78,165,255,.1);padding:5px 11px;border-radius:9px;margin-bottom:12px}
+.tc-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:11px}
+.tc-mini{background:rgba(255,255,255,.03);border:1px solid var(--bd);border-radius:11px;padding:10px 12px;display:flex;align-items:center;gap:9px}
+.tc-mini .mi{font-size:17px}
+.tc-mini .mv{font-size:17px;font-weight:900;line-height:1}
+.tc-mini .ml{font-size:10px;color:var(--tx3);font-weight:700;margin-top:1px}
+.tc-sync{font-size:10.5px;color:var(--tx3);font-weight:600;display:flex;align-items:center;gap:6px;border-top:1px solid var(--bd);padding-top:10px}
+.tc-sync b{color:var(--tx2);font-weight:700}
+
+/* EMPTY / LOADING */
+.empty{text-align:center;padding:40px 20px;color:var(--tx3)}
+.empty .ic{font-size:40px;margin-bottom:12px;opacity:.5}
+.empty .t{font-size:14px;font-weight:700;color:var(--tx2)}
+.empty .s{font-size:11.5px;margin-top:6px}
+.spin{width:30px;height:30px;border:3px solid var(--bd);border-top-color:var(--vio);border-radius:50%;animation:sp .8s linear infinite;margin:30px auto}
+@keyframes sp{to{transform:rotate(360deg)}}
+.skel{height:120px;background:linear-gradient(90deg,rgba(255,255,255,.03),rgba(255,255,255,.06),rgba(255,255,255,.03));background-size:200% 100%;animation:sk 1.3s infinite;border-radius:16px;margin-bottom:11px}
+@keyframes sk{to{background-position:-200% 0}}
+
+/* FOOTER ACTIONS */
+.foot{display:flex;gap:10px;margin-top:6px}
+.foot .btn{flex:1}
+.badge-v{text-align:center;font-size:10px;color:var(--tx3);margin-top:18px;font-weight:600}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="hdr">
+    <div class="hdr-ic">🛡️</div>
+    <div class="hdr-tx">
+      <h1>لوحة تحكم المطوّر</h1>
+      <div class="sub">Smart Sport · إدارة الأساتذة المسجّلين</div>
+    </div>
+  </div>
+
+  <!-- LOGIN -->
+  <div class="card" id="login-card">
+    <div class="login-ttl">🔐 تسجيل دخول المطوّر</div>
+    <div class="login-hint">ادخل ببريد المطوّر للاطّلاع على بيانات كل الأساتذة</div>
+    <div class="fld"><span class="fld-ic">📧</span><input id="email" type="email" placeholder="developer email"></div>
+    <div class="fld"><span class="fld-ic">🔑</span><input id="pass" type="password" placeholder="password"></div>
+    <button id="btn-login" class="btn btn-vio" disabled style="opacity:.5">⏳ جارٍ التحميل...</button>
+    <div class="err" id="err"></div>
+  </div>
+
+  <!-- DASHBOARD -->
+  <div id="dash" style="display:none">
+    <div class="stats">
+      <div class="stat s1"><div class="stat-num" id="n-teachers">—</div><div class="stat-lbl">أستاذ</div></div>
+      <div class="stat s2"><div class="stat-num" id="n-classes">—</div><div class="stat-lbl">قسم</div></div>
+      <div class="stat s3"><div class="stat-num" id="n-students">—</div><div class="stat-lbl">تلميذ</div></div>
+    </div>
+
+    <div class="sec-hd">
+      <h2>👥 الأساتذة المسجّلون</h2>
+      <button id="btn-refresh" class="btn btn-ghost">🔄 تحديث</button>
+    </div>
+
+    <div id="list"><div class="spin"></div></div>
+
+    <div class="foot">
+      <button id="btn-logout" class="btn btn-red">🚪 تسجيل الخروج</button>
+    </div>
+    <div class="badge-v">Smart Sport Admin · v2</div>
+  </div>
+
+</div>
+
+<script type="module">
+const firebaseConfig = {
+  apiKey: "AIzaSyBfAQxhplKvKXxkDt4xO_c9Kxk3WLua13M",
+  authDomain: "smartsport32-b6d0a.firebaseapp.com",
+  projectId: "smartsport32-b6d0a",
+  storageBucket: "smartsport32-b6d0a.firebasestorage.app",
+  messagingSenderId: "971014506903",
+  appId: "1:971014506903:web:938189a7d23b5c3f7a5cd2"
+};
+
+function showFatal(msg){
+  var e=document.getElementById('err');
+  if(e){e.textContent=msg; e.classList.add('show');}
+  console.error(msg);
+}
+
+let initializeApp, getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged, getFirestore, collection, getDocs;
+let app, auth, db, fbReady=false;
+
+function login(){
+  if(!fbReady){ showFatal('Firebase لم يُحمّل بعد. انتظر لحظة ثم أعد المحاولة، أو تحقق من الإنترنت.'); return; }
+  const email=document.getElementById('email').value.trim();
+  const pass=document.getElementById('pass').value;
+  document.getElementById('err').classList.remove('show');
+  signInWithEmailAndPassword(auth,email,pass).catch(e=>{
+    var m='فشل الدخول';
+    if(e.code==='auth/invalid-credential'||e.code==='auth/wrong-password')m='بريد أو كلمة سر خاطئة';
+    else if(e.code==='auth/invalid-email')m='البريد غير صحيح';
+    else if(e.code==='auth/user-not-found')m='لا يوجد حساب بهذا البريد';
+    showFatal(m);
+  });
+}
+function logout(){ if(fbReady) signOut(auth); }
+
+document.getElementById('btn-login').addEventListener('click',login);
+document.getElementById('btn-logout').addEventListener('click',logout);
+document.getElementById('btn-refresh').addEventListener('click',()=>loadData());
+document.getElementById('pass').addEventListener('keydown',e=>{ if(e.key==='Enter')login(); });
+
+if(location.protocol==='file:'){
+  showFatal('⚠️ افتح هذه الصفحة عبر رابط https (Netlify)، وليس من الملف مباشرة.');
+}
+
+try{
+  ({ initializeApp } = await import("https://www.gstatic.com/firebasejs/12.14.0/firebase-app.js"));
+  ({ getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } = await import("https://www.gstatic.com/firebasejs/12.14.0/firebase-auth.js"));
+  ({ getFirestore, collection, getDocs } = await import("https://www.gstatic.com/firebasejs/12.14.0/firebase-firestore.js"));
+  app = initializeApp(firebaseConfig);
+  auth = getAuth(app);
+  db = getFirestore(app);
+  fbReady=true;
+  var lb=document.getElementById('btn-login');
+  lb.disabled=false; lb.style.opacity='1'; lb.textContent='دخول';
+  onAuthStateChanged(auth,user=>{
+    document.getElementById('login-card').style.display=user?'none':'block';
+    document.getElementById('dash').style.display=user?'block':'none';
+    if(user)loadData();
+  });
+}catch(err){
+  showFatal('فشل تحميل Firebase: '+(err.message||err)+' — تحقق من اتصال الإنترنت.');
+}
+
+function esc(s){ return String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+function initial(s){ s=(s||'').trim(); return s?s[0]:'؟'; }
+
+async function loadData(){
+  var list=document.getElementById('list');
+  list.innerHTML='<div class="skel"></div><div class="skel"></div>';
+  try{
+    const snap=await getDocs(collection(db,'teachers'));
+    let totalClasses=0,totalStudents=0,cards='';
+    snap.forEach(docu=>{
+      const d=docu.data();
+      let parsed={};
+      try{ parsed=JSON.parse(d.data||'{}'); }catch(e){}
+      const st=parsed.settings||{};
+      const name=st.teacher||'(بدون اسم)';
+      const school=st.school||'—';
+      const year=st.year||'';
+      const cls=(parsed.classes||[]).length;
+      const stu=(parsed.students||[]).length;
+      totalClasses+=cls; totalStudents+=stu;
+      let when='لم تُسجّل';
+      if(d.updatedAt&&d.updatedAt.toDate){
+        try{ when=d.updatedAt.toDate().toLocaleString('ar-DZ',{dateStyle:'medium',timeStyle:'short'}); }
+        catch(e){ when=d.updatedAt.toDate().toLocaleString('ar'); }
+      }
+      cards+=`<div class="tcard">
+        <div class="tc-top">
+          <div class="tc-av">${esc(initial(name))}</div>
+          <div class="tc-id">
+            <div class="tc-name">${esc(name)}</div>
+            <div class="tc-mail">${esc(d.email||docu.id)}</div>
+          </div>
+        </div>
+        <div class="tc-school">🏫 ${esc(school)}${year?' · '+esc(year):''}</div>
+        <div class="tc-grid">
+          <div class="tc-mini"><span class="mi">📚</span><div><div class="mv">${cls}</div><div class="ml">قسم</div></div></div>
+          <div class="tc-mini"><span class="mi">🎓</span><div><div class="mv">${stu}</div><div class="ml">تلميذ</div></div></div>
+        </div>
+        <div class="tc-sync">🕓 آخر مزامنة: <b>${esc(when)}</b></div>
+      </div>`;
+    });
+    document.getElementById('n-teachers').textContent=snap.size;
+    document.getElementById('n-classes').textContent=totalClasses;
+    document.getElementById('n-students').textContent=totalStudents;
+    list.innerHTML=cards||'<div class="empty"><div class="ic">📭</div><div class="t">لا يوجد أساتذة بعد</div><div class="s">سيظهر الأساتذة هنا بعد تسجيلهم ورفع بياناتهم</div></div>';
+  }catch(e){
+    list.innerHTML='<div class="empty"><div class="ic">⚠️</div><div class="t">تعذّر تحميل البيانات</div><div class="s">'+esc(e.code||e.message)+'<br>تأكد أن بريدك مُدرج كمطوّر في قواعد الأمان</div></div>';
+  }
+}
+</script>
+</body>
+</html>
