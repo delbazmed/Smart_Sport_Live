@@ -1091,7 +1091,7 @@ body{max-width:480px;margin:0 auto;display:flex;flex-direction:column;-webkit-fo
         <div class="ail">التطبيق الاحترافي لأساتذة التربية البدنية والرياضية</div>
         <div style="height:14px"></div>
         <div class="ail">المطور: <strong style="color:var(--g)">Delbaz_Med</strong></div>
-        <div class="ail">الإصدار: <strong style="color:var(--gold)">2.3.0 · 12 أكتوبر 2026</strong></div>
+        <div class="ail">الإصدار: <strong style="color:var(--gold)">2.3.1 · 14 أكتوبر 2026</strong></div>
         <div class="ail" style="margin-top:4px">EPS · DZ · 2026</div>
       </div>
     </div>
@@ -5033,7 +5033,7 @@ tr:nth-child(even)td{background:#f9faff}
 </div>
 <div class="step"><strong>عدد الأسماء 1–5:</strong> يسحب حتى 5 تلاميذ دفعة واحدة (دون تكرار). <strong>⚥ تناوب الجنس:</strong> يتناوب ذكر/أنثى داخل السحب الواحد وبين السحوبات المتتالية، وإن نفد أحد الجنسين يُكمَل من الآخر. الاختيار يُحفظ في الجهاز</div>
 <div class="step"><strong>🗣️ نطق الاسم:</strong> بعد استقرار الاسم يُنطق بصوت الهاتف. إن لم يستجب صوت عربي يعرض التطبيق مرة واحدة خيار «النطق عبر الإنترنت» (يُرسل الاسم المنطوق فقط) بإذنك. سبب النطق وما جرّبه التطبيق يظهر في ⚙️ ← «🩺 فحص الحفظ والجهاز»</div>
-<p style="margin-top:8px"><strong>إقصاء تلقائي:</strong> الغائبون (A) والمعفون (M) لا يدخلون القرعة، والمعفون سنوياً يُعلَّمون تلقائياً.</p>
+<p style="margin-top:8px"><strong>إقصاء تلقائي:</strong> الغائبون (A) والمعفون (M) لا يدخلون القرعة. يُعلَّم تلقائيًا: الغائب والغائب المبرّر في الحصة الحالية بـ A، والمريض والمعفى بـ M. وتبقى الأزرار اليدوية لتغيير أي حالة، وما عدّلتَه يدويًا لا يُغيَّر.</p>
 <p><strong>بلا تكرار:</strong> لا يُسحب أي تلميذ مرتين حتى ينتهي كل الحاضرين، مع إضاءة خضراء على الفائز.</p>
 <div class="tip">💡 زر <strong>↺ تصفير</strong> يعيد كل الحاضرين للقرعة من جديد (بداية محاولة جديدة)</div></div>
 
@@ -5299,7 +5299,7 @@ Smart Sport · دلباز محمد · ${sch} · 2025-2026
 </div>
 
 <!-- VERSION BADGE -->
-<div id="ver-badge" style="position:fixed;bottom:90px;left:8px;z-index:40;background:rgba(0,0,0,.5);color:rgba(255,255,255,.6);font-size:9px;font-weight:700;padding:3px 8px;border-radius:8px;font-family:monospace;pointer-events:none">2.3.0</div>
+<div id="ver-badge" style="position:fixed;bottom:90px;left:8px;z-index:40;background:rgba(0,0,0,.5);color:rgba(255,255,255,.6);font-size:9px;font-weight:700;padding:3px 8px;border-radius:8px;font-family:monospace;pointer-events:none">2.3.1</div>
 </body></html>`;
   const w=window.open('','_blank','width=420,height=700');
   if(w){w.document.write(html);w.document.close();}
@@ -8213,9 +8213,27 @@ var LOTTERY = (function(){
       var tk = (S&&S.term&&S.term!=='annual') ? S.term : 't1';
       if(s.terms && s.terms[tk] && s.terms[tk].exempted) return 'ex';
       if(typeof isAllEx==='function' && isAllEx(s)) return 'ex';
+      // 2.3.1: غائب / غائب مبرّر → A ، مريض → M (حسب الحصة الحالية للقسم)
+      var ss = sesNow(s);
+      if(ss==='ab' || ss==='ju') return 'ab';
+      if(ss==='sk') return 'ex';
     }catch(e){}
     return 'pr';
   }
+  // حالة التلميذ في الحصة الحالية (الفصل الحالي، أو الأحدث تسجيلاً عند «سنوي»)
+  function sesNow(s){
+    try{
+      var tk = (S&&S.term&&S.term!=='annual') ? S.term : null;
+      if(!tk){
+        var c=GC(cid), best='', ks=['t1','t2','t3'];
+        ks.forEach(function(k){ var d=(c&&c.sesDate&&c.sesDate[k])||''; if(d>best){best=d;tk=k;} });
+        if(!tk) return 'pr';
+      }
+      var t = s.terms && s.terms[tk]; if(!t || t.exempted || !t.mc || !t.mc.ses) return 'pr';
+      return sesState(t, curSesIdx(cid,tk));
+    }catch(e){ return 'pr'; }
+  }
+  var manByCls = {};   // cid -> { sid -> true } : ما عدّله الأستاذ يدوياً لا يُمسّ
 
   function populateSelect(){
     var sel = document.getElementById('lt-cls-sel'); if(!sel) return;
@@ -8230,7 +8248,8 @@ var LOTTERY = (function(){
   function loadClass(){
     var r = roster();
     var a = att();
-    r.forEach(function(s){ if(a[s.id]===undefined) a[s.id] = defState(s); });
+    var mn = manByCls[cid] || (manByCls[cid]={});
+    r.forEach(function(s){ if(a[s.id]===undefined || !mn[s.id]) a[s.id] = defState(s); });
     var ids = r.map(function(s){return s.id;});
     drawnByCls[cid] = drawn().filter(function(id){ return ids.indexOf(id) !== -1; });
     var cn = document.getElementById('lt-clsname');
@@ -8314,6 +8333,7 @@ var LOTTERY = (function(){
   function setAtt(sid, v){
     if(spinning) return;
     att()[sid] = v;
+    (manByCls[cid]||(manByCls[cid]={}))[sid] = true;
     render();
   }
 
@@ -8780,9 +8800,10 @@ function invBillRe(i){var f=invD().bills[i];if(!f)return;invBillOut({sup:f.sup,n
 function invBillRm(i){var v=invD(),f=v.bills[i];if(!f)return;dlgConfirm({icon:'🗑️',tone:'red',title:'حذف الفاتورة من الأرشيف؟',subject:{ini:'🧾',name:'فاتورة '+(f.no||''),meta:f.sup||''},sub:'لا يُعدَّل المخزن؛ الكميات المُدخلة تبقى فيه.',confirmText:'حذف'}).then(function(ok){if(!ok)return;snapshot('حذف فاتورة');v.bills.splice(i,1);SD();invBills();});}
 
 var CHANGELOG = {
-  version: '2.3.0',
-  date: '11 أكتوبر 2026',
+  version: '2.3.1',
+  date: '14 أكتوبر 2026',
   items: [
+    {ic:'🎯', t:'القرعة: إقصاء الغائب والمريض تلقائيًا', d:'التلميذ الغائب (أو الغائب المبرّر) في الحصة الحالية يُعلَّم A، والمريض يُعلَّم M، كما يُعلَّم المعفى؛ فلا يدخلون القرعة. أزرار ✓ / A / M اليدوية باقية، وما عدّلتَه يدويًا لا يُغيَّر'},
     {ic:'🔗', t:'العتاد: ربط المخزنين + وصول + إدخال الفواتير + حد أدنى', d:'«عند الأستاذ» يُفصَّل (سليم/في الحصة/تالف/مفقود) مع تنبيه تفاوت؛ إعادة وتسليم (فصلي أو سنوي) بثلاث خانات سليم/تالف/مفقود تُسجَّل على المؤسسة؛ وصل إخراج ووصل إعادة بأرقام متسلسلة لكل سنة (03/2026) وقائمة لإعادة طباعتها؛ الفاتورة: إمضاءات المنسق · المورد · المقتصد · المدير، وزر «📥 إدخال إلى مخزن المؤسسة» (السعر الأحدث) وأرشيف «فواتير الشراء»؛ حد أدنى للمخزون مع تنبيه وزر «➕ الناقص» في الفاتورة؛ خانتا المدير والناظر في إعدادات التطبيق، وكشوف النقاط تطبع «المدير»؛ حُذفت كلمة «ملكي»'},
     {ic:'🧾', t:'العتاد: فاتورة شراء تُملأ داخل التطبيق + خانة المدير', d:'من «📋 تقارير» املأ المورد والرقم والتاريخ وأسطر البيان والكمية والسعر (المبلغ والمجموع آليان) ثم حمّل PDF أو اطبع بالترويسة والإمضاءات؛ والنموذج الفارغ باقٍ بجانبه. وأُضيفت خانة «المدير» في ⚙️ لأن الناظر ليس المدير (الفارغة تؤخذ من الإعدادات)'},
     {ic:'🎒', t:'العتاد: صنف ← فئة، معالجة التالف والمفقود، بلا أنشطة', d:'الصنف هو الاسم العام (كرات) والفئة هي النوع (كرة القدم) مع تعديل وإضافة وحذف لكليهما؛ التالف يُصلَّح والمفقود يُوجَد ويعودان للمتاح، أو يُشطبان نهائياً؛ أُلغيت وسوم الأنشطة والكمية المقترحة؛ الإخراج من مخزن المؤسسة حسب ف1/ف2/ف3/كل السنة مع زر «نفس كميات إخراج سابق»؛ أُلغي سجل الحركات؛ التسمية: مخزن المؤسسة · مخزن الأستاذ'},
