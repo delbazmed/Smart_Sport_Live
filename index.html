@@ -1091,7 +1091,7 @@ body{max-width:480px;margin:0 auto;display:flex;flex-direction:column;-webkit-fo
         <div class="ail">التطبيق الاحترافي لأساتذة التربية البدنية والرياضية</div>
         <div style="height:14px"></div>
         <div class="ail">المطور: <strong style="color:var(--g)">Delbaz_Med</strong></div>
-        <div class="ail">الإصدار: <strong style="color:var(--gold)">2.3.1 · 14 أكتوبر 2026</strong></div>
+        <div class="ail">الإصدار: <strong style="color:var(--gold)">2.3.2 · 15 أكتوبر 2026</strong></div>
         <div class="ail" style="margin-top:4px">EPS · DZ · 2026</div>
       </div>
     </div>
@@ -1340,11 +1340,25 @@ body{max-width:480px;margin:0 auto;display:flex;flex-direction:column;-webkit-fo
       <button onclick="toolDo('grid')" style="display:flex;align-items:center;gap:12px;width:100%;padding:13px 12px;margin-bottom:8px;border-radius:12px;border:1px solid var(--ln);background:var(--p2);cursor:pointer;font-family:var(--ff);text-align:right"><span style="font-size:20px">⏱️</span><span style="flex:1"><span style="display:block;font-size:13px;font-weight:900;color:var(--tx)">إدخال جماعي</span><span style="display:block;font-size:10px;color:var(--tx3);font-weight:600">نتائج القسم كاملاً في جدول واحد (مع الإدخال الصوتي)</span></span></button>
       <button onclick="toolDo('perf')" style="display:flex;align-items:center;gap:12px;width:100%;padding:13px 12px;margin-bottom:8px;border-radius:12px;border:1px solid var(--ln);background:var(--p2);cursor:pointer;font-family:var(--ff);text-align:right"><span style="font-size:20px">⭐</span><span style="flex:1"><span style="display:block;font-size:13px;font-weight:900;color:var(--tx)">تقييم المشاركة والأداء</span><span style="display:block;font-size:10px;color:var(--tx3);font-weight:600">القسم كاملاً في شاشة واحدة (مرة للفصل)</span></span></button>
       <button onclick="toolDo('edit')" style="display:flex;align-items:center;gap:12px;width:100%;padding:13px 12px;margin-bottom:8px;border-radius:12px;border:1px solid var(--ln);background:var(--p2);cursor:pointer;font-family:var(--ff);text-align:right"><span style="font-size:20px">✏️</span><span style="flex:1"><span style="display:block;font-size:13px;font-weight:900;color:var(--tx)">تعديل القسم</span><span style="display:block;font-size:10px;color:var(--tx3);font-weight:600">الاسم والمستوى</span></span></button>
+      <button onclick="toolDo('abs')" style="display:flex;align-items:center;gap:12px;width:100%;padding:13px 12px;margin-bottom:8px;border-radius:12px;border:1px solid var(--ln);background:var(--p2);cursor:pointer;font-family:var(--ff);text-align:right"><span style="font-size:20px">📅</span><span style="flex:1"><span style="display:block;font-size:13px;font-weight:900;color:var(--tx)">غيابات القسم</span><span style="display:block;font-size:10px;color:var(--tx3);font-weight:600">الاسم · تاريخ الغياب · ساعته · نوعه (من جدول التوقيت)</span></span></button>
       <button onclick="toolDo('del')" style="display:flex;align-items:center;gap:12px;width:100%;padding:13px 12px;margin-bottom:8px;border-radius:12px;border:1px solid var(--ln);background:var(--p2);cursor:pointer;font-family:var(--ff);text-align:right"><span style="font-size:20px">🗑️</span><span style="flex:1"><span style="display:block;font-size:13px;font-weight:900;color:var(--red)">حذف القسم</span><span style="display:block;font-size:10px;color:var(--tx3);font-weight:600">يذهب إلى سلة المحذوفات 30 يوماً</span></span></button>
     </div>
   </div>
 </div>
 
+<div class="ov" id="ov-abc">
+  <div class="ov-box" style="max-width:480px">
+    <div class="ov-hd"><span>📅 غيابات القسم</span><button onclick="closeOv('ov-abc')" class="ov-cl">✕</button></div>
+    <div style="padding:12px 14px">
+      <div style="display:flex;gap:8px;margin-bottom:10px">
+        <select id="abc-cls" class="sinp" style="flex:1.4" onchange="abcDraw()"></select>
+        <select id="abc-term" class="sinp" style="flex:1" onchange="abcDraw()"><option value="t1">الفصل 1</option><option value="t2">الفصل 2</option><option value="t3">الفصل 3</option></select>
+      </div>
+      <div id="abc-body" style="max-height:56vh;overflow-y:auto"></div>
+      <button class="btn btn-fw" onclick="abcPrint()" style="margin-top:10px">📄 PDF / طباعة</button>
+    </div>
+  </div>
+</div>
 <div class="ov" id="ov-perf">
   <div class="ov-box" style="max-width:460px">
     <div class="ov-hd"><span>⭐ تقييم المشاركة والأداء</span><button onclick="closeOv('ov-perf');if(S.scr==='home')rHome();" class="ov-cl">✕</button></div>
@@ -2156,7 +2170,7 @@ var _suppressPush=false;
 
 // Complete registry of every overlay/modal in the app.
 // (ov-del first so a confirm dialog closes before its parent on z-index ties)
-var ALL_OVERLAYS=['ov-dlg','ov-inv2','ov-inv','auth-modal','sw4-modal','va-modal','ov-lottery','ov-iframe','ov-qr','ov-ns','ov-imp','ov-sesq','ov-absq','ov-perf','ov-vq','ov-tools','ov-pin','ov-cal','ov-tm','ov-tg','ov-grid','ov-rq','ov-act','ov-stu','ov-cls','ov-dn'];
+var ALL_OVERLAYS=['ov-dlg','ov-inv2','ov-inv','auth-modal','sw4-modal','va-modal','ov-lottery','ov-iframe','ov-qr','ov-ns','ov-imp','ov-sesq','ov-absq','ov-perf','ov-vq','ov-tools','ov-pin','ov-cal','ov-tm','ov-tg','ov-grid','ov-rq','ov-act','ov-stu','ov-cls','ov-dn','ov-abc'];
 
 // Is the element actually shown? (computed style → catches BOTH inline
 // display AND class-driven .on rules; never fooled by leftover styles)
@@ -3154,7 +3168,7 @@ function mcvUndo(){var h=MCV.hist.pop();if(!h)return;var s=GS(h.sid);if(!s)retur
 function openTools(){var c=GC(S.cid);if(!c)return;try{var _pb=document.querySelector('#ov-tools button[onclick*="toolDo(\'perf\')"]');if(_pb)_pb.style.display=mcCustom()?'none':'flex';}catch(e){}document.getElementById('tools-title').textContent='🧰 أدوات القسم · '+c.name;openOv('ov-tools');}
 function toolDo(k){var cid=S.cid;closeOv('ov-tools');
   if(k==='import')importExcel();else if(k==='tpl')downloadStuTemplate();else if(k==='tg')openTG();else if(k==='grid')openGrid();else if(k==='perf')openPerf();
-  else if(k==='edit')editCls(cid);else if(k==='del')confirmDel('cls',cid,'حذف القسم','سيُحذف القسم وجميع تلاميذه نهائياً');}
+  else if(k==='abs')openAbsClass(cid);else if(k==='edit')editCls(cid);else if(k==='del')confirmDel('cls',cid,'حذف القسم','سيُحذف القسم وجميع تلاميذه نهائياً');}
 // 🎙️ محلّل الإملاء الصوتي للنتائج (مسافات) + التقدير + الأوامر — عربية (فصحى/دارجة) · فرنسية · إنجليزية
 var VP=(function(){
   function nAr(s){return String(s||'').replace(/[\u064B-\u065F\u0670\u0640]/g,'').replace(/[أإآٱ]/g,'ا').replace(/ة/g,'ه').replace(/ى/g,'ي').replace(/[؛،,]/g,function(m){return m==='،'||m===','?' , ':' ';}).toLowerCase();}
@@ -4100,6 +4114,7 @@ function dnRenderList(){
     h+='<div style="display:flex;align-items:center;gap:10px;padding:9px 4px;border-bottom:1px solid var(--ln)">'+
        '<div style="font-size:18px">'+ic+'</div>'+
        '<div style="flex:1;min-width:0"><div style="font-size:12px;font-weight:800;color:var(--tx);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+s.name+'</div>'+
+       '<div style="font-size:10px;color:var(--g);font-weight:800">🏷️ '+((GC(s.classId)||{}).name||'—')+'</div>'+
        '<div style="font-size:10px;color:'+col+';font-weight:700">'+lbl+(hasPhone?'':' · بلا رقم هاتف')+'</div></div>'+
        '<button onclick="dnSkip(\''+sid+'\')" style="width:28px;height:28px;border-radius:8px;background:var(--p3);border:1px solid var(--ln);color:var(--tx3);font-size:12px;cursor:pointer">✕</button>'+
        '</div>';
@@ -4332,6 +4347,68 @@ function renderQsStats(){
   wrap.innerHTML=h;
 }
 // 📨 تقرير الغيابات للإدارة (قسم × فصل) — توقيع الأستاذ والناظر
+// 📅 غيابات القسم (2.3.2): الاسم · التاريخ · الساعة (من جدول التوقيت) · النوع
+var ABC_LB={ab:'غائب',ju:'غائب مبرّر',sk:'مريض'};
+var ABC_COL={ab:'#c0392b',ju:'#d35400',sk:'#9333ea'};
+function abcHour(cid,dk){
+  try{
+    if(!dk||!D.timetable||!D.timetable.grid)return '';
+    var d=new Date(dk+'T12:00:00').getDay();if(isNaN(d)||d>4)return '';
+    var t=ttData(),first=-1,last=-1;
+    for(var i=0;i<4;i++){if((t.grid[d]||[])[i]===cid){if(first<0)first=i;last=i;}}
+    if(first<0)return '';
+    return t.slots[first].s+'–'+t.slots[last].e;
+  }catch(e){return '';}
+}
+function abcRows(cid,tk){
+  var rows=[];
+  GSA(cid).forEach(function(s){
+    initStu(s);var t=s.terms[tk];if(!t||t.exempted||!t.mc||!t.mc.ses)return;
+    t.mc.ses.forEach(function(v,i){
+      var st=sesState(t,i);if(st==='pr')return;
+      var dk=sesDayOf(cid,tk,i)||'';
+      rows.push({name:s.name,i:i,dk:dk,hr:abcHour(cid,dk),st:st});
+    });
+  });
+  rows.sort(function(a,b){
+    if(a.dk&&b.dk&&a.dk!==b.dk)return a.dk<b.dk?-1:1;
+    if(!!a.dk!==!!b.dk)return a.dk?-1:1;
+    if(a.i!==b.i)return a.i-b.i;
+    return a.name<b.name?-1:a.name>b.name?1:0;
+  });
+  return rows;
+}
+function openAbsClass(cid){
+  var sel=document.getElementById('abc-cls');
+  sel.innerHTML=D.classes.map(function(c){return '<option value="'+c.id+'">'+c.name+' · '+((LVLS&&LVLS[c.level])||'')+'</option>';}).join('');
+  sel.value=cid&&GC(cid)?cid:(D.classes[0]||{}).id||'';
+  var tk=(S.term==='t1'||S.term==='t2'||S.term==='t3')?S.term:'t1';
+  document.getElementById('abc-term').value=tk;
+  abcDraw();openOv('ov-abc');
+}
+function abcDraw(){
+  var cid=document.getElementById('abc-cls').value,tk=document.getElementById('abc-term').value;
+  var el=document.getElementById('abc-body');if(!cid){el.innerHTML='<div style="text-align:center;padding:20px;color:var(--tx3);font-size:12px">لا توجد أقسام</div>';return;}
+  var rows=abcRows(cid,tk);
+  if(!rows.length){el.innerHTML='<div style="text-align:center;padding:24px 10px;color:var(--g);font-size:13px;font-weight:800">لا توجد غيابات مسجّلة ✅</div>';return;}
+  var cnt={ab:0,ju:0,sk:0};
+  var h='<table style="width:100%;border-collapse:collapse;font-size:11px"><thead><tr style="background:var(--p3)"><th style="padding:6px 3px;border:1px solid var(--ln)">الاسم واللقب</th><th style="padding:6px 3px;border:1px solid var(--ln)">التاريخ</th><th style="padding:6px 3px;border:1px solid var(--ln)">الساعة</th><th style="padding:6px 3px;border:1px solid var(--ln)">النوع</th></tr></thead><tbody>';
+  rows.forEach(function(r){cnt[r.st]++;
+    h+='<tr><td style="padding:6px 4px;border:1px solid var(--ln);font-weight:800">'+r.name+'</td><td style="padding:6px 3px;border:1px solid var(--ln);text-align:center;white-space:nowrap">'+(r.dk?fmtDMY(r.dk):'ح'+(r.i+1))+'</td><td style="padding:6px 3px;border:1px solid var(--ln);text-align:center;white-space:nowrap" dir="ltr">'+(r.hr||'—')+'</td><td style="padding:6px 3px;border:1px solid var(--ln);text-align:center;font-weight:900;color:'+ABC_COL[r.st]+'">'+ABC_LB[r.st]+'</td></tr>';});
+  h+='</tbody></table><div style="margin-top:8px;font-size:11px;font-weight:800;color:var(--tx3)">المجموع: '+cnt.ab+' غائب · '+cnt.ju+' مبرّر · '+cnt.sk+' مريض</div>';
+  el.innerHTML=h;
+}
+function abcPrint(){
+  var cid=document.getElementById('abc-cls').value,tk=document.getElementById('abc-term').value;var cls=GC(cid);if(!cls)return;
+  var rows=abcRows(cid,tk),tc=D.settings.teacher||'—',sch=D.settings.school||'—',yr=D.settings.year||'—',pr=dirName()||'—';
+  var cnt={ab:0,ju:0,sk:0},b='';
+  rows.forEach(function(r,k){cnt[r.st]++;b+='<tr><td style="text-align:center">'+(k+1)+'</td><td>'+r.name+'</td><td style="text-align:center">'+(r.dk?fmtDMY(r.dk):'ح'+(r.i+1))+'</td><td style="text-align:center" dir="ltr">'+(r.hr||'—')+'</td><td style="text-align:center;font-weight:800;color:'+ABC_COL[r.st]+'">'+ABC_LB[r.st]+'</td></tr>';});
+  if(!b)b='<tr><td colspan="5" style="text-align:center;color:#1a6b3a;font-weight:700;padding:14px">لا توجد غيابات مسجّلة ✅</td></tr>';
+  var html='<!DOCTYPE html><html dir="rtl" lang="ar"><head><meta charset="UTF-8"><title>غيابات '+cls.name+'</title><style>*{box-sizing:border-box;margin:0;padding:0}body{font-family:Arial,sans-serif;direction:rtl;padding:20px;color:#111;font-size:13px}.card{max-width:700px;margin:0 auto;border:2px solid #1a6b3a;border-radius:12px;overflow:hidden}.hd{background:#1a6b3a;color:#fff;padding:14px 18px;display:flex;justify-content:space-between;align-items:center}.hd h1{font-size:16px}.hd p{font-size:11px;opacity:.85;margin-top:2px}.bd{padding:14px 18px}table{width:100%;border-collapse:collapse;margin:8px 0}th{background:#e8f5e9;padding:7px 4px;font-size:11px;border:1px solid #ccc}td{border:1px solid #ccc;padding:6px;font-size:12px}.ft{display:flex;justify-content:space-between;margin-top:18px;padding-top:10px;border-top:1px solid #ccc}.sig{text-align:center}.sl{border-top:1px solid #333;width:120px;margin:24px auto 4px}</style></head><body><div class="card"><div class="hd"><div><h1>غيابات القسم — '+cls.name+'</h1><p>'+TLB[tk]+' · مادة التربية البدنية والرياضية</p></div><div style="text-align:left;font-size:11px"><div>'+sch+'</div><div>'+yr+'</div></div></div><div class="bd"><table><thead><tr><th>#</th><th>الاسم واللقب</th><th>التاريخ</th><th>الساعة</th><th>النوع</th></tr></thead><tbody>'+b+'</tbody></table><div style="font-size:12px;font-weight:800">المجموع: '+cnt.ab+' غائب · '+cnt.ju+' مبرّر · '+cnt.sk+' مريض</div><div class="ft"><div class="sig"><div>أستاذ التربية البدنية</div><div style="color:#555;margin-top:2px">'+tc+'</div><div class="sl"></div></div><div class="sig"><div>المدير</div><div style="color:#555;margin-top:2px">'+pr+'</div><div class="sl"></div></div></div></div></div></body></html>';
+  document.getElementById('ov-iframe-title').textContent='📅 غيابات '+cls.name+' · '+TLB[tk];
+  document.getElementById('ov-iframe').style.display='flex';
+  document.getElementById('pdfFrame').srcdoc=html;
+}
 function printAbsenceReport(){
   if(!QS_STATE.cid)return;
   const cls=GC(QS_STATE.cid);if(!cls)return;const tk=QS_STATE.term;
@@ -5036,6 +5113,7 @@ tr:nth-child(even)td{background:#f9faff}
 <p style="margin-top:8px"><strong>إقصاء تلقائي:</strong> الغائبون (A) والمعفون (M) لا يدخلون القرعة. يُعلَّم تلقائيًا: الغائب والغائب المبرّر في الحصة الحالية بـ A، والمريض والمعفى بـ M. وتبقى الأزرار اليدوية لتغيير أي حالة، وما عدّلتَه يدويًا لا يُغيَّر.</p>
 <p><strong>بلا تكرار:</strong> لا يُسحب أي تلميذ مرتين حتى ينتهي كل الحاضرين، مع إضاءة خضراء على الفائز.</p>
 <div class="tip">💡 زر <strong>↺ تصفير</strong> يعيد كل الحاضرين للقرعة من جديد (بداية محاولة جديدة)</div></div>
+<div class="sec"><div class="sec-ttl"><div class="ic" style="background:#fff0f0">📅</div><h2>37 · غيابات القسم (الإصدار 2.3.2)</h2></div><div class="step"><strong>الفتح:</strong> 🧰 أدوات القسم ← «📅 غيابات القسم».</div><div class="step"><strong>الاختيار:</strong> قائمة بكل الأقسام (القسم الحالي افتراضيًا) وخيار الفصل. يظهر الاسم واللقب والتاريخ والساعة ونوع الغياب (غائب · مبرّر · مريض) مرتبة بالتاريخ، والمجموع تحتها.</div><div class="step"><strong>الساعة:</strong> تُستنتج من يوم الغياب ومن فترة القسم في «جدول التوقيت»؛ إن لم يُملأ الجدول تظهر «—». والحصص القديمة بلا تاريخ تظهر بـ «ح3» مثلاً.</div><div class="step"><strong>إشعار الأولياء:</strong> يظهر اسم القسم تحت اسم كل تلميذ في القائمة اليومية.</div></div>
 
 <div class="sec"><div class="sec-ttl"><div class="ic" style="background:#fff8e6">📄</div><h2>8 · الكشوف والطباعة</h2></div>
 <div class="steps">
@@ -5299,7 +5377,7 @@ Smart Sport · دلباز محمد · ${sch} · 2025-2026
 </div>
 
 <!-- VERSION BADGE -->
-<div id="ver-badge" style="position:fixed;bottom:90px;left:8px;z-index:40;background:rgba(0,0,0,.5);color:rgba(255,255,255,.6);font-size:9px;font-weight:700;padding:3px 8px;border-radius:8px;font-family:monospace;pointer-events:none">2.3.1</div>
+<div id="ver-badge" style="position:fixed;bottom:90px;left:8px;z-index:40;background:rgba(0,0,0,.5);color:rgba(255,255,255,.6);font-size:9px;font-weight:700;padding:3px 8px;border-radius:8px;font-family:monospace;pointer-events:none">2.3.2</div>
 </body></html>`;
   const w=window.open('','_blank','width=420,height=700');
   if(w){w.document.write(html);w.document.close();}
@@ -6431,7 +6509,7 @@ function processVoiceCommand(txt){
 // ═══════════════════════════════════════════════════════
 // 🎙️ GLOBAL VOICE ATTENDANCE (from roster, no per-student open)
 // ═══════════════════════════════════════════════════════
-var VA_active=false, VA_recog=null, VA_cid=null;
+var VA_active=false, VA_recog=null, VA_cid=null, VA_done={};
 
 function openVoiceAttend(){
   if(D.classes.length===0){toast('تنبيه','أضف قسماً أولاً','wa');return;}
@@ -6439,6 +6517,7 @@ function openVoiceAttend(){
   // populate class dropdown
   var sel=document.getElementById('va-cls');
   sel.innerHTML=D.classes.map(function(c){return '<option value="'+c.id+'"'+(c.id===VA_cid?' selected':'')+'>'+c.name+'</option>';}).join('');
+  VA_done={};
   vaUpdateCtx();
   vaRenderList();
   document.getElementById('va-modal').style.display='flex';
@@ -6450,6 +6529,7 @@ function closeVoiceAttend(){
 }
 function vaClassChange(){
   VA_cid=document.getElementById('va-cls').value;
+  VA_done={};
   S.cid=VA_cid;
   vaUpdateCtx();vaRenderList();
 }
@@ -6543,6 +6623,7 @@ function vaProcess(txt){
   if(!t.mc.ses||!t.mc.ses.length)t.mc.ses=[2,2,2,2,2,2,2];
   var slot=curSesIdx(best.classId,tkv2);
   setSesState(t,slot,status==='absent'?'ab':status==='justified'?'ju':status==='sick'?'sk':'pr');
+  if(status==='present')VA_done[best.id]='present';else delete VA_done[best.id];
   markSesDate(best.classId,tkv2);
   SD();
   try{updSesCounter();var _r2=document.querySelector('.srow-wrap[data-sid="'+best.id+'"] .sme');if(_r2)_r2.innerHTML=phoneIcon(best)+absBadge(best,curHomeMode());updCompactRow(best);}catch(e){}
@@ -6572,15 +6653,25 @@ function vaRenderList(){
     initStu(s);
     var ses=s.terms[tk].mc.ses||[];
     var ptr=(typeof s._vaPtr==='number')?s._vaPtr:0;
-    // session dots
+    // 2.3.2: الأرقام تتلوّن بحالة الحصة الفعلية (غائب/مريض/مبرّر)، والحصة الحالية بإطار، والحاضر يبقى رقمه كما هو
     var dots='';
+    var curI=curSesIdx(s.classId,tk),tt=s.terms[tk];
     ses.forEach(function(v,i){
-      var c=v===0?'#ff5959':v===1?((s.terms[tk].mc.jus&&s.terms[tk].mc.jus[i])?'#ff9f43':'#f5b932'):'#00d97e';
-      var done=i<ptr;
-      dots+='<span style="width:14px;height:14px;border-radius:4px;background:'+(done?c:'rgba(255,255,255,.08)')+';display:inline-flex;align-items:center;justify-content:center;font-size:8px;font-weight:900;color:#fff;border:'+(done?'none':'1px solid rgba(255,255,255,.12)')+'">'+(done?(v===0?'غ':v===1?'م':'ح'):(i+1))+'</span>';
+      var st=sesState(tt,i);
+      var c=st==='ab'?'#ff5959':st==='ju'?'#ff9f43':st==='sk'?'#f5b932':'';
+      var lab=st==='ab'?'غ':st==='ju'?'غ.م':st==='sk'?'م':(i+1);
+      var isCur=(i===curI);
+      dots+='<span style="width:14px;height:14px;border-radius:4px;background:'+(c||'rgba(255,255,255,.08)')+';display:inline-flex;align-items:center;justify-content:center;font-size:'+(st==='ju'?'6':'8')+'px;font-weight:900;color:#fff;border:'+(isCur?'2px solid #fff':(c?'none':'1px solid rgba(255,255,255,.12)'))+';box-sizing:border-box">'+lab+'</span>';
     });
+    // شارة تأكيد التسجيل للحصة الحالية أمام الاسم
+    var cst=sesState(tt,curI),vd=VA_done[s.id];
+    var badge='';
+    if(cst==='ab')badge='<span style="font-size:10px;font-weight:900;color:#ff5959">🔴 غائب</span>';
+    else if(cst==='ju')badge='<span style="font-size:10px;font-weight:900;color:#ff9f43">🟠 مبرّر</span>';
+    else if(cst==='sk')badge='<span style="font-size:10px;font-weight:900;color:#f5b932">🟡 مريض</span>';
+    else if(vd==='present')badge='<span style="font-size:10px;font-weight:900;color:#00d97e">🟢 حاضر ✓</span>';
     var m=s.gender==='male';
-    h+='<div style="display:flex;align-items:center;gap:10px;padding:9px 10px;border-bottom:1px solid rgba(255,255,255,.05)"><div style="width:30px;height:30px;border-radius:50%;background:'+(m?'rgba(78,165,255,.18)':'rgba(232,121,249,.18)')+';color:'+(m?'#4ea5ff':'#e879f9')+';display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:900;flex-shrink:0">'+inits(s.name)+'</div><div style="flex:1;font-size:13px;font-weight:700;color:#fff;font-family:var(--ff);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+s.name+'</div><div style="display:flex;gap:3px;flex-shrink:0">'+dots+'</div></div>';
+    h+='<div style="display:flex;align-items:center;gap:10px;padding:9px 10px;border-bottom:1px solid rgba(255,255,255,.05)"><div style="width:30px;height:30px;border-radius:50%;background:'+(m?'rgba(78,165,255,.18)':'rgba(232,121,249,.18)')+';color:'+(m?'#4ea5ff':'#e879f9')+';display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:900;flex-shrink:0">'+inits(s.name)+'</div><div style="flex:1;font-size:13px;font-weight:700;color:#fff;font-family:var(--ff);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+s.name+(badge?'<div>'+badge+'</div>':'')+'</div><div style="display:flex;gap:3px;flex-shrink:0">'+dots+'</div></div>';
   });
   list.innerHTML=h;
 }
@@ -8800,9 +8891,11 @@ function invBillRe(i){var f=invD().bills[i];if(!f)return;invBillOut({sup:f.sup,n
 function invBillRm(i){var v=invD(),f=v.bills[i];if(!f)return;dlgConfirm({icon:'🗑️',tone:'red',title:'حذف الفاتورة من الأرشيف؟',subject:{ini:'🧾',name:'فاتورة '+(f.no||''),meta:f.sup||''},sub:'لا يُعدَّل المخزن؛ الكميات المُدخلة تبقى فيه.',confirmText:'حذف'}).then(function(ok){if(!ok)return;snapshot('حذف فاتورة');v.bills.splice(i,1);SD();invBills();});}
 
 var CHANGELOG = {
-  version: '2.3.1',
-  date: '14 أكتوبر 2026',
+  version: '2.3.2',
+  date: '15 أكتوبر 2026',
   items: [
+    {ic:'🎙️', t:'إملاء الحضور: عودة أثر التسجيل', d:'أرقام الحصص تتلوّن بحالتها (🔴 غائب · 🟡 مريض · 🟠 مبرّر) والحصة الحالية بإطار أبيض، وتظهر شارة بجانب الاسم تؤكد التسجيل (🟢 حاضر ✓ للحاضر). كان التلوين يعتمد مؤشرًا قديمًا لم يعد يُحدَّث'},
+    {ic:'📅', t:'زر «غيابات القسم» + القسم في إشعار الأولياء', d:'في 🧰 أدوات القسم: اختر أي قسم وفصلاً فيظهر جدول الاسم واللقب والتاريخ والساعة (مستنتجة من جدول التوقيت) والنوع (غائب / مبرّر / مريض) مع المجموع وPDF/طباعة. وفي قائمة إشعار الأولياء يظهر قسم كل تلميذ تحت اسمه'},
     {ic:'🎯', t:'القرعة: إقصاء الغائب والمريض تلقائيًا', d:'التلميذ الغائب (أو الغائب المبرّر) في الحصة الحالية يُعلَّم A، والمريض يُعلَّم M، كما يُعلَّم المعفى؛ فلا يدخلون القرعة. أزرار ✓ / A / M اليدوية باقية، وما عدّلتَه يدويًا لا يُغيَّر'},
     {ic:'🔗', t:'العتاد: ربط المخزنين + وصول + إدخال الفواتير + حد أدنى', d:'«عند الأستاذ» يُفصَّل (سليم/في الحصة/تالف/مفقود) مع تنبيه تفاوت؛ إعادة وتسليم (فصلي أو سنوي) بثلاث خانات سليم/تالف/مفقود تُسجَّل على المؤسسة؛ وصل إخراج ووصل إعادة بأرقام متسلسلة لكل سنة (03/2026) وقائمة لإعادة طباعتها؛ الفاتورة: إمضاءات المنسق · المورد · المقتصد · المدير، وزر «📥 إدخال إلى مخزن المؤسسة» (السعر الأحدث) وأرشيف «فواتير الشراء»؛ حد أدنى للمخزون مع تنبيه وزر «➕ الناقص» في الفاتورة؛ خانتا المدير والناظر في إعدادات التطبيق، وكشوف النقاط تطبع «المدير»؛ حُذفت كلمة «ملكي»'},
     {ic:'🧾', t:'العتاد: فاتورة شراء تُملأ داخل التطبيق + خانة المدير', d:'من «📋 تقارير» املأ المورد والرقم والتاريخ وأسطر البيان والكمية والسعر (المبلغ والمجموع آليان) ثم حمّل PDF أو اطبع بالترويسة والإمضاءات؛ والنموذج الفارغ باقٍ بجانبه. وأُضيفت خانة «المدير» في ⚙️ لأن الناظر ليس المدير (الفارغة تؤخذ من الإعدادات)'},
