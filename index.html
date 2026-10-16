@@ -1091,7 +1091,7 @@ body{max-width:480px;margin:0 auto;display:flex;flex-direction:column;-webkit-fo
         <div class="ail">التطبيق الاحترافي لأساتذة التربية البدنية والرياضية</div>
         <div style="height:14px"></div>
         <div class="ail">المطور: <strong style="color:var(--g)">Delbaz_Med</strong></div>
-        <div class="ail">الإصدار: <strong style="color:var(--gold)">2.3.2 · 15 أكتوبر 2026</strong></div>
+        <div class="ail">الإصدار: <strong style="color:var(--gold)">2.3.3 · 16 أكتوبر 2026</strong></div>
         <div class="ail" style="margin-top:4px">EPS · DZ · 2026</div>
       </div>
     </div>
@@ -4240,8 +4240,42 @@ function ttNext(){
       return {cid:cid,d:d,i:i,s:t.slots[i].s,today:k===0,tomorrow:k===1};}}
   return null;
 }
+// 🗓️ 2.3.3: التقدّم الآلي لرقم الحصة يتبع «جدول التوقيت»: كل ظهور لـ «حصة الآن» لقسم = حصة جديدة لذلك القسم وحده
+// الفترتان المتتاليتان لنفس القسم في اليوم = حصة واحدة · مفتاح الفترة محفوظ في القسم (c.ttAdv) فلا يتقدّم مرتين
+function ttInTT(cid){try{if(!ttHas())return false;var g=D.timetable.grid;for(var d in g){if((g[d]||[]).indexOf(cid)>=0)return true;}}catch(e){}return false;}
+function ttBlockStart(d,i,cid){var g=(D.timetable.grid[d]||[]);while(i>0&&g[i-1]===cid)i--;return i;}
+function ttLatestSlot(cid){
+  try{var t=ttData(),now=new Date(),d=now.getDay();if(d>4)return null;var m=now.getHours()*60+now.getMinutes(),best=-1;
+    for(var i=0;i<4;i++){if((t.grid[d]||[])[i]===cid&&ttMin(t.slots[i].s)-15<=m)best=i;}
+    return best<0?null:{d:d,i:best};}catch(e){return null;}
+}
+function ttTermOf(cid){
+  if(S.term==='t1'||S.term==='t2'||S.term==='t3')return S.term;
+  var c=GC(cid),best='',tk='t1';['t1','t2','t3'].forEach(function(k){var d=(c&&c.sesDate&&c.sesDate[k])||'';if(d>best){best=d;tk=k;}});return tk;
+}
+function ttSlotAdvance(cid,d,i,tkIn){
+  var c=GC(cid);if(!c)return false;
+  var tk=tkIn||ttTermOf(cid);if(isLocked(tk))return false;
+  var key=todayKey()+'#'+ttBlockStart(d,i,cid);
+  if(!c.ttAdv)c.ttAdv={};
+  if(c.ttAdv[tk]===key)return false;
+  var cur=curSesIdx(cid,tk),last=(c.sesDate&&c.sesDate[tk])||'';
+  var first=(c.ttAdv[tk]===undefined);
+  var adv=first?(!!last&&last<todayKey()):true;   // أول مرة: لا تقدّم إلا إن سُجّل قبل اليوم
+  c.ttAdv[tk]=key;
+  if(!adv){SD();return false;}
+  if(cur>=6){SD();toast('⚠️ آخر حصة',c.name+': أنت في ح7 — لا يمكن التقدّم تلقائياً','wa',3200);return false;}
+  var n=cur+1;var fresh=GSC(cid).every(function(s){initStu(s);return s.terms[tk].mc.ses[n]===2;});
+  snapshot('انتقال آلي للحصة (الجدول)');
+  c.sesPtr[tk]=n;markSesDate(cid,tk);SD();
+  toast('🗓️ حصة جديدة',c.name+': انتقلنا إلى ح'+(n+1),'su',7000,{label:'↩️ تراجع',fn:function(){sesAutoUndo(cid,tk,cur,last,fresh);}});
+  if(S.scr==='home')rHome();
+  return true;
+}
 function ttAutoOpen(){
-  var n=ttNow();if(!n)return false;var key=todayKey()+'#'+n.i;
+  var n=ttNow();if(!n)return false;
+  try{ttSlotAdvance(n.cid,n.d,n.i);}catch(e){}
+  var key=todayKey()+'#'+n.i;
   var done=null;try{done=localStorage.getItem('ss_tt_auto');}catch(e){}
   if(done===key)return false;
   try{localStorage.setItem('ss_tt_auto',key);}catch(e){}
@@ -5114,6 +5148,7 @@ tr:nth-child(even)td{background:#f9faff}
 <p><strong>بلا تكرار:</strong> لا يُسحب أي تلميذ مرتين حتى ينتهي كل الحاضرين، مع إضاءة خضراء على الفائز.</p>
 <div class="tip">💡 زر <strong>↺ تصفير</strong> يعيد كل الحاضرين للقرعة من جديد (بداية محاولة جديدة)</div></div>
 <div class="sec"><div class="sec-ttl"><div class="ic" style="background:#fff0f0">📅</div><h2>37 · غيابات القسم (الإصدار 2.3.2)</h2></div><div class="step"><strong>الفتح:</strong> 🧰 أدوات القسم ← «📅 غيابات القسم».</div><div class="step"><strong>الاختيار:</strong> قائمة بكل الأقسام (القسم الحالي افتراضيًا) وخيار الفصل. يظهر الاسم واللقب والتاريخ والساعة ونوع الغياب (غائب · مبرّر · مريض) مرتبة بالتاريخ، والمجموع تحتها.</div><div class="step"><strong>الساعة:</strong> تُستنتج من يوم الغياب ومن فترة القسم في «جدول التوقيت»؛ إن لم يُملأ الجدول تظهر «—». والحصص القديمة بلا تاريخ تظهر بـ «ح3» مثلاً.</div><div class="step"><strong>إشعار الأولياء:</strong> يظهر اسم القسم تحت اسم كل تلميذ في القائمة اليومية.</div></div>
+<div class="sec"><div class="sec-ttl"><div class="ic" style="background:#e9f7ff">🗓️</div><h2>38 · الانتقال الآلي للحصص (الإصدار 2.3.3)</h2></div><div class="step"><strong>القاعدة:</strong> إن كان القسم في «جدول التوقيت»، فكل ظهور لـ «🗓️ حصة الآن» له يقدّم رقم حصته (ح1 ← ح2 …) وحده، سواء سجّلت فيها غيابًا أم لا. الحصة التي لم تسجّل فيها شيئًا تبقى حضورًا للجميع (2 نقطة).</div><div class="step"><strong>فترتان متتاليتان:</strong> لنفس القسم في اليوم تُحسبان حصة واحدة.</div><div class="step"><strong>بلا تكرار:</strong> يُحفظ مفتاح الفترة في القسم، فلا يتقدّم مرتين مهما فتحت التطبيق أو من أي جهاز.</div><div class="step"><strong>العطل والإضرابات:</strong> إن تقدّم الرقم دون حصة فعلية فاضغط «↩️ تراجع» في الرسالة، أو ◀ لاحقًا.</div><div class="step"><strong>الأقسام خارج الجدول:</strong> تبقى على القاعدة الأسبوعية: ينتقل أول تسجيل في أسبوع جديد إلى الحصة التالية.</div></div>
 
 <div class="sec"><div class="sec-ttl"><div class="ic" style="background:#fff8e6">📄</div><h2>8 · الكشوف والطباعة</h2></div>
 <div class="steps">
@@ -5377,7 +5412,7 @@ Smart Sport · دلباز محمد · ${sch} · 2025-2026
 </div>
 
 <!-- VERSION BADGE -->
-<div id="ver-badge" style="position:fixed;bottom:90px;left:8px;z-index:40;background:rgba(0,0,0,.5);color:rgba(255,255,255,.6);font-size:9px;font-weight:700;padding:3px 8px;border-radius:8px;font-family:monospace;pointer-events:none">2.3.2</div>
+<div id="ver-badge" style="position:fixed;bottom:90px;left:8px;z-index:40;background:rgba(0,0,0,.5);color:rgba(255,255,255,.6);font-size:9px;font-weight:700;padding:3px 8px;border-radius:8px;font-family:monospace;pointer-events:none">2.3.3</div>
 </body></html>`;
   const w=window.open('','_blank','width=420,height=700');
   if(w){w.document.write(html);w.document.close();}
@@ -7785,6 +7820,10 @@ var SESQ_CB=null;
 function weekKey(k){var d=new Date(k+'T12:00:00');if(isNaN(d))return '';d.setDate(d.getDate()-d.getDay());return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate();}
 function askNewSession(cid,tk,cb){
   var c=GC(cid);if(!c){cb&&cb();return;}
+  if(ttInTT(cid)){
+    var _ls=ttLatestSlot(cid);if(_ls){try{ttSlotAdvance(cid,_ls.d,_ls.i,tk);}catch(e){}}
+    markSesDate(cid,tk);SD();if(S.scr==='home')rHome();if(cb)cb();return;
+  }
   var cur=curSesIdx(cid,tk);var last=(c.sesDate&&c.sesDate[tk])||'';
   if(last&&weekKey(last)!==weekKey(todayKey())){
     if(cur>=6){markSesDate(cid,tk);SD();toast('⚠️ آخر حصة','أنت في ح7 — لا يمكن التقدّم تلقائياً','wa',3200);}
@@ -8891,9 +8930,10 @@ function invBillRe(i){var f=invD().bills[i];if(!f)return;invBillOut({sup:f.sup,n
 function invBillRm(i){var v=invD(),f=v.bills[i];if(!f)return;dlgConfirm({icon:'🗑️',tone:'red',title:'حذف الفاتورة من الأرشيف؟',subject:{ini:'🧾',name:'فاتورة '+(f.no||''),meta:f.sup||''},sub:'لا يُعدَّل المخزن؛ الكميات المُدخلة تبقى فيه.',confirmText:'حذف'}).then(function(ok){if(!ok)return;snapshot('حذف فاتورة');v.bills.splice(i,1);SD();invBills();});}
 
 var CHANGELOG = {
-  version: '2.3.2',
-  date: '15 أكتوبر 2026',
+  version: '2.3.3',
+  date: '16 أكتوبر 2026',
   items: [
+    {ic:'🗓️', t:'الانتقال الآلي للحصص يتبع جدول التوقيت', d:'عند ظهور «حصة الآن» لقسم ما يتقدّم رقم حصته (ح2 ← ح3) هو وحده، سُجّل فيها شيء أم لا؛ والحصة التي لم تسجّل فيها غيابًا تبقى حضورًا للجميع. الفترتان المتتاليتان لنفس القسم حصة واحدة، ولا يتقدّم مرتين مهما فتحت التطبيق. الأقسام التي ليست في الجدول تبقى على القاعدة الأسبوعية. للعطل: زر «↩️ تراجع» أو ◀'},
     {ic:'🎙️', t:'إملاء الحضور: عودة أثر التسجيل', d:'أرقام الحصص تتلوّن بحالتها (🔴 غائب · 🟡 مريض · 🟠 مبرّر) والحصة الحالية بإطار أبيض، وتظهر شارة بجانب الاسم تؤكد التسجيل (🟢 حاضر ✓ للحاضر). كان التلوين يعتمد مؤشرًا قديمًا لم يعد يُحدَّث'},
     {ic:'📅', t:'زر «غيابات القسم» + القسم في إشعار الأولياء', d:'في 🧰 أدوات القسم: اختر أي قسم وفصلاً فيظهر جدول الاسم واللقب والتاريخ والساعة (مستنتجة من جدول التوقيت) والنوع (غائب / مبرّر / مريض) مع المجموع وPDF/طباعة. وفي قائمة إشعار الأولياء يظهر قسم كل تلميذ تحت اسمه'},
     {ic:'🎯', t:'القرعة: إقصاء الغائب والمريض تلقائيًا', d:'التلميذ الغائب (أو الغائب المبرّر) في الحصة الحالية يُعلَّم A، والمريض يُعلَّم M، كما يُعلَّم المعفى؛ فلا يدخلون القرعة. أزرار ✓ / A / M اليدوية باقية، وما عدّلتَه يدويًا لا يُغيَّر'},
