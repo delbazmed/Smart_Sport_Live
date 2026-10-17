@@ -75,6 +75,9 @@ var FBS={orig:'الأصلي',1:'غائر',2:'بارز',3:'خط سفلي'};
 function fbGet(){var v='orig';try{v=localStorage.getItem('ss_fieldbg')||'orig';}catch(e){}return FBS[v]?v:'orig';}
 function fbApply(){var c=document.documentElement.classList,v=fbGet();['fb-1','fb-2','fb-3'].forEach(function(k){c.remove(k);});if(v!=='orig')c.add('fb-'+v);}
 fbApply();
+function clGet(){var v='';try{v=localStorage.getItem('ss_color')||'';}catch(e){}return v==='on'?'on':'orig';}
+function clApply(){document.documentElement.classList.toggle('cl-on',clGet()==='on');}
+clApply();
 </script>
 <style id="ft-css">
 html.ft-amiri{--ffx:'Amiri','Tajawal',serif}
@@ -98,6 +101,127 @@ html.fb-2{--fb:#1d2840;--fbd:#3a4a69;--fbf:#222f4b;--fbr:rgba(0,217,126,.22)}
 html.fb-2 body.light{--fb:#ffffff;--fbd:#a9b9b1;--fbf:#ffffff;--fbr:rgba(0,122,71,.20)}
 html.fb-3{--fbd:#3a4a69;--fbt:rgba(0,217,126,.09)}
 html.fb-3 body.light{--fbd:#a9b9b1;--fbt:rgba(0,122,71,.08)}
+/* 🎨 2.6.0: وضع الواجهة الملوّنة (ss_color=on) */
+html.cl-on{--kb1:rgba(79,142,255,.14);--kd1:rgba(79,142,255,.34);--kt1:#8db6ff;--kb2:rgba(0,217,126,.13);--kd2:rgba(0,217,126,.32);--kt2:#2fe39a;--kb3:rgba(232,121,249,.14);--kd3:rgba(232,121,249,.34);--kt3:#ee9bfb;--kb4:rgba(245,185,50,.14);--kd4:rgba(245,185,50,.34);--kt4:#f7c85a;--kb5:rgba(45,212,191,.13);--kd5:rgba(45,212,191,.32);--kt5:#4fe0cd;--kb6:rgba(255,89,89,.14);--kd6:rgba(255,89,89,.34);--kt6:#ff8585;--kb7:rgba(142,154,178,.13);--kd7:rgba(142,154,178,.30);--kt7:#b3bfd6;--ksol:#06120d;}
+html.cl-on body.light{--kb1:#e4eefe;--kd1:#b7cffa;--kt1:#1a5fd4;--kb2:#e0f5ea;--kd2:#aedcc3;--kt2:#0a7a4a;--kb3:#f1e6fd;--kd3:#d6bdf4;--kt3:#7a3cc2;--kb4:#fff2d3;--kd4:#f0d38a;--kt4:#946000;--kb5:#dcf4f1;--kd5:#a6ddd6;--kt5:#0b7a70;--kb6:#fde6e6;--kd6:#f2b9b9;--kt6:#b3261e;--kb7:#e6ebf3;--kd7:#c2cddd;--kt7:#37465e;--ksol:#ffffff;}
+html.cl-on .ctab:nth-child(5n+1){--cbg:var(--kb2);--cbd:var(--kd2);--ctx:var(--kt2)}
+html.cl-on .ctab:nth-child(5n+2){--cbg:var(--kb1);--cbd:var(--kd1);--ctx:var(--kt1)}
+html.cl-on .ctab:nth-child(5n+3){--cbg:var(--kb3);--cbd:var(--kd3);--ctx:var(--kt3)}
+html.cl-on .ctab:nth-child(5n+4){--cbg:var(--kb4);--cbd:var(--kd4);--ctx:var(--kt4)}
+html.cl-on .ctab:nth-child(5n){--cbg:var(--kb5);--cbd:var(--kd5);--ctx:var(--kt5)}
+html.cl-on .ctab{background:var(--cbg,var(--p2));border-color:var(--cbd,var(--ln));color:var(--ctx,var(--tx2))}
+html.cl-on .ctab.on{background:var(--ctx,var(--g));border-color:var(--ctx,var(--g));color:var(--ksol);box-shadow:0 3px 10px -4px var(--ctx,var(--g))}
+html.cl-on .ctab.on .lv{opacity:.85}
+html.cl-on .ni[data-s=home]:not(.on){color:var(--kt2)}
+html.cl-on .ni[data-s=acts]:not(.on){color:var(--kt4)}
+html.cl-on .ni[data-s=scales]:not(.on){color:var(--kt1)}
+html.cl-on .ni[data-s=inv]:not(.on){color:var(--kt3)}
+html.cl-on .ni[data-s=settings]:not(.on){color:var(--kt7)}
+html.cl-on #theme-btn{background:var(--kb4);border-color:var(--kd4);color:var(--kt4)}
+html.cl-on #undo-btn:not(:disabled){background:var(--kb1);border-color:var(--kd1);color:var(--kt1)}
+html.cl-on .ibtn:not(.gr){background:var(--kb3);border-color:var(--kd3);color:var(--kt3)}
+html.cl-on .ibtn.gr{background:var(--kb2);border-color:var(--kd2);color:var(--kt2)}
+html.cl-on .sact-btn:nth-child(4n+1){--cbg:var(--kb1);--cbd:var(--kd1);--ctx:var(--kt1)}
+html.cl-on .sact-btn:nth-child(4n+2){--cbg:var(--kb3);--cbd:var(--kd3);--ctx:var(--kt3)}
+html.cl-on .sact-btn:nth-child(4n+3){--cbg:var(--kb4);--cbd:var(--kd4);--ctx:var(--kt4)}
+html.cl-on .sact-btn:nth-child(4n){--cbg:var(--kb7);--cbd:var(--kd7);--ctx:var(--kt7)}
+html.cl-on .sact-btn{background:var(--cbg,var(--p3));border-color:var(--cbd,var(--ln));color:var(--ctx,var(--tx2))}
+html.cl-on #hstats>div:nth-child(2)>div:nth-child(1){background:var(--kb1)}
+html.cl-on #hstats>div:nth-child(2)>div:nth-child(2){background:var(--kb2)}
+html.cl-on #hstats>div:nth-child(2)>div:nth-child(3){background:var(--kb6)}
+html.cl-on #hstats>div:nth-child(2)>div:nth-child(4){background:var(--kb7)}
+html.cl-on #hstats>div:nth-child(3)>div:nth-child(1){background:var(--kb5)}
+html.cl-on #hstats>div:nth-child(3)>div:nth-child(2){background:var(--kb3)}
+html.cl-on #hstats>div:nth-child(3)>div:nth-child(3){background:var(--kb4)}
+html.cl-on .iv-seg button:nth-child(1){--cbg:var(--kb3);--cbd:var(--kd3);--ctx:var(--kt3)}
+html.cl-on .iv-seg button:nth-child(2){--cbg:var(--kb4);--cbd:var(--kd4);--ctx:var(--kt4)}
+html.cl-on .iv-seg button:nth-child(3){--cbg:var(--kb5);--cbd:var(--kd5);--ctx:var(--kt5)}
+html.cl-on .iv-seg button:nth-child(4){--cbg:var(--kb1);--cbd:var(--kd1);--ctx:var(--kt1)}
+html.cl-on .iv-seg button{background:var(--cbg);border-color:var(--cbd);color:var(--ctx)}
+html.cl-on .iv-seg button.on{background:var(--ctx);border-color:var(--ctx);color:var(--ksol);box-shadow:0 3px 10px -4px var(--ctx)}
+html.cl-on .iv-st{background:var(--kb1);border-color:var(--kd1)}
+html.cl-on .iv-st b{color:var(--kt1)}
+html.cl-on .iv-st span{color:var(--tx3)}
+html.cl-on .iv-st:not(.g):not(.p):not(.r):not(.y):nth-child(2){background:var(--kb7);border-color:var(--kd7)}
+html.cl-on .iv-st:not(.g):not(.p):not(.r):not(.y):nth-child(2) b{color:var(--kt7)}
+html.cl-on .iv-st.g{background:var(--kb2);border-color:var(--kd2)}
+html.cl-on .iv-st.g b{color:var(--kt2)}
+html.cl-on .iv-st.p{background:var(--kb3);border-color:var(--kd3)}
+html.cl-on .iv-st.p b{color:var(--kt3)}
+html.cl-on .iv-st.r{background:var(--kb6);border-color:var(--kd6)}
+html.cl-on .iv-st.r b{color:var(--kt6)}
+html.cl-on .iv-st.y{background:var(--kb4);border-color:var(--kd4)}
+html.cl-on .iv-st.y b{color:var(--kt4)}
+html.cl-on .iv-b:not(.p):not(.g):not(.r){background:var(--kb1);border-color:var(--kd1);color:var(--kt1)}
+html.cl-on .iv-b.p{background:var(--kb3);border-color:var(--kd3);color:var(--kt3)}
+html.cl-on .iv-b.g{background:var(--g);color:var(--ksol)}
+html.cl-on .iv-bar input{background:var(--kb2)!important;border-color:var(--kd2)!important}
+html.cl-on .acc-sec:nth-of-type(1){--cbg:var(--kb1);--cbd:var(--kd1);--ctx:var(--kt1)}
+html.cl-on .acc-sec:nth-of-type(2){--cbg:var(--kb3);--cbd:var(--kd3);--ctx:var(--kt3)}
+html.cl-on .acc-sec:nth-of-type(3){--cbg:var(--kb4);--cbd:var(--kd4);--ctx:var(--kt4)}
+html.cl-on .acc-sec:nth-of-type(4){--cbg:var(--kb2);--cbd:var(--kd2);--ctx:var(--kt2)}
+html.cl-on .acc-sec:nth-of-type(5){--cbg:var(--kb5);--cbd:var(--kd5);--ctx:var(--kt5)}
+html.cl-on .acc-sec:nth-of-type(6){--cbg:var(--kb7);--cbd:var(--kd7);--ctx:var(--kt7)}
+html.cl-on .acc-sec>.acc-h{background:var(--cbg)!important}
+html.cl-on .acc-sec{border-color:var(--cbd)!important}
+html.cl-on .setsec:nth-child(1)>.ey{--cbg:var(--kb1);--cbd:var(--kd1);--ctx:var(--kt1)}
+html.cl-on .setsec:nth-child(2)>.ey{--cbg:var(--kb2);--cbd:var(--kd2);--ctx:var(--kt2)}
+html.cl-on .setsec:nth-child(3)>.ey{--cbg:var(--kb3);--cbd:var(--kd3);--ctx:var(--kt3)}
+html.cl-on .setsec:nth-child(4)>.ey{--cbg:var(--kb4);--cbd:var(--kd4);--ctx:var(--kt4)}
+html.cl-on .setsec:nth-child(5)>.ey{--cbg:var(--kb5);--cbd:var(--kd5);--ctx:var(--kt5)}
+html.cl-on .setsec:nth-child(6)>.ey{--cbg:var(--kb6);--cbd:var(--kd6);--ctx:var(--kt6)}
+html.cl-on .setsec:nth-child(7)>.ey{--cbg:var(--kb7);--cbd:var(--kd7);--ctx:var(--kt7)}
+html.cl-on .setsec:nth-child(8)>.ey{--cbg:var(--kb1);--cbd:var(--kd1);--ctx:var(--kt1)}
+html.cl-on .setsec:nth-child(9)>.ey{--cbg:var(--kb2);--cbd:var(--kd2);--ctx:var(--kt2)}
+html.cl-on .setsec:nth-child(10)>.ey{--cbg:var(--kb3);--cbd:var(--kd3);--ctx:var(--kt3)}
+html.cl-on .setsec:nth-child(11)>.ey{--cbg:var(--kb4);--cbd:var(--kd4);--ctx:var(--kt4)}
+html.cl-on .setsec:nth-child(12)>.ey{--cbg:var(--kb5);--cbd:var(--kd5);--ctx:var(--kt5)}
+html.cl-on .setsec:nth-child(13)>.ey{--cbg:var(--kb6);--cbd:var(--kd6);--ctx:var(--kt6)}
+html.cl-on .setsec:nth-child(14)>.ey{--cbg:var(--kb7);--cbd:var(--kd7);--ctx:var(--kt7)}
+html.cl-on .setsec>.ey{display:inline-block;padding:5px 14px;border-radius:20px;background:var(--cbg);border:1px solid var(--cbd);color:var(--ctx);font-size:11.5px;letter-spacing:0}
+html.cl-on .ast:nth-of-type(1){--cbg:var(--kb1);--cbd:var(--kd1);--ctx:var(--kt1)}
+html.cl-on .ast:nth-of-type(2){--cbg:var(--kb2);--cbd:var(--kd2);--ctx:var(--kt2)}
+html.cl-on .ast:nth-of-type(3){--cbg:var(--kb3);--cbd:var(--kd3);--ctx:var(--kt3)}
+html.cl-on .ast{background:var(--cbg);border-color:var(--cbd)}
+html.cl-on .ttp{background:var(--kb1);border-color:var(--kd1);color:var(--kt1)}
+html.cl-on .btn-gh{background:var(--kb7);border-color:var(--kd7);color:var(--kt7)}
+html.cl-on #ov-tools button[onclick*="toolDo('import')"]{background:var(--kb1)!important;border-color:var(--kd1)!important}
+html.cl-on #ov-tools button[onclick*="toolDo('tpl')"]{background:var(--kb5)!important;border-color:var(--kd5)!important}
+html.cl-on #ov-tools button[onclick*="toolDo('grid')"]{background:var(--kb3)!important;border-color:var(--kd3)!important}
+html.cl-on #ov-tools button[onclick*="toolDo('perf')"]{background:var(--kb4)!important;border-color:var(--kd4)!important}
+html.cl-on #ov-tools button[onclick*="toolDo('edit')"]{background:var(--kb7)!important;border-color:var(--kd7)!important}
+html.cl-on #ov-tools button[onclick*="toolDo('abs')"]{background:var(--kb2)!important;border-color:var(--kd2)!important}
+html.cl-on #ov-tools button[onclick*="toolDo('del')"]{background:var(--kb6)!important;border-color:var(--kd6)!important}
+html.cl-on #ov-tools button[onclick*="toolDo('del')"] span span:first-child{color:var(--kt6)!important}
+html.cl-on #hstats>div:nth-child(2)>div:nth-child(1)>div:first-child{color:var(--kt1)!important;font-weight:800!important}
+html.cl-on #hstats>div:nth-child(2)>div:nth-child(2)>div:first-child{color:var(--kt2)!important;font-weight:800!important}
+html.cl-on #hstats>div:nth-child(2)>div:nth-child(3)>div:first-child{color:var(--kt6)!important;font-weight:800!important}
+html.cl-on #hstats>div:nth-child(2)>div:nth-child(4)>div:first-child{color:var(--kt7)!important;font-weight:800!important}
+html.cl-on #hstats>div:nth-child(3)>div:nth-child(1)>div:first-child{color:var(--kt5)!important;font-weight:800!important}
+html.cl-on #hstats>div:nth-child(3)>div:nth-child(2)>div:first-child{color:var(--kt3)!important;font-weight:800!important}
+html.cl-on #hstats>div:nth-child(3)>div:nth-child(3)>div:first-child{color:var(--kt4)!important;font-weight:800!important}
+html.cl-on .iv-st span{color:var(--ctx,var(--tx3))}
+html.cl-on .ttab[data-t="t1"]:not(.on){background:var(--kb1);border-color:var(--kd1);color:var(--kt1)}
+html.cl-on .ttab[data-t="t2"]:not(.on){background:var(--kb2);border-color:var(--kd2);color:var(--kt2)}
+html.cl-on .ttab[data-t="t3"]:not(.on){background:var(--kb6);border-color:var(--kd6);color:var(--kt6)}
+html.cl-on .ttab[data-t="annual"]:not(.on){background:var(--kb4);border-color:var(--kd4);color:var(--kt4)}
+html.cl-on .ab.cb{background:var(--kb1);border-color:var(--kd1);color:var(--kt1)}
+html.cl-on .ab.co{background:var(--kb4);border-color:var(--kd4);color:var(--kt4)}
+html.cl-on .ab.cg{background:var(--kb2);border-color:var(--kd2);color:var(--kt2)}
+html.cl-on .ann-stat:nth-child(4n+1){background:var(--kb1);border-color:var(--kd1)}
+html.cl-on .ann-stat:nth-child(4n+2){background:var(--kb2);border-color:var(--kd2)}
+html.cl-on .ann-stat:nth-child(4n+3){background:var(--kb4);border-color:var(--kd4)}
+html.cl-on .ann-stat:nth-child(4n){background:var(--kb3);border-color:var(--kd3)}
+html.cl-on .ann-stat-lbl{color:var(--tx2)}
+html.cl-on .ach:nth-child(odd){background:var(--kb4);border-color:var(--kd4)}
+html.cl-on .ach:nth-child(even){background:var(--kb3);border-color:var(--kd3)}
+html.cl-on button[onclick*="perfTap"][onclick*=",0,'"][style*="var(--ln)"]{background:var(--kb6)!important;border-color:var(--kd6)!important;color:var(--kt6)!important}
+html.cl-on button[onclick*="perfTap"][onclick*=",1,'"][style*="var(--ln)"]{background:var(--kb4)!important;border-color:var(--kd4)!important;color:var(--kt4)!important}
+html.cl-on button[onclick*="perfTap"][onclick*=",2,'"][style*="var(--ln)"]{background:var(--kb5)!important;border-color:var(--kd5)!important;color:var(--kt5)!important}
+html.cl-on button[onclick*="perfTap"][onclick*=",3,'"][style*="var(--ln)"]{background:var(--kb2)!important;border-color:var(--kd2)!important;color:var(--kt2)!important}
+html.cl-on button[onclick*="perfZero"][style*="var(--ln)"]{background:var(--kb7)!important;border-color:var(--kd7)!important;color:var(--kt7)!important}
+html.cl-on .ftsc button:not(.on){background:var(--kb7);border-color:var(--kd7);color:var(--kt7)}
+
 html.fb-1 input:not([type=checkbox]):not([type=radio]):not([type=range]):not([type=button]):not([type=file]):not([type=color]):not([type=submit]):not([type=hidden]):not(.gri):not(#stu-search),html.fb-1 select,html.fb-1 textarea{background:var(--fb)!important;border:1.5px solid var(--fbd)!important;box-shadow:inset 0 2px 4px rgba(0,0,0,.25)}
 html.fb-1 input:not([type=checkbox]):not([type=radio]):not([type=range]):not([type=button]):not([type=file]):not([type=color]):not([type=submit]):not([type=hidden]):not(.gri):not(#stu-search):focus,html.fb-1 select:focus,html.fb-1 textarea:focus{background:var(--fbf)!important;border-color:var(--g)!important;box-shadow:inset 0 2px 4px rgba(0,0,0,.18),0 0 0 3px var(--fbr)}
 html.fb-2 input:not([type=checkbox]):not([type=radio]):not([type=range]):not([type=button]):not([type=file]):not([type=color]):not([type=submit]):not([type=hidden]):not(.gri):not(#stu-search),html.fb-2 select,html.fb-2 textarea{background:var(--fb)!important;border:2px solid var(--fbd)!important}
@@ -1104,6 +1228,8 @@ body{max-width:480px;margin:0 auto;display:flex;flex-direction:column;-webkit-fo
         <div class="ftsc" id="ft-scope"></div>
         <div style="font-size:11px;color:var(--tx3);font-weight:700;margin:14px 0 6px">🔲 خلفية خانات الكتابة:</div>
         <div class="ftsc" id="fb-opts"></div>
+        <div style="font-size:11px;color:var(--tx3);font-weight:700;margin:14px 0 6px">🎨 ألوان الواجهة:</div>
+        <div class="ftsc" id="cl-opts"></div>
         <div style="font-size:10.5px;color:var(--tx3);line-height:1.7;margin-top:10px">الاختيار لهذا الجهاز وحده. يحتاج الخط إنترنت أول مرة ثم يُحفظ للعمل دون اتصال، وإن لم يُحمَّل يظهر الخط الأصلي مؤقتًا. الكشوف المطبوعة لم تتغير.</div>
       </div>
     </div>
@@ -1144,7 +1270,7 @@ body{max-width:480px;margin:0 auto;display:flex;flex-direction:column;-webkit-fo
         <div class="ail">التطبيق الاحترافي لأساتذة التربية البدنية والرياضية</div>
         <div style="height:14px"></div>
         <div class="ail">المطور: <strong style="color:var(--g)">Delbaz_Med</strong></div>
-        <div class="ail">الإصدار: <strong style="color:var(--gold)">2.5.1 · 17 أكتوبر 2026</strong></div>
+        <div class="ail">الإصدار: <strong style="color:var(--gold)">2.6.0 · 17 أكتوبر 2026</strong></div>
         <div class="ail" style="margin-top:4px">EPS · DZ · 2026</div>
       </div>
     </div>
@@ -4758,7 +4884,7 @@ function exportColWord(){
 // SETTINGS
 // 🔤 2.4.0: واجهة اختيار الخط
 function rFont(){
-  var o=ftGet();try{rFieldBg();}catch(e){}
+  var o=ftGet();try{rFieldBg();rColorUi();}catch(e){}
   ftLink('ft-prev','family=Amiri:wght@700&family=Noto+Sans+Arabic:wght@700&family=IBM+Plex+Sans+Arabic:wght@700');
   var el=document.getElementById('ft-opts');if(!el)return;
   var h='';
@@ -4772,6 +4898,8 @@ function rFont(){
 }
 function rFieldBg(){var el=document.getElementById('fb-opts');if(!el)return;var v=fbGet(),h='';Object.keys(FBS).forEach(function(k){h+='<button class="'+(v===k?'on':'')+'" onclick="fbSet(\''+k+'\')">'+FBS[k]+'</button>';});el.innerHTML=h;}
 function fbSet(k){try{if(k==='orig')localStorage.removeItem('ss_fieldbg');else localStorage.setItem('ss_fieldbg',k);}catch(e){}fbApply();rFieldBg();toast('🔲 خانات الكتابة',FBS[k],'su',1400);}
+function rColorUi(){var el=document.getElementById('cl-opts');if(!el)return;var v=clGet();el.innerHTML='<button class="'+(v==='orig'?'on':'')+'" onclick="clSet(\'orig\')">الأصلي</button><button class="'+(v==='on'?'on':'')+'" onclick="clSet(\'on\')">ملوّن</button>';}
+function clSet(k){try{if(k==='on')localStorage.setItem('ss_color','on');else localStorage.removeItem('ss_color');}catch(e){}clApply();rColorUi();toast('🎨 ألوان الواجهة',k==='on'?'ملوّن':'الأصلي','su',1400);}
 function ftSave(o){try{localStorage.setItem('ss_font',JSON.stringify(o));}catch(e){}ftApply();rFont();}
 function ftSet(k){var o=ftGet();o.f=k;ftSave(o);toast('🔤 الخط',FTS[k].n,'su',1600);}
 function ftScope(s){var o=ftGet();o.s=s;ftSave(o);}
@@ -5223,6 +5351,7 @@ tr:nth-child(even)td{background:#f9faff}
 <div class="sec"><div class="sec-ttl"><div class="ic" style="background:#e9f7ff">🗓️</div><h2>38 · الانتقال الآلي للحصص (الإصدار 2.3.3)</h2></div><div class="step"><strong>القاعدة:</strong> إن كان القسم في «جدول التوقيت»، فكل ظهور لـ «🗓️ حصة الآن» له يقدّم رقم حصته (ح1 ← ح2 …) وحده، سواء سجّلت فيها غيابًا أم لا. الحصة التي لم تسجّل فيها شيئًا تبقى حضورًا للجميع (2 نقطة).</div><div class="step"><strong>فترتان متتاليتان:</strong> لنفس القسم في اليوم تُحسبان حصة واحدة.</div><div class="step"><strong>بلا تكرار:</strong> يُحفظ مفتاح الفترة في القسم، فلا يتقدّم مرتين مهما فتحت التطبيق أو من أي جهاز.</div><div class="step"><strong>العطل والإضرابات:</strong> إن تقدّم الرقم دون حصة فعلية فاضغط «↩️ تراجع» في الرسالة، أو ◀ لاحقًا.</div><div class="step"><strong>الأقسام خارج الجدول:</strong> تبقى على القاعدة الأسبوعية: ينتقل أول تسجيل في أسبوع جديد إلى الحصة التالية.</div></div>
 <div class="sec"><div class="sec-ttl"><div class="ic" style="background:#f3e8ff">🔤</div><h2>39 · اختيار الخط (الإصدار 2.4.0)</h2></div><div class="step"><strong>الفتح:</strong> ⚙️ الإعدادات ← «🔤 الخط».</div><div class="step"><strong>الخيارات:</strong> الأصلي (Tajawal) · Amiri · Noto Sans Arabic · IBM Plex Sans Arabic، وكل خيار يعرض اسمًا بخطه. يُطبَّق فورًا.</div><div class="step"><strong>النطاق:</strong> «كل التطبيق» أو «الأسماء فقط» (أسماء التلاميذ في القوائم والقرعة والحضور والإشعار).</div><div class="step"><strong>لكل جهاز:</strong> يُحفظ في هذا الجهاز وحده. يحتاج الخط إنترنت أول مرة ثم يُحفظ، وإلا يظهر الأصلي مؤقتًا. الكشوف المطبوعة لم تتغير.</div></div>
 <div class="sec"><div class="sec-ttl"><div class="ic" style="background:#e9f7ff">🔲</div><h2>40 · خلفية خانات الكتابة (الإصدار 2.5.0)</h2></div><div class="step"><strong>الفتح:</strong> ⚙️ الإعدادات ← «🔤 الخط» ← «🔲 خلفية خانات الكتابة».</div><div class="step"><strong>الخيارات:</strong> الأصلي · غائر (خلفية أغمق مع ظل داخلي) · بارز (خلفية أفتح وإطار أسمك) · خط سفلي (بلا إطار). عند التركيز يتحول الإطار للأخضر مع توهج. يُطبَّق فورًا على كل الحقول في الوضعين الداكن والفاتح، ويُحفظ لهذا الجهاز وحده.</div><div class="step"><strong>مستثناة:</strong> لوحة أرقام التقييم وخانة البحث الشفافة داخل شريطها.</div></div>
+<div class="sec"><div class="sec-ttl"><div class="ic" style="background:#fdf0ff">🎨</div><h2>41 · ألوان الواجهة (الإصدار 2.6.0)</h2></div><div class="step"><strong>الفتح:</strong> ⚙️ الإعدادات ← «🎨 ألوان الواجهة» ← «الأصلي» أو «ملوّن» (الافتراضي الأصلي).</div><div class="step"><strong>الملوّن:</strong> خلفيات فاتحة بألوان ثابتة المعنى: الشريط السفلي، تبويبات الأقسام، خلايا إحصاءات القسم، أزرار الرئيسية وأدوات القسم، العتاد (تبويبات وبطاقات وأزرار)، رؤوس الأقسام القابلة للطي، بطاقات الفصول، عناوين الإعدادات. يعمل في الفاتح والداكن، ويُحفظ لهذا الجهاز وحده.</div></div>
 
 <div class="sec"><div class="sec-ttl"><div class="ic" style="background:#fff8e6">📄</div><h2>8 · الكشوف والطباعة</h2></div>
 <div class="steps">
@@ -5486,7 +5615,7 @@ Smart Sport · دلباز محمد · ${sch} · 2025-2026
 </div>
 
 <!-- VERSION BADGE -->
-<div id="ver-badge" style="position:fixed;bottom:90px;left:8px;z-index:40;background:rgba(0,0,0,.5);color:rgba(255,255,255,.6);font-size:9px;font-weight:700;padding:3px 8px;border-radius:8px;font-family:monospace;pointer-events:none">2.5.1</div>
+<div id="ver-badge" style="position:fixed;bottom:90px;left:8px;z-index:40;background:rgba(0,0,0,.5);color:rgba(255,255,255,.6);font-size:9px;font-weight:700;padding:3px 8px;border-radius:8px;font-family:monospace;pointer-events:none">2.6.0</div>
 </body></html>`;
   const w=window.open('','_blank','width=420,height=700');
   if(w){w.document.write(html);w.document.close();}
@@ -9004,9 +9133,10 @@ function invBillRe(i){var f=invD().bills[i];if(!f)return;invBillOut({sup:f.sup,n
 function invBillRm(i){var v=invD(),f=v.bills[i];if(!f)return;dlgConfirm({icon:'🗑️',tone:'red',title:'حذف الفاتورة من الأرشيف؟',subject:{ini:'🧾',name:'فاتورة '+(f.no||''),meta:f.sup||''},sub:'لا يُعدَّل المخزن؛ الكميات المُدخلة تبقى فيه.',confirmText:'حذف'}).then(function(ok){if(!ok)return;snapshot('حذف فاتورة');v.bills.splice(i,1);SD();invBills();});}
 
 var CHANGELOG = {
-  version: '2.5.1',
+  version: '2.6.0',
   date: '17 أكتوبر 2026',
   items: [
+    {ic:'🎨', t:'ألوان الواجهة: الأصلي أو ملوّن', d:'خيار في الإعدادات يلوّن التنقل السفلي وتبويبات الأقسام وإحصاءات القسم والأزرار والعتاد وأدوات القسم بدرجات فاتحة مميزة، بالوضعين الفاتح والداكن. الأصلي هو الافتراضي.'},
     {ic:'🩹', t:'إصلاح فراغ الصفحة الرئيسية', d:'شريط البحث وقائمة التصفية في «التلاميذ» كان أعرض من الشاشة فيزيح الصفحة جانبًا؛ صار يتقلص، ومُنع التمرير الأفقي في الصفحة.'},
     {ic:'🔲', t:'خلفية خانات الكتابة (3 خيارات)', d:'من الإعدادات: الأصلي · غائر · بارز · خط سفلي، يشمل كل الحقول في الوضعين الداكن والفاتح، ويُحفظ لكل جهاز.'},
     {ic:'🔤', t:'اختيار الخط من الإعدادات', d:'أربعة خطوط: الأصلي (Tajawal) · Amiri (نسخ تقليدي) · Noto Sans Arabic · IBM Plex Sans Arabic، مع معاينة بالاسم، وخيار «كل التطبيق / الأسماء فقط». الاختيار لكل جهاز على حدة، ولا يُحمَّل إلا الخط المختار، ويُحفظ للعمل دون إنترنت بعد أول تحميل'},
