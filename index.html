@@ -1043,6 +1043,12 @@ body{max-width:480px;margin:0 auto;display:flex;flex-direction:column;-webkit-fo
       <div style="background:var(--p2);border:1px solid var(--ln);border-radius:var(--rl);overflow:hidden;margin-bottom:14px">
         <button onclick="openLvr()" style="display:flex;align-items:center;gap:12px;width:100%;padding:14px;background:none;border:none;cursor:pointer;font-family:var(--ff);text-align:right"><span style="font-size:22px">🚪</span><span style="flex:1"><span style="display:block;font-size:13px;font-weight:900;color:var(--tx)">كشف المغادرين السنوي</span><span style="display:block;font-size:10px;color:var(--tx3);font-weight:600">النوع · التاريخ · القسم — PDF و Excel</span></span></button>
       </div>
+      <div style="background:var(--p2);border:1px solid var(--ln);border-radius:var(--rl);overflow:hidden;margin-bottom:14px">
+        <button onclick="openMab()" style="display:flex;align-items:center;gap:12px;width:100%;padding:14px;background:none;border:none;cursor:pointer;font-family:var(--ff);text-align:right"><span style="font-size:22px">📅</span><span style="flex:1"><span style="display:block;font-size:13px;font-weight:900;color:var(--tx)">كشف الغيابات الشهري</span><span style="display:block;font-size:10px;color:var(--tx3);font-weight:600">غائب · مبرّر · مريض — PDF و Excel</span></span></button>
+      </div>
+      <div style="background:var(--p2);border:1px solid var(--ln);border-radius:var(--rl);overflow:hidden;margin-bottom:14px">
+        <button onclick="openTsm()" style="display:flex;align-items:center;gap:12px;width:100%;padding:14px;background:none;border:none;cursor:pointer;font-family:var(--ff);text-align:right"><span style="font-size:22px">📋</span><span style="flex:1"><span style="display:block;font-size:13px;font-weight:900;color:var(--tx)">ملخص نهاية الفصل</span><span style="display:block;font-size:10px;color:var(--tx3);font-weight:600">صفحة واحدة للإدارة والمفتش — PDF</span></span></button>
+      </div>
       </div>
     </div>
     <div class="acc-sec" style="margin:0 18px 12px;background:var(--p2);border:1px solid var(--ln);border-radius:var(--rl);overflow:hidden">
@@ -1226,6 +1232,17 @@ body{max-width:480px;margin:0 auto;display:flex;flex-direction:column;-webkit-fo
       </div>
     </div>
     <div class="setsec">
+      <div class="ey" style="margin-bottom:12px">💾 النسخ الاحتياطي والخصوصية</div>
+      <div class="setc">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:10px">
+          <div><div style="font-size:13px;font-weight:800;color:var(--tx)">⏰ تذكير أسبوعي بالنسخة الاحتياطية</div><div style="font-size:11px;color:var(--tx3);margin-top:2px">يظهر شريط في الرئيسية إن مرّت 7 أيام دون نسخة</div></div>
+          <div class="tgl" id="bk-tgl" onclick="toggleBkRemind()"></div>
+        </div>
+        <div id="bk-last" style="font-size:11px;color:var(--tx3);font-weight:700;margin:10px 0"></div>
+        <div style="display:flex;gap:8px"><button class="btn btn-g" style="flex:1" onclick="doBackup()">💾 حفظ نسخة الآن</button><button class="btn" style="flex:1" onclick="openPriv()">🔒 الخصوصية</button></div>
+      </div>
+    </div>
+    <div class="setsec">
       <div class="ey" style="margin-bottom:12px">📱 الاستعمال في الساحة</div>
       <div class="setc">
         <div style="display:flex;align-items:center;justify-content:space-between;gap:10px">
@@ -1287,7 +1304,7 @@ body{max-width:480px;margin:0 auto;display:flex;flex-direction:column;-webkit-fo
         <div class="ail">التطبيق الاحترافي لأساتذة التربية البدنية والرياضية</div>
         <div style="height:14px"></div>
         <div class="ail">المطور: <strong style="color:var(--g)">Delbaz_Med</strong></div>
-        <div class="ail">الإصدار: <strong style="color:var(--gold)">2.8.0 · 19 أكتوبر 2026</strong></div>
+        <div class="ail">الإصدار: <strong style="color:var(--gold)">2.8.1 · 19 أكتوبر 2026</strong></div>
         <div class="ail" style="margin-top:4px">EPS · DZ · 2026</div>
       </div>
     </div>
@@ -1552,6 +1569,46 @@ body{max-width:480px;margin:0 auto;display:flex;flex-direction:column;-webkit-fo
       </div>
       <div id="abc-body" style="max-height:56vh;overflow-y:auto"></div>
       <button class="btn btn-fw" onclick="abcPrint()" style="margin-top:10px">📄 PDF / طباعة</button>
+    </div>
+  </div>
+</div>
+<div class="ov" id="ov-mab">
+  <div class="ov-box" style="max-width:480px">
+    <div class="ov-hd"><span>📅 كشف الغيابات الشهري</span><button onclick="closeOv('ov-mab')" class="ov-cl">✕</button></div>
+    <div style="padding:12px 14px">
+      <div style="display:flex;gap:8px;margin-bottom:10px">
+        <select id="mab-mon" class="sinp" style="flex:1" onchange="mabDraw()"></select>
+        <select id="mab-cls" class="sinp" style="flex:1.2" onchange="mabDraw()"></select>
+      </div>
+      <div id="mab-body" style="max-height:54vh;overflow-y:auto"></div>
+      <div style="display:flex;gap:8px;margin-top:10px">
+        <button class="btn" style="flex:1" onclick="mabPrint()">📄 PDF / طباعة</button>
+        <button class="btn" style="flex:1" onclick="mabExcel()">📊 Excel</button>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="ov" id="ov-tsm">
+  <div class="ov-box" style="max-width:480px">
+    <div class="ov-hd"><span>📋 ملخص نهاية الفصل</span><button onclick="closeOv('ov-tsm')" class="ov-cl">✕</button></div>
+    <div style="padding:12px 14px">
+      <select id="tsm-term" class="sinp" style="width:100%;margin-bottom:10px" onchange="tsmDraw()"><option value="t1">الفصل الأول</option><option value="t2">الفصل الثاني</option><option value="t3">الفصل الثالث</option></select>
+      <div id="tsm-body" style="max-height:54vh;overflow-y:auto"></div>
+      <button class="btn btn-g btn-fw" style="margin-top:10px" onclick="tsmPrint()">📄 PDF / طباعة (صفحة واحدة)</button>
+    </div>
+  </div>
+</div>
+<div class="ov" id="ov-priv">
+  <div class="ov-box" style="max-width:480px">
+    <div class="ov-hd"><span>🔒 خصوصية بياناتك</span><button onclick="closeOv('ov-priv')" class="ov-cl">✕</button></div>
+    <div style="padding:14px;max-height:68vh;overflow-y:auto;font-size:12.5px;line-height:1.9;color:var(--tx2)">
+      <b style="color:var(--g)">📱 أين تُحفظ بياناتك؟</b><br>في هاتفك أنت. لا يرسلها التطبيق إلى أي جهة بشكل افتراضي.<br>
+      <b style="color:var(--g)">☁️ المزامنة السحابية</b><br>اختيارية. عند تفعيلها (بحسابك في Google) تُرفع نسختك إلى حسابك وحده، ولا يراها أي أستاذ آخر.<br>
+      <b style="color:var(--g)">🎙️ النداء الصوتي</b><br>يستعمل التعرّف على الكلام في متصفح Chrome، وقد تعالج Google الصوت لتحويله إلى نص. لا يحفظ التطبيق أي تسجيل صوتي.<br>
+      <b style="color:var(--g)">🗣️ قراءة الأسماء بصوت عالٍ</b><br>تتم بصوت الهاتف أولاً. وإن تعذّر ذلك يسألك التطبيق قبل استعمال خدمة صوت من Google على الإنترنت، فلا تُرسَل الأسماء إلا بموافقتك.<br>
+      <b style="color:var(--g)">🚫 ما لا يفعله التطبيق</b><br>لا إعلانات · لا تتبّع · لا بيع للبيانات · لا مشاركة مع طرف ثالث.<br>
+      <b style="color:var(--g)">✅ حقوقك</b><br>يمكنك في أي وقت حفظ نسخة كاملة من بياناتك أو حذفها من هاتفك. ويُنصح بحفظ نسخة احتياطية كل أسبوع.<br>
+      <button class="btn btn-g btn-fw" style="margin-top:12px" onclick="privSeen();closeOv('ov-priv')">فهمت</button>
     </div>
   </div>
 </div>
@@ -2414,7 +2471,7 @@ var _suppressPush=false;
 
 // Complete registry of every overlay/modal in the app.
 // (ov-del first so a confirm dialog closes before its parent on z-index ties)
-var ALL_OVERLAYS=['ov-lvr','ov-dlg','ov-inv2','ov-inv','auth-modal','sw4-modal','va-modal','ov-lottery','ov-iframe','ov-qr','ov-ns','ov-imp','ov-sesq','ov-absq','ov-perf','ov-vq','ov-tools','ov-pin','ov-cal','ov-tm','ov-tg','ov-grid','ov-rq','ov-act','ov-stu','ov-cls','ov-dn','ov-abc'];
+var ALL_OVERLAYS=['ov-mab','ov-tsm','ov-priv','ov-lvr','ov-dlg','ov-inv2','ov-inv','auth-modal','sw4-modal','va-modal','ov-lottery','ov-iframe','ov-qr','ov-ns','ov-imp','ov-sesq','ov-absq','ov-perf','ov-vq','ov-tools','ov-pin','ov-cal','ov-tm','ov-tg','ov-grid','ov-rq','ov-act','ov-stu','ov-cls','ov-dn','ov-abc'];
 
 // Is the element actually shown? (computed style → catches BOTH inline
 // display AND class-driven .on rules; never fooled by leftover styles)
@@ -2494,7 +2551,7 @@ function rHome(){
   if(!S.cid){body.innerHTML='';return;}
   const cls=GC(S.cid);if(!cls){S.cid=null;rHome();return;}
   const allStus=GSC(S.cid);allStus.forEach(initStu);const stus=allStus.filter(s=>!s.left);const leftN=allStus.length-stus.length;
-  let h='';
+  let h=bkBanner()+privBanner();
   if(isPendingStale()){
     h+='<div style="margin:0 18px 14px;background:var(--gob);border:1px solid rgba(245,185,50,.3);border-radius:var(--r);padding:12px 14px;display:flex;align-items:flex-start;gap:8px"><div style="font-size:18px;line-height:1">⏳</div><div style="flex:1"><div style="font-size:12px;font-weight:800;color:var(--gold)">لم تتم مزامنة آخر تعديلاتك مع السحابة منذ أكثر من يوم</div><div style="font-size:11px;color:var(--tx3);margin-top:3px">تحقّق من اتصال الإنترنت — ستُرفع تلقائياً فور توفره</div></div></div>';
   }
@@ -4973,7 +5030,7 @@ function toggleApp(){var b=document.getElementById('app-body'),a=document.getEle
 function ftSave(o){try{localStorage.setItem('ss_font',JSON.stringify(o));}catch(e){}ftApply();rFont();}
 function ftSet(k){var o=ftGet();o.f=k;ftSave(o);toast('🔤 الخط',FTS[k].n,'su',1600);}
 function ftScope(s){var o=ftGet();o.s=s;ftSave(o);}
-function rSettings(){try{rFont();}catch(e){}document.getElementById('st-tc').value=D.settings.teacher||'';document.getElementById('st-sc').value=D.settings.school||'';document.getElementById('st-yr').value=D.settings.year||'';document.getElementById('st-pr').value=D.settings.principal||'';document.getElementById('st-dr').value=D.settings.director||'';var sit=document.getElementById('sync-ind-tgl');if(sit)sit.className='tgl'+(localStorage.getItem('ss_syncIndicatorOff')==='1'?'':' on');var wt=document.getElementById('wake-tgl');if(wt)wt.className='tgl'+(wakeOn()?' on':'');rTrash();rSlots();}
+function rSettings(){try{rFont();}catch(e){}document.getElementById('st-tc').value=D.settings.teacher||'';document.getElementById('st-sc').value=D.settings.school||'';document.getElementById('st-yr').value=D.settings.year||'';document.getElementById('st-pr').value=D.settings.principal||'';document.getElementById('st-dr').value=D.settings.director||'';var sit=document.getElementById('sync-ind-tgl');if(sit)sit.className='tgl'+(localStorage.getItem('ss_syncIndicatorOff')==='1'?'':' on');var wt=document.getElementById('wake-tgl');if(wt)wt.className='tgl'+(wakeOn()?' on':'');rTrash();rSlots();try{bkDraw();}catch(e){}}
 function saveSettings(){D.settings.teacher=ssName(document.getElementById('st-tc').value.trim());D.settings.school=ssName(document.getElementById('st-sc').value.trim());D.settings.year=ssName(document.getElementById('st-yr').value.trim())||'2025-2026';D.settings.principal=ssName(document.getElementById('st-pr').value.trim());D.settings.director=ssName(document.getElementById('st-dr').value.trim());SD();toast('تم الحفظ','تم حفظ المعلومات الشخصية');}
 
 // ═══════════════════════════════════════════════════════
@@ -5068,7 +5125,7 @@ function downloadQR(){
     toast('تم الحفظ','حُفظت صورة الرمز');
   }catch(e){ toast('خطأ','تعذّر حفظ الصورة','er'); }
 }
-function doBackup(){const blob=new Blob([JSON.stringify(Object.assign({},D,{_ui:uiSnap()}),null,2)],{type:'application/json'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='SmartSport_'+(D.settings.school||'backup')+'_'+new Date().toISOString().split('T')[0]+'.json';a.click();toast('نسخة احتياطية','تم تنزيل ملف النسخة الاحتياطية');}
+function doBackup(){const blob=new Blob([JSON.stringify(Object.assign({},D,{_ui:uiSnap()}),null,2)],{type:'application/json'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='SmartSport_'+(D.settings.school||'backup')+'_'+new Date().toISOString().split('T')[0]+'.json';a.click();try{localStorage.setItem('ss_lastBackup',String(Date.now()));localStorage.removeItem('ss_bkSnooze');}catch(e){}try{if(S.scr==='home')rHome();if(S.scr==='s-settings')rSettings();}catch(e){}toast('نسخة احتياطية','تم تنزيل ملف النسخة الاحتياطية');}
 function doRestore(){const inp=document.createElement('input');inp.type='file';inp.accept='.json';inp.onchange=e=>{const file=e.target.files[0];if(!file)return;const reader=new FileReader();reader.onload=ev=>{try{const parsed=JSON.parse(ev.target.result);if(!ssValidBackup(parsed))throw new Error('invalid');var _ui=parsed._ui;delete parsed._ui;preSyncSave('قبل استعادة ملف');D=parsed;uiRestore(_ui);normalizeAll();SD();nav('home');toast('تمت الاستعادة','تم استعادة البيانات بنجاح');}catch{toast('خطأ','ملف غير صالح','er');}};reader.readAsText(file);};inp.click();}
 
 // ACTIVITY SELECTOR
@@ -5201,6 +5258,170 @@ function lvrExcel(){
   var wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,'المغادرون');
   XLSX.writeFile(wb,'المغادرون_'+String(yr).replace(/[\/\\]/g,'-')+'.xlsx');
   toast('تم التصدير','ملف Excel جاهز للتنزيل');
+}
+
+// ═══ 2.8.1 · تذكير النسخة الاحتياطية + كشف الغيابات الشهري + ملخص الفصل + الخصوصية ═══
+function lsGet(k){try{return localStorage.getItem(k);}catch(e){return null;}}
+function lsSet(k,v){try{localStorage.setItem(k,v);}catch(e){}}
+function bkDue(){
+  if(lsGet('ss_bkRemind')==='0')return 0;
+  if(!D||!Array.isArray(D.students)||!D.students.length)return 0;
+  var now=Date.now(),last=+lsGet('ss_lastBackup')||0;
+  if(!last){var fs=+lsGet('ss_firstSeen')||0;if(!fs){lsSet('ss_firstSeen',String(now));return 0;}last=fs;}
+  if((+lsGet('ss_bkSnooze')||0)>now)return 0;
+  var d=Math.floor((now-last)/864e5);return d>=7?d:0;
+}
+function bkBanner(){
+  var d=bkDue();if(!d)return '';
+  var lastTs=+lsGet('ss_lastBackup')||0;
+  return '<div id="bk-banner" style="margin:0 18px 14px;background:rgba(245,185,50,.1);border:1px solid rgba(245,185,50,.4);border-radius:var(--r);padding:12px 14px"><div style="font-size:13px;font-weight:900;color:var(--tx)">⚠️ '+(lastTs?'آخر نسخة احتياطية قبل '+d+' أيام':'لم تحفظ نسخة احتياطية بعد')+'</div><div style="font-size:11px;color:var(--tx3);font-weight:600;margin:4px 0 10px;line-height:1.6">احفظ نسخة الآن حتى لا تضيع بياناتك إن ضاع الهاتف.</div><div style="display:flex;gap:8px"><button class="btn btn-g" style="flex:2" onclick="doBackup()">💾 حفظ نسخة الآن</button><button class="btn" style="flex:1" onclick="bkLater()">لاحقاً</button></div></div>';
+}
+function bkLater(){lsSet('ss_bkSnooze',String(Date.now()+864e5));rHome();}
+function toggleBkRemind(){var on=lsGet('ss_bkRemind')==='0';lsSet('ss_bkRemind',on?'1':'0');bkDraw();toast(on?'⏰ التذكير الأسبوعي مفعّل':'التذكير الأسبوعي متوقف','','su',1800);}
+function bkDraw(){
+  var t=document.getElementById('bk-tgl');if(t)t.className='tgl'+(lsGet('ss_bkRemind')==='0'?'':' on');
+  var l=document.getElementById('bk-last'),ts=+lsGet('ss_lastBackup')||0;
+  if(l)l.textContent=ts?'آخر نسخة: '+fmtDMY(new Date(ts).getFullYear()+'-'+String(new Date(ts).getMonth()+1).padStart(2,'0')+'-'+String(new Date(ts).getDate()).padStart(2,'0')):'لم تُحفظ نسخة على هذا الجهاز بعد';
+}
+function privBanner(){
+  if(lsGet('ss_privSeen')==='1')return '';
+  return '<div style="margin:0 18px 14px;background:rgba(0,217,126,.07);border:1px solid rgba(0,217,126,.3);border-radius:var(--r);padding:12px 14px;display:flex;align-items:center;gap:10px"><div style="flex:1;font-size:12px;font-weight:800;color:var(--tx)">🔒 اطّلع على كيفية حماية بياناتك</div><button class="btn btn-g" onclick="openPriv()">اقرأ</button><button class="btn" onclick="privSeen();rHome()">إخفاء</button></div>';
+}
+function privSeen(){lsSet('ss_privSeen','1');if(S.scr==='home')try{rHome();}catch(e){}}
+function openPriv(){openOv('ov-priv');}
+
+// ═══ 📅 كشف الغيابات الشهري ═══
+var MON_AR=['جانفي','فيفري','مارس','أفريل','ماي','جوان','جويلية','أوت','سبتمبر','أكتوبر','نوفمبر','ديسمبر'];
+function mabLbl(k){var p=String(k).split('-');return (MON_AR[+p[1]-1]||p[1])+' '+p[0];}
+function mabMonths(){
+  var m={};D.classes.forEach(function(c){['t1','t2','t3'].forEach(function(tk){((c.sesDays&&c.sesDays[tk])||[]).forEach(function(d){if(typeof d==='string'&&/^\d{4}-\d{2}-\d{2}$/.test(d))m[d.slice(0,7)]=1;});});});
+  return Object.keys(m).sort().reverse();
+}
+function mabData(cid,mk){
+  var rows=[],tot={ab:0,ju:0,sk:0,pr:0},und=0;
+  D.classes.filter(function(c){return !cid||c.id===cid;}).forEach(function(c){
+    GSA(c.id).forEach(function(s){
+      initStu(s);var r={s:s,cls:c.name,ab:0,ju:0,sk:0};
+      ['t1','t2','t3'].forEach(function(tk){
+        var t=s.terms[tk];if(!t||t.exempted||!t.mc||!t.mc.ses)return;
+        t.mc.ses.forEach(function(v,i){
+          var dk=sesDayOf(c.id,tk,i),st=sesState(t,i);
+          if(!dk){if(st!=='pr')und++;return;}
+          if(String(dk).slice(0,7)!==mk)return;
+          tot[st]++;if(st!=='pr')r[st]++;
+        });
+      });
+      r.n=r.ab+r.ju+r.sk;if(r.n)rows.push(r);
+    });
+  });
+  rows.sort(function(a,b){return b.n-a.n||(a.s.name<b.s.name?-1:a.s.name>b.s.name?1:0);});
+  var den=tot.pr+tot.ab+tot.ju+tot.sk;
+  return {rows:rows,tot:tot,und:und,att:den?Math.round(tot.pr/den*1000)/10:null};
+}
+function openMab(){
+  var ms=mabMonths(),now=new Date(),cur=now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0');
+  document.getElementById('mab-mon').innerHTML=ms.length?ms.map(function(k){return '<option value="'+k+'">'+mabLbl(k)+'</option>';}).join(''):'<option value="">لا توجد حصص مؤرَّخة</option>';
+  if(ms.indexOf(cur)>=0)document.getElementById('mab-mon').value=cur;
+  document.getElementById('mab-cls').innerHTML='<option value="">كل الأقسام</option>'+D.classes.map(function(c){return '<option value="'+c.id+'">'+escH(c.name)+'</option>';}).join('');
+  mabDraw();openOv('ov-mab');
+}
+function mabDraw(){
+  var mk=document.getElementById('mab-mon').value,cid=document.getElementById('mab-cls').value,el=document.getElementById('mab-body');
+  if(!mk){el.innerHTML='<div style="text-align:center;padding:24px 10px;color:var(--tx3);font-size:12px;font-weight:700">لا توجد حصص مؤرَّخة بعد. تُؤرَّخ الحصة عند تسجيل الحضور.</div>';return;}
+  var d=mabData(cid,mk),T=d.tot;
+  var chip=function(c,t){return '<span style="display:inline-block;padding:4px 9px;margin:0 0 6px 6px;border-radius:999px;border:1px solid '+c+';color:'+c+';font-size:11px;font-weight:800">'+t+'</span>';};
+  var h='<div>'+chip('#c0392b','غائب · '+T.ab)+chip('#d35400','مبرّر · '+T.ju)+chip('#9333ea','مريض · '+T.sk)+chip('var(--g)','الحضور · '+(d.att===null?'—':d.att+'%'))+'</div>';
+  if(!d.rows.length)h+='<div style="text-align:center;padding:18px 10px;color:var(--g);font-size:13px;font-weight:800">لا غيابات في هذا الشهر ✅</div>';
+  else{
+    var th='padding:6px 3px;border:1px solid var(--ln)',td='padding:6px 4px;border:1px solid var(--ln);text-align:center';
+    h+='<table style="width:100%;border-collapse:collapse;font-size:11px"><thead><tr style="background:var(--p3)"><th style="'+th+'">#</th><th style="'+th+'">الاسم واللقب</th>'+(cid?'':'<th style="'+th+'">القسم</th>')+'<th style="'+th+'">غ</th><th style="'+th+'">غ.م</th><th style="'+th+'">م</th><th style="'+th+'">المجموع</th></tr></thead><tbody>';
+    d.rows.forEach(function(r,i){h+='<tr><td style="'+td+'">'+(i+1)+'</td><td style="'+td+';text-align:right;font-weight:800">'+escH(r.s.name)+'</td>'+(cid?'':'<td style="'+td+';white-space:nowrap">'+escH(r.cls)+'</td>')+'<td style="'+td+'">'+r.ab+'</td><td style="'+td+'">'+r.ju+'</td><td style="'+td+'">'+r.sk+'</td><td style="'+td+';font-weight:900">'+r.n+'</td></tr>';});
+    h+='</tbody></table>';
+  }
+  h+='<div style="margin-top:8px;font-size:10.5px;color:var(--tx3);font-weight:600;line-height:1.6">يُحسب من حصص الشهر المؤرَّخة فقط · التلاميذ بلا غياب لا يظهرون'+(d.und?' · '+d.und+' غياب بلا تاريخ غير محتسب':'')+'</div>';
+  el.innerHTML=h;
+}
+function mabPrint(){
+  var mk=document.getElementById('mab-mon').value,cid=document.getElementById('mab-cls').value;if(!mk)return;
+  var d=mabData(cid,mk),T=d.tot,cls=cid?GC(cid):null;
+  var tc=escH(D.settings.teacher||'—'),sch=escH(D.settings.school||'—'),yr=escH(D.settings.year||'—'),pr=escH(dirName()||'—');
+  var b='';d.rows.forEach(function(r,i){b+='<tr><td style="text-align:center">'+(i+1)+'</td><td>'+escH(r.s.name)+'</td>'+(cid?'':'<td style="text-align:center">'+escH(r.cls)+'</td>')+'<td style="text-align:center">'+r.ab+'</td><td style="text-align:center">'+r.ju+'</td><td style="text-align:center">'+r.sk+'</td><td style="text-align:center;font-weight:900">'+r.n+'</td></tr>';});
+  if(!b)b='<tr><td colspan="'+(cid?6:7)+'" style="text-align:center;color:#1a6b3a;font-weight:700;padding:14px">لا غيابات في هذا الشهر ✅</td></tr>';
+  var html='<!DOCTYPE html><html dir="rtl" lang="ar"><head><meta charset="UTF-8"><title>كشف الغيابات الشهري</title><style>*{box-sizing:border-box;margin:0;padding:0}body{font-family:Arial,sans-serif;direction:rtl;padding:20px;color:#111;font-size:13px}.card{max-width:700px;margin:0 auto;border:2px solid #1a6b3a;border-radius:12px;overflow:hidden}.hd{background:#1a6b3a;color:#fff;padding:14px 18px;display:flex;justify-content:space-between;align-items:center}.hd h1{font-size:16px}.hd p{font-size:11px;opacity:.85;margin-top:2px}.bd{padding:14px 18px}table{width:100%;border-collapse:collapse;margin:8px 0}th{background:#e8f5e9;padding:7px 4px;font-size:11px;border:1px solid #ccc}td{border:1px solid #ccc;padding:6px;font-size:12px}.ft{display:flex;justify-content:space-between;margin-top:18px;padding-top:10px;border-top:1px solid #ccc}.sig{text-align:center}.sl{border-top:1px solid #333;width:120px;margin:24px auto 4px}.k{display:flex;gap:8px;margin-bottom:8px}.k div{flex:1;border:1px solid #cfe0d6;background:#f4f8f5;border-radius:8px;padding:8px;text-align:center;font-size:11px;color:#555}.k b{display:block;font-size:17px;color:#1a6b3a}</style></head><body><div class="card"><div class="hd"><div><h1>كشف الغيابات — شهر '+escH(mabLbl(mk))+'</h1><p>'+(cls?'القسم: '+escH(cls.name):'كل الأقسام')+' · مادة التربية البدنية والرياضية</p></div><div style="text-align:left;font-size:11px"><div>'+sch+'</div><div>'+yr+'</div></div></div><div class="bd"><div class="k"><div><b>'+T.ab+'</b>غائب</div><div><b>'+T.ju+'</b>مبرّر</div><div><b>'+T.sk+'</b>مريض</div><div><b>'+(d.att===null?'—':d.att+'%')+'</b>الحضور</div></div><table><thead><tr><th>#</th><th>الاسم واللقب</th>'+(cid?'':'<th>القسم</th>')+'<th>غائب</th><th>مبرّر</th><th>مريض</th><th>المجموع</th></tr></thead><tbody>'+b+'</tbody></table><div style="font-size:10px;color:#666">يُحسب من حصص الشهر المؤرَّخة فقط.</div><div class="ft"><div class="sig"><div>أستاذ التربية البدنية</div><div style="color:#555;margin-top:2px">'+tc+'</div><div class="sl"></div></div><div class="sig"><div>المدير</div><div style="color:#555;margin-top:2px">'+pr+'</div><div class="sl"></div></div></div></div></div></body></html>';
+  document.getElementById('ov-iframe-title').textContent='📅 غيابات '+mabLbl(mk)+(cls?' · '+cls.name:'');
+  document.getElementById('ov-iframe').style.display='flex';
+  document.getElementById('pdfFrame').srcdoc=html;
+}
+function mabExcel(){
+  if(typeof XLSX==='undefined'){toast('خطأ','مكتبة Excel غير محمّلة','er');return;}
+  var mk=document.getElementById('mab-mon').value,cid=document.getElementById('mab-cls').value;if(!mk)return;
+  var d=mabData(cid,mk);if(!d.rows.length){toast('تنبيه','لا غيابات للتصدير في هذا الشهر','wa');return;}
+  var T=d.tot,cls=cid?GC(cid):null,sch=D.settings.school||'الثانوية',yr=D.settings.year||'—';
+  var head=[['Smart_Sport — '+sch+' — كشف الغيابات الشهري'],['شهر '+mabLbl(mk)+' — '+(cls?'القسم: '+cls.name:'كل الأقسام')+' — السنة الدراسية '+yr],['غائب: '+T.ab+' — مبرّر: '+T.ju+' — مريض: '+T.sk+' — الحضور: '+(d.att===null?'—':d.att+'%')],[]];
+  var cols=['الرقم','الاسم واللقب','القسم','غائب','مبرّر','مريض','المجموع'];
+  var data=d.rows.map(function(r,i){return [i+1,r.s.name,r.cls,r.ab,r.ju,r.sk,r.n];});
+  var foot=[[],['أستاذ التربية البدنية والرياضية: '+(D.settings.teacher||'—'),'','','','المدير: '+(dirName()||'_______________')]];
+  var ws=XLSX.utils.aoa_to_sheet([].concat(head,[cols],data,foot));
+  ws['!cols']=[{wch:7},{wch:30},{wch:14},{wch:9},{wch:9},{wch:9},{wch:10}];
+  ws['!merges']=[{s:{r:0,c:0},e:{r:0,c:6}},{s:{r:1,c:0},e:{r:1,c:6}},{s:{r:2,c:0},e:{r:2,c:6}}];
+  var wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,'الغيابات');
+  XLSX.writeFile(wb,'غيابات_'+mk+(cls?'_'+String(cls.name).replace(/[\/\\:*?"<>|\s]+/g,'-'):'')+'.xlsx');
+  toast('تم التصدير','ملف Excel جاهز للتنزيل');
+}
+
+// ═══ 📋 ملخص نهاية الفصل (صفحة واحدة) ═══
+function tsmAtt(cid,tk){
+  var pr=0,den=0;
+  GSA(cid).forEach(function(s){initStu(s);var t=s.terms[tk];if(!t||t.exempted||!t.mc||!t.mc.ses)return;
+    t.mc.ses.forEach(function(v,i){if(!sesDayOf(cid,tk,i))return;den++;if(sesState(t,i)==='pr')pr++;});});
+  return den?Math.round(pr/den*1000)/10:null;
+}
+function tsmData(tk){
+  var cl=[],A={stu:0,den:0,sum:0,pass:0,pr:0,pd:0},best=null,worst=null;
+  D.classes.forEach(function(c){
+    var st=computeClassStats(c.id,tk);if(!st)return;
+    var at=tsmAtt(c.id,tk);
+    cl.push({name:c.name,n:st.total,att:at,avg:st.clsAvg,fail:st.failN,pass:st.passRate});
+    A.stu+=st.total;
+    if(st.clsAvg!==null){A.den+=st.denom;A.sum+=st.clsAvg*st.denom;A.pass+=st.passN;}
+    if(st.best&&(!best||st.best.avg>best.avg))best={name:st.best.name,avg:st.best.avg,cls:c.name};
+    if(st.worst&&(!worst||st.worst.avg<worst.avg))worst={name:st.worst.name,avg:st.worst.avg,cls:c.name};
+    // الحضور الإجمالي: تجميع الحصص المؤرَّخة
+    GSA(c.id).forEach(function(s){var t=s.terms[tk];if(!t||t.exempted||!t.mc||!t.mc.ses)return;t.mc.ses.forEach(function(v,i){if(!sesDayOf(c.id,tk,i))return;A.pd++;if(sesState(t,i)==='pr')A.pr++;});});
+  });
+  var lv=lvrCounts(lvrRows('',''));var lvN=0;LV_ORDER.forEach(function(k){lvN+=lv[k];});
+  return {cl:cl,stu:A.stu,att:A.pd?Math.round(A.pr/A.pd*1000)/10:null,avg:A.den?Math.round(A.sum/A.den*100)/100:null,passRate:A.den?Math.round(A.pass/A.den*1000)/10:null,best:best,worst:worst,lv:lv,lvN:lvN};
+}
+function tsmLvText(lv){
+  var o=[];
+  ['tr','trd','ex','exd','ill','drop','oth'].forEach(function(k){if(lv[k])o.push(LV_T[k]+' '+lv[k]);});
+  return o.join(' · ');
+}
+function openTsm(){
+  var tk=(S.term==='t1'||S.term==='t2'||S.term==='t3')?S.term:'t1';
+  document.getElementById('tsm-term').value=tk;tsmDraw();openOv('ov-tsm');
+}
+function tsmDraw(){
+  var tk=document.getElementById('tsm-term').value,el=document.getElementById('tsm-body');
+  if(!D.classes.length){el.innerHTML='<div style="text-align:center;padding:24px 10px;color:var(--tx3);font-size:12px;font-weight:700">لا توجد أقسام</div>';return;}
+  var d=tsmData(tk);
+  var kp=function(l,v){return '<div style="flex:1;min-width:70px;border:1px solid var(--ln);border-radius:10px;padding:8px 4px;text-align:center"><div style="font-size:9px;color:var(--tx3);font-weight:700">'+l+'</div><div style="font-size:17px;font-weight:900;color:var(--g);margin-top:2px">'+v+'</div></div>';};
+  var h='<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px">'+kp('تلاميذ',d.stu)+kp('الحضور',d.att===null?'—':d.att+'%')+kp('المعدل العام',d.avg===null?'—':fmt(d.avg))+kp('مغادرون',d.lvN)+'</div>';
+  var th='padding:6px 3px;border:1px solid var(--ln)',td='padding:6px 4px;border:1px solid var(--ln);text-align:center';
+  h+='<table style="width:100%;border-collapse:collapse;font-size:11px"><thead><tr style="background:var(--p3)"><th style="'+th+'">القسم</th><th style="'+th+'">تلاميذ</th><th style="'+th+'">الحضور</th><th style="'+th+'">المعدل</th><th style="'+th+'">&lt; 10</th></tr></thead><tbody>';
+  d.cl.forEach(function(c){h+='<tr><td style="'+td+';font-weight:800">'+escH(c.name)+'</td><td style="'+td+'">'+c.n+'</td><td style="'+td+'">'+(c.att===null?'—':c.att+'%')+'</td><td style="'+td+';font-weight:800">'+(c.avg===null?'—':fmt(c.avg))+'</td><td style="'+td+'">'+c.fail+'</td></tr>';});
+  h+='</tbody></table><div style="margin-top:8px;font-size:11px;line-height:1.8;font-weight:700;color:var(--tx2)">'+(d.lvN?'المغادرون: '+escH(tsmLvText(d.lv))+'<br>':'')+(d.best?'أعلى معدل: '+escH(d.best.name)+' '+fmt(d.best.avg)+'<br>':'')+(d.worst?'أدنى معدل: '+escH(d.worst.name)+' '+fmt(d.worst.avg):'')+'</div>';
+  el.innerHTML=h;
+}
+function tsmPrint(){
+  var tk=document.getElementById('tsm-term').value;if(!D.classes.length)return;
+  var d=tsmData(tk),tc=escH(D.settings.teacher||'—'),sch=escH(D.settings.school||'—'),yr=escH(D.settings.year||'—'),pr=escH(dirName()||'—');
+  var rows='';d.cl.forEach(function(c){rows+='<tr><td style="font-weight:700">'+escH(c.name)+'</td><td style="text-align:center">'+c.n+'</td><td style="text-align:center">'+(c.att===null?'—':c.att+'%')+'</td><td style="text-align:center;font-weight:900;color:#1a6b3a">'+(c.avg===null?'—':fmt(c.avg))+'</td><td style="text-align:center">'+c.fail+'</td><td style="text-align:center">'+(c.pass===null?'—':c.pass+'%')+'</td></tr>';});
+  var k=function(l,v){return '<div class="kp"><b>'+v+'</b><span>'+l+'</span></div>';};
+  var html='<!DOCTYPE html><html dir="rtl" lang="ar"><head><meta charset="UTF-8"><title>ملخص '+escH(TLB[tk])+'</title><style>@page{size:A4;margin:12mm}*{box-sizing:border-box;margin:0;padding:0}body{font-family:Arial,sans-serif;direction:rtl;padding:20px;color:#111;font-size:13px}.card{max-width:700px;margin:0 auto;border:2px solid #1a6b3a;border-radius:12px;overflow:hidden}.hd{background:#1a6b3a;color:#fff;padding:14px 18px;display:flex;justify-content:space-between;align-items:center}.hd h1{font-size:16px}.hd p{font-size:11px;opacity:.85;margin-top:2px}.bd{padding:14px 18px}table{width:100%;border-collapse:collapse;margin:10px 0}th{background:#e8f5e9;padding:7px 4px;font-size:11px;border:1px solid #ccc}td{border:1px solid #ccc;padding:6px;font-size:12px}.k{display:flex;gap:8px}.kp{flex:1;background:#f4f8f5;border:1px solid #cfe0d6;border-radius:8px;padding:9px;text-align:center}.kp b{display:block;font-size:20px;color:#1a6b3a}.kp span{font-size:11px;color:#555}.ln{font-size:12px;line-height:1.9;margin-top:6px}.ft{display:flex;justify-content:space-between;margin-top:18px;padding-top:10px;border-top:1px solid #ccc}.sig{text-align:center}.sl{border-top:1px solid #333;width:120px;margin:24px auto 4px}</style></head><body><div class="card"><div class="hd"><div><h1>ملخص '+escH(TLB[tk])+' — السنة الدراسية '+yr+'</h1><p>'+sch+' · مادة التربية البدنية والرياضية</p></div><div style="text-align:left;font-size:11px"><div>'+yr+'</div></div></div><div class="bd"><div class="k">'+k('تلميذ',d.stu)+k('نسبة الحضور',d.att===null?'—':d.att+'%')+k('المعدل العام',d.avg===null?'—':fmt(d.avg))+k('نسبة النجاح',d.passRate===null?'—':d.passRate+'%')+k('مغادرون',d.lvN)+'</div><table><thead><tr><th>القسم</th><th>التلاميذ</th><th>الحضور</th><th>المعدل</th><th>أقل من 10</th><th>النجاح</th></tr></thead><tbody>'+rows+'</tbody></table><div class="ln">'+(d.lvN?'<b>المغادرون (السنة):</b> '+escH(tsmLvText(d.lv))+'<br>':'')+(d.best?'<b>أعلى معدل:</b> '+escH(d.best.name)+' ('+escH(d.best.cls)+') — '+fmt(d.best.avg)+'<br>':'')+(d.worst?'<b>أدنى معدل:</b> '+escH(d.worst.name)+' ('+escH(d.worst.cls)+') — '+fmt(d.worst.avg):'')+'</div><div style="font-size:10px;color:#666;margin-top:8px">المعدلات كما يحسبها التطبيق؛ من لم تكتمل نقاطه يُحتسب في المقام دون معدل. الحضور من الحصص المؤرَّخة.</div><div class="ft"><div class="sig"><div>أستاذ التربية البدنية</div><div style="color:#555;margin-top:2px">'+tc+'</div><div class="sl"></div></div><div class="sig"><div>المدير</div><div style="color:#555;margin-top:2px">'+pr+'</div><div class="sl"></div></div></div></div></div></body></html>';
+  document.getElementById('ov-iframe-title').textContent='📋 ملخص '+TLB[tk];
+  document.getElementById('ov-iframe').style.display='flex';
+  document.getElementById('pdfFrame').srcdoc=html;
 }
 // 🗑️ سلة المحذوفات (30 يوماً) — تُحفظ داخل البيانات فتُزامَن مع الأجهزة
 var TRASH_DAYS=30;
@@ -5661,6 +5882,9 @@ tr:nth-child(even)td{background:#f9faff}
 <div class="step"><strong>🚪 المغادرة:</strong> «تعديل» ← «تسجيل مغادرة التلميذ». يختفي من القائمة والقرعة والإحصائيات والنداء، وتبقى نقاطه محفوظة، ويظهر في الكشوف بعبارة «(غادر بتاريخ…)»</div>
 <div class="step"><strong>↩️ الإرجاع:</strong> من الفلتر اختر «🚪 المغادرون» ← «تعديل» تحت التلميذ ← «إرجاعه»</div>
 <div class="step"><strong>🚪 أنواع المغادرة (2.8.0):</strong> اختر الفئة (تحويل · فصل · مرض · انقطاع · أخرى)؛ وللتحويل والفصل يظهر مفتاح «⚖️ بمجلس تأديبي». أضف ملاحظة اختيارية (المؤسسة أو رقم المقرر). للتصحيح بعد التسجيل: «تعديل» ← «✏️ تعديل المغادرة».</div>
+<div class="step"><strong>📅 كشف الغيابات الشهري (2.8.1):</strong> 📊 كشوف وإحصاء ← «كشف الغيابات الشهري»: اختر الشهر والقسم؛ يعرض غائب/مبرّر/مريض ونسبة الحضور لكل تلميذ، مع PDF وExcel.</div>
+<div class="step"><strong>📋 ملخص نهاية الفصل:</strong> الكشوف ← «ملخص نهاية الفصل»: صفحة واحدة بالأعداد والحضور والمعدلات والمغادرين لكل الأقسام، جاهزة للإدارة والمفتش.</div>
+<div class="step"><strong>💾 تذكير النسخة الاحتياطية:</strong> شريط في الرئيسية كل 7 أيام دون نسخة؛ يُتحكَّم به من ⚙️ الإعدادات. و«🔒 الخصوصية» تشرح أين تُحفظ بياناتك.</div>
 <div class="step"><strong>📄 كشف المغادرين السنوي:</strong> 📊 كشوف وإحصاء ← «كشف المغادرين السنوي»: ملخص بعدد كل نوع وجدول بالاسم والقسم والنوع والتاريخ، بتصفية القسم والنوع، وتصدير PDF أو Excel.</div>
 <div class="step"><strong>🗑️ سلة المحذوفات:</strong> ⚙️ الإعدادات ← التلميذ أو القسم المحذوف يبقى 30 يوماً ويمكن «♻️ استرجاعه» بكل بياناته، ثم يُحذف نهائياً تلقائياً</div>
 </div></div>
@@ -9295,9 +9519,11 @@ function invBillRe(i){var f=invD().bills[i];if(!f)return;invBillOut({sup:f.sup,n
 function invBillRm(i){var v=invD(),f=v.bills[i];if(!f)return;dlgConfirm({icon:'🗑️',tone:'red',title:'حذف الفاتورة من الأرشيف؟',subject:{ini:'🧾',name:'فاتورة '+(f.no||''),meta:f.sup||''},sub:'لا يُعدَّل المخزن؛ الكميات المُدخلة تبقى فيه.',confirmText:'حذف'}).then(function(ok){if(!ok)return;snapshot('حذف فاتورة');v.bills.splice(i,1);SD();invBills();});}
 
 var CHANGELOG = {
-  version: '2.8.0',
+  version: '2.8.1',
   date: '19 أكتوبر 2026',
   items: [
+    {ic:'📅', t:'كشف الغيابات الشهري وملخص نهاية الفصل', d:'كشف شهري بالغائب والمبرّر والمريض ونسبة الحضور لكل تلميذ (PDF وExcel)، وملخص فصلي في صفحة واحدة بالأعداد والحضور والمعدلات والمغادرين لكل الأقسام.'},
+    {ic:'💾', t:'تذكير أسبوعي بالنسخة الاحتياطية + صفحة الخصوصية', d:'شريط في الرئيسية إن مرّت 7 أيام دون نسخة (يمكن إيقافه من الإعدادات)، وصفحة «🔒 الخصوصية» توضح أين تُحفظ بياناتك وما يخرج منها.'},
     {ic:'🚪', t:'أنواع المغادرة + كشف المغادرين السنوي', d:'سبعة أنواع: تحويل عادي · تحويل بمجلس تأديبي · فصل عادي · فصل بمجلس تأديبي · مرض · انقطاع عن الدراسة · حالة أخرى، باختيار الفئة ثم مفتاح «بمجلس تأديبي»، مع ملاحظة اختيارية وزر «تعديل المغادرة». كشف سنوي في 📊 كشوف وإحصاء: ملخص بالأعداد وجدول بالاسم والقسم والنوع والتاريخ (PDF وExcel). المغادرات القديمة تُرحَّل تلقائيًا إلى أنواعها.'},
     {ic:'🔐', t:'ترويسات أمان + مكتبات محلية', d:'سياسة أمان (CSP) تحصر اتصال التطبيق بخوادمه فقط وتمنع تضمينه في مواقع أخرى؛ مكتبات Excel وPDF وZIP وتصوير الصور صارت داخل التطبيق نفسه بدل شبكة خارجية، فتعمل أسرع وأوثق دون إنترنت؛ وحارس يرفض أي ملف Excel يحاول تعديل بنية المتصفح.'},
     {ic:'🛡️', t:'حماية: تعقيم الأسماء والنصوص + تحقق النسخة الاحتياطية', d:'أي نص يدخل من ملف Excel أو نسخة احتياطية أو السحابة يُنظَّف من وسوم HTML والرموز الخفية قبل أن يُعرض، ويُرفض ملف استعادة غير سليم البنية؛ وروابط واتساب تُفتح دون ربط بالتطبيق. لا تغيير في الواجهة.'},
