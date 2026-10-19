@@ -1040,6 +1040,9 @@ body{max-width:480px;margin:0 auto;display:flex;flex-direction:column;-webkit-fo
           <div id="qs-stats-body"></div>
         </div>
       </div>
+      <div style="background:var(--p2);border:1px solid var(--ln);border-radius:var(--rl);overflow:hidden;margin-bottom:14px">
+        <button onclick="openLvr()" style="display:flex;align-items:center;gap:12px;width:100%;padding:14px;background:none;border:none;cursor:pointer;font-family:var(--ff);text-align:right"><span style="font-size:22px">🚪</span><span style="flex:1"><span style="display:block;font-size:13px;font-weight:900;color:var(--tx)">كشف المغادرين السنوي</span><span style="display:block;font-size:10px;color:var(--tx3);font-weight:600">النوع · التاريخ · القسم — PDF و Excel</span></span></button>
+      </div>
       </div>
     </div>
     <div class="acc-sec" style="margin:0 18px 12px;background:var(--p2);border:1px solid var(--ln);border-radius:var(--rl);overflow:hidden">
@@ -1284,7 +1287,7 @@ body{max-width:480px;margin:0 auto;display:flex;flex-direction:column;-webkit-fo
         <div class="ail">التطبيق الاحترافي لأساتذة التربية البدنية والرياضية</div>
         <div style="height:14px"></div>
         <div class="ail">المطور: <strong style="color:var(--g)">Delbaz_Med</strong></div>
-        <div class="ail">الإصدار: <strong style="color:var(--gold)">2.7.2 · 18 أكتوبر 2026</strong></div>
+        <div class="ail">الإصدار: <strong style="color:var(--gold)">2.8.0 · 19 أكتوبر 2026</strong></div>
         <div class="ail" style="margin-top:4px">EPS · DZ · 2026</div>
       </div>
     </div>
@@ -1549,6 +1552,22 @@ body{max-width:480px;margin:0 auto;display:flex;flex-direction:column;-webkit-fo
       </div>
       <div id="abc-body" style="max-height:56vh;overflow-y:auto"></div>
       <button class="btn btn-fw" onclick="abcPrint()" style="margin-top:10px">📄 PDF / طباعة</button>
+    </div>
+  </div>
+</div>
+<div class="ov" id="ov-lvr">
+  <div class="ov-box" style="max-width:480px">
+    <div class="ov-hd"><span>🚪 كشف المغادرين السنوي</span><button onclick="closeOv('ov-lvr')" class="ov-cl">✕</button></div>
+    <div style="padding:12px 14px">
+      <div style="display:flex;gap:8px;margin-bottom:10px">
+        <select id="lvr-cls" class="sinp" style="flex:1.2" onchange="lvrDraw()"></select>
+        <select id="lvr-type" class="sinp" style="flex:1" onchange="lvrDraw()"></select>
+      </div>
+      <div id="lvr-body" style="max-height:56vh;overflow-y:auto"></div>
+      <div style="display:flex;gap:8px;margin-top:10px">
+        <button class="btn" style="flex:1" onclick="lvrPrint()">📄 PDF / طباعة</button>
+        <button class="btn" style="flex:1" onclick="lvrExcel()">📊 Excel</button>
+      </div>
     </div>
   </div>
 </div>
@@ -2318,6 +2337,7 @@ function ssValidBackup(p){
 }
 function normalizeAll(){
   ssSanitizeD(D);
+  if(D&&Array.isArray(D.students))D.students.forEach(lvMig);
   syncCG();
   if(D&&Array.isArray(D.students)){D.students.forEach(function(s){initStu(s);});try{mcAutoEnter();evaAutoFromTest();}catch(e){}}
 }
@@ -2394,7 +2414,7 @@ var _suppressPush=false;
 
 // Complete registry of every overlay/modal in the app.
 // (ov-del first so a confirm dialog closes before its parent on z-index ties)
-var ALL_OVERLAYS=['ov-dlg','ov-inv2','ov-inv','auth-modal','sw4-modal','va-modal','ov-lottery','ov-iframe','ov-qr','ov-ns','ov-imp','ov-sesq','ov-absq','ov-perf','ov-vq','ov-tools','ov-pin','ov-cal','ov-tm','ov-tg','ov-grid','ov-rq','ov-act','ov-stu','ov-cls','ov-dn','ov-abc'];
+var ALL_OVERLAYS=['ov-lvr','ov-dlg','ov-inv2','ov-inv','auth-modal','sw4-modal','va-modal','ov-lottery','ov-iframe','ov-qr','ov-ns','ov-imp','ov-sesq','ov-absq','ov-perf','ov-vq','ov-tools','ov-pin','ov-cal','ov-tm','ov-tg','ov-grid','ov-rq','ov-act','ov-stu','ov-cls','ov-dn','ov-abc'];
 
 // Is the element actually shown? (computed style → catches BOTH inline
 // display AND class-driven .on rules; never fooled by leftover styles)
@@ -2592,7 +2612,7 @@ function rHome(){
           '<div class="snum">'+String(i+1).padStart(2,'0')+'</div>'+
           '<div class="sav '+(s.gender==='male'?'m':'f')+'"></div>'+
           '<div class="sinf">'+
-            '<div class="sna">'+s.name+(roleMark(s)?' <span title="دور">'+roleMark(s)+'</span>':'')+(s.left?' <span style="font-size:10px;color:var(--tx3);font-weight:700">🚪 غادر '+fmtDM(s.left)+(s.leftWhy?' · '+s.leftWhy:'')+'</span>':'')+'</div>'+
+            '<div class="sna">'+s.name+(roleMark(s)?' <span title="دور">'+roleMark(s)+'</span>':'')+(s.left?' <span style="font-size:10px;color:var(--tx3);font-weight:700">🚪 غادر '+fmtDM(s.left)+(s.leftWhy?' · '+escH(lvText(s)):'')+'</span>':'')+'</div>'+
             '<div class="sme">'+phoneIcon(s)+absBadge(s,homeMode2)+'</div>'+
           '</div>'+
           '<div style="display:flex;align-items:center;margin-left:4px">'+scoreHtml+'</div>'+
@@ -2640,7 +2660,7 @@ function rStu(){
   const s=GS(S.sid);if(!s)return;const c=GC(s.classId);initStu(s);
   document.getElementById('sh-nm').textContent=s.name;
   var _cb=document.getElementById('sh-call');if(_cb){if(s.phone){_cb.href='tel:'+normPhone(s.phone);_cb.style.display='flex';_cb.title='اتصال بالولي: '+normPhone(s.phone);}else{_cb.style.display='none';_cb.removeAttribute('href');}}
-  document.getElementById('sh-mt').textContent=c.name+' · '+(s.gender==='male'?'ذكر 👦':'أنثى 👧')+(s.left?' · 🚪 غادر '+fmtDM(s.left)+(s.leftWhy?' ('+s.leftWhy+')':''):'');
+  document.getElementById('sh-mt').textContent=c.name+' · '+(s.gender==='male'?'ذكر 👦':'أنثى 👧')+(s.left?' · 🚪 غادر '+fmtDM(s.left)+(s.leftWhy?' ('+lvText(s)+')':''):'');
   const ann=calcAnnual(s,c);const ex=isAllEx(s);const ac=ex?'var(--red)':sCol(ann);const pct=ann?ann/20*100:0;
   document.getElementById('shero').innerHTML='<div class="sh-top"><div><div class="shname">'+escH(s.name)+'</div><div class="shmeta">'+escH(c.name)+' · '+LVL[c.level]+'</div></div><div class="shav '+(s.gender==='male'?'m':'f')+'">'+inits(s.name)+'</div></div><div style="display:flex;align-items:flex-end;gap:16px"><div class="abig" style="color:'+ac+'">'+(ex?'معفى':ann!==null?fmt(ann):'—')+'</div><div class="gw"><div class="glbl">المعدل السنوي للمادة'+(!ex&&ann!==null?' · '+sGrd(ann):'')+'</div><div class="gbar"><div class="gfil" style="width:'+pct+'%;background:'+ac+'"></div></div><div class="grng"><span>0</span><span>20</span></div></div></div>';
   const TCONF={
@@ -5085,16 +5105,103 @@ function editStu(id){const s=GS(id);
   const cs=document.getElementById('scls');cs.innerHTML=D.classes.map(c=>'<option value="'+c.id+'"'+(c.id===s.classId?' selected':'')+'>'+escH(c.name)+'</option>').join('');
   document.getElementById('scls-wrap').style.display=D.classes.length>1?'block':'none';
   const lw=document.getElementById('sleft-wrap');lw.style.display='block';
-  lw.innerHTML=s.left?'<div style="font-size:12px;color:var(--tx3);font-weight:700;margin-bottom:6px">🚪 غادر بتاريخ '+fmtDM(s.left)+(s.leftWhy?' — '+escA(s.leftWhy):'')+'</div><button class="btn btn-g btn-fw" onclick="unLeaveStu(\''+id+'\')">↩️ إرجاعه إلى القسم</button>':'<button class="btn btn-fw" onclick="leaveStu(\''+id+'\')" style="background:var(--p3);border:1px solid var(--ln);color:var(--tx2)">🚪 تسجيل مغادرة التلميذ</button>';
+  lw.innerHTML=s.left?'<div style="font-size:12px;color:var(--tx3);font-weight:700;margin-bottom:6px">🚪 غادر بتاريخ '+fmtDM(s.left)+' — '+escH(lvText(s))+'</div><div style="display:flex;gap:8px"><button class="btn btn-fw" style="flex:1" onclick="leaveStu(\''+id+'\',true)">✏️ تعديل المغادرة</button><button class="btn btn-g btn-fw" style="flex:1" onclick="unLeaveStu(\''+id+'\')">↩️ إرجاعه</button></div>':'<button class="btn btn-fw" onclick="leaveStu(\''+id+'\')" style="background:var(--p3);border:1px solid var(--ln);color:var(--tx2)">🚪 تسجيل مغادرة التلميذ</button>';
   document.getElementById('ov-stu-t').textContent='تعديل بيانات التلميذ';document.getElementById('sn').value=s.name;document.getElementById('sp').value=s.phone||'';document.getElementById('se').value=id;pickG(s.gender);openOv('ov-stu');}
-var LEAVE_REASONS=['انتقل لمؤسسة أخرى','انقطع عن الدراسة','فُصل','أخرى'];var LV={sel:0};
-function lvPick(i){LV.sel=i;document.querySelectorAll('#lv-chips .dlg-chip').forEach(function(b,j){b.classList.toggle('on',j===i);});}
-async function leaveStu(id){const s=GS(id);if(!s)return;LV.sel=0;
-  var body='<div class="dlg-lbl">سبب المغادرة</div><div class="dlg-chips" id="lv-chips">'+LEAVE_REASONS.map(function(r,i){return '<button type="button" class="dlg-chip'+(i===0?' on':'')+'" onclick="lvPick('+i+')">'+r+'</button>';}).join('')+'</div><div class="dlg-lbl">تاريخ المغادرة</div><input id="lv-date" type="date" class="dlg-inp" value="'+todayKey()+'" max="'+todayKey()+'">';
-  var v=await dlgConfirm({tone:'warn',icon:'🚪',title:'تسجيل مغادرة التلميذ',sub:'لن يُحذف شيء — تبقى كل بياناته محفوظة',subject:{ini:stuIni(s.name),name:s.name,meta:((GC(s.classId)||{}).name||'')+' · '+(s.gender==='male'?'ذكر 👦':'أنثى 👧')},body:body,rows:[['🙈','<b>يختفي من:</b> القائمة · القرعة · الإحصائيات · النداء'],['💾','<b>يبقى محفوظًا:</b> نقاطه وغياباته، ويظهر في الكشوف «(غادر …)»'],['↩️','<b>الإرجاع:</b> فلتر «🚪 المغادرون» ← تعديل ← إرجاعه']],confirmText:'🚪 تسجيل المغادرة',getVals:function(){var d=(document.getElementById('lv-date')||{}).value||todayKey();if(d>todayKey())d=todayKey();return {why:LEAVE_REASONS[LV.sel],date:d};}});
-  if(!v)return;var why=(v&&v.why)||LEAVE_REASONS[0],dt=(v&&v.date)||todayKey();
-  snapshot('مغادرة تلميذ');s.left=dt;s.leftWhy=why;dailyNotifyRemove(id);SD();closeOv('ov-stu');if(S.scr==='s-stu')nav('home');else rHome();utoast('🚪 تمت مغادرة '+s.name,why+' — يمكنك الإرجاع من فلتر «المغادرون»');}
-function unLeaveStu(id){const s=GS(id);if(!s)return;snapshot('إرجاع تلميذ');delete s.left;delete s.leftWhy;SD();closeOv('ov-stu');if(S.scr==='s-stu')rStu();else rHome();utoast('↩️ تم الإرجاع',s.name+' عاد إلى القسم بكل نقاطه');}
+// ═══ 🚪 أنواع المغادرة (2.8.0): فئة + مفتاح «بمجلس تأديبي» + ملاحظة + تعديل ═══
+var LV_T={tr:'تحويل عادي',trd:'تحويل بمجلس تأديبي',ex:'فصل عادي',exd:'فصل بمجلس تأديبي',ill:'مرض',drop:'انقطاع عن الدراسة',oth:'حالة أخرى'};
+var LV_ORDER=['tr','trd','ex','exd','ill','drop','oth'];
+var LV_COL={tr:'#2563eb',trd:'#7c3aed',ex:'#c2410c',exd:'#b91c1c',ill:'#9333ea',drop:'#a16207',oth:'#475569'};
+var LV_CATS=[{k:'tr',l:'تحويل',dis:'trd'},{k:'ex',l:'فصل',dis:'exd'},{k:'ill',l:'مرض'},{k:'drop',l:'انقطاع'},{k:'oth',l:'أخرى'}];
+var LV={cat:'tr',dis:false};
+function lvType(s){return LV_T[s.leftType]?s.leftType:'oth';}
+function lvMig(s){ // ترحيل المغادرات القديمة (leftWhy نصي فقط) إلى leftType
+  if(!s||!s.left||LV_T[s.leftType])return;
+  var w=String(s.leftWhy||''),m={'انتقل لمؤسسة أخرى':'tr','انقطع عن الدراسة':'drop','فُصل':'ex','أخرى':'oth'};
+  if(m[w])s.leftType=m[w];else{s.leftType='oth';if(w&&!s.leftNote)s.leftNote=w;}
+  s.leftWhy=LV_T[s.leftType];
+}
+function lvText(s){return LV_T[lvType(s)]+(s.leftNote?' — '+s.leftNote:'');}
+function lvCatOf(k){return LV_CATS.filter(function(x){return x.k===LV.cat;})[0]||LV_CATS[0];}
+function lvPickCat(k){LV.cat=k;LV.dis=false;lvDraw();}
+function lvToggleDis(){LV.dis=!LV.dis;lvDraw();}
+function lvCurType(){var c=lvCatOf();return (c.dis&&LV.dis)?c.dis:c.k;}
+function lvDraw(){
+  var c=lvCatOf();
+  document.querySelectorAll('#lv-chips .dlg-chip').forEach(function(b){b.classList.toggle('on',b.getAttribute('data-k')===LV.cat);});
+  var w=document.getElementById('lv-dis-wrap');if(w){w.style.display=c.dis?'block':'none';var b=document.getElementById('lv-dis');if(b)b.classList.toggle('on',LV.dis);}
+  var n=document.getElementById('lv-note');if(n)n.placeholder=LV.cat==='oth'?'اكتب الحالة (اختياري)':LV.cat==='tr'?'المؤسسة المحوَّل إليها (اختياري)':'ملاحظة أو رقم المقرر (اختياري)';
+}
+async function leaveStu(id,edit){const s=GS(id);if(!s)return;
+  var ty=edit?lvType(s):'tr';
+  LV.cat=ty==='trd'?'tr':ty==='exd'?'ex':ty;LV.dis=(ty==='trd'||ty==='exd');
+  var dt0=(edit&&s.left)?s.left:todayKey();
+  var body='<div class="dlg-lbl">سبب المغادرة</div><div class="dlg-chips" id="lv-chips">'+LV_CATS.map(function(c){return '<button type="button" class="dlg-chip" data-k="'+c.k+'" onclick="lvPickCat(\''+c.k+'\')">'+c.l+'</button>';}).join('')+'</div>'
+    +'<div id="lv-dis-wrap" style="display:none;margin:-4px 0 12px"><button type="button" id="lv-dis" class="dlg-chip" onclick="lvToggleDis()" style="width:100%">⚖️ بمجلس تأديبي</button></div>'
+    +'<div class="dlg-lbl">ملاحظة</div><input id="lv-note" class="dlg-inp" maxlength="120" autocomplete="off" value="'+escA(edit?(s.leftNote||''):'')+'">'
+    +'<div class="dlg-lbl">تاريخ المغادرة</div><input id="lv-date" type="date" class="dlg-inp" value="'+dt0+'" max="'+todayKey()+'">';
+  var rows=edit?[['✏️','<b>التعديل:</b> نوع المغادرة وتاريخها وملاحظتها فقط']]:[['🙈','<b>يختفي من:</b> القائمة · القرعة · الإحصائيات · النداء'],['💾','<b>يبقى محفوظًا:</b> نقاطه وغياباته، ويظهر في الكشوف «(غادر …)»'],['📄','<b>كشف المغادرين:</b> 📊 كشوف وإحصاء ← كشف المغادرين السنوي'],['↩️','<b>الإرجاع:</b> فلتر «🚪 المغادرون» ← تعديل ← إرجاعه']];
+  var pr=dlgConfirm({tone:'warn',icon:'🚪',title:edit?'تعديل المغادرة':'تسجيل مغادرة التلميذ',sub:edit?'':'لن يُحذف شيء — تبقى كل بياناته محفوظة',subject:{ini:stuIni(s.name),name:s.name,meta:((GC(s.classId)||{}).name||'')+' · '+(s.gender==='male'?'ذكر 👦':'أنثى 👧')},body:body,rows:rows,confirmText:edit?'💾 حفظ التعديل':'🚪 تسجيل المغادرة',getVals:function(){var d=(document.getElementById('lv-date')||{}).value||todayKey();if(d>todayKey())d=todayKey();return {type:lvCurType(),note:ssName(((document.getElementById('lv-note')||{}).value||'')).trim(),date:d};}});
+  lvDraw();
+  var v=await pr;
+  if(!v)return;var ty2=v.type||'tr',dt=v.date||todayKey();
+  snapshot(edit?'تعديل مغادرة':'مغادرة تلميذ');
+  s.left=dt;s.leftType=ty2;s.leftWhy=LV_T[ty2];if(v.note)s.leftNote=v.note;else delete s.leftNote;
+  if(!edit)dailyNotifyRemove(id);
+  SD();closeOv('ov-stu');
+  if(edit){if(S.scr==='s-stu')rStu();else rHome();utoast('✏️ تم تعديل المغادرة',s.name+' — '+lvText(s));return;}
+  if(S.scr==='s-stu')nav('home');else rHome();utoast('🚪 تمت مغادرة '+s.name,lvText(s)+' — يمكنك الإرجاع من فلتر «المغادرون»');}
+function unLeaveStu(id){const s=GS(id);if(!s)return;snapshot('إرجاع تلميذ');delete s.left;delete s.leftWhy;delete s.leftType;delete s.leftNote;SD();closeOv('ov-stu');if(S.scr==='s-stu')rStu();else rHome();utoast('↩️ تم الإرجاع',s.name+' عاد إلى القسم بكل نقاطه');}
+// ═══ 🚪 كشف المغادرين السنوي (2.8.0) ═══
+function lvrRows(cid,ty){
+  return D.students.filter(function(s){return s.left&&(!cid||s.classId===cid)&&(!ty||lvType(s)===ty);}).map(function(s){var c=GC(s.classId);return {s:s,cls:c?c.name:'—',ty:lvType(s),dt:s.left,note:s.leftNote||''};}).sort(function(a,b){return a.dt<b.dt?-1:a.dt>b.dt?1:(a.s.name<b.s.name?-1:1);});
+}
+function lvrCounts(rows){var c={};LV_ORDER.forEach(function(k){c[k]=0;});rows.forEach(function(r){c[r.ty]++;});return c;}
+function openLvr(){
+  document.getElementById('lvr-cls').innerHTML='<option value="">كل الأقسام</option>'+D.classes.map(function(c){return '<option value="'+c.id+'">'+escH(c.name)+'</option>';}).join('');
+  document.getElementById('lvr-type').innerHTML='<option value="">كل الأنواع</option>'+LV_ORDER.map(function(k){return '<option value="'+k+'">'+LV_T[k]+'</option>';}).join('');
+  lvrDraw();openOv('ov-lvr');
+}
+function lvrDraw(){
+  var rows=lvrRows(document.getElementById('lvr-cls').value,document.getElementById('lvr-type').value),el=document.getElementById('lvr-body');
+  if(!rows.length){el.innerHTML='<div style="text-align:center;padding:24px 10px;color:var(--g);font-size:13px;font-weight:800">لا يوجد تلاميذ مغادرون ✅</div>';return;}
+  var cn=lvrCounts(rows);
+  var chips=LV_ORDER.filter(function(k){return cn[k];}).map(function(k){return '<span style="display:inline-block;padding:4px 9px;margin:0 0 6px 6px;border-radius:999px;border:1px solid '+LV_COL[k]+';color:'+LV_COL[k]+';font-size:11px;font-weight:800">'+LV_T[k]+' · '+cn[k]+'</span>';}).join('');
+  var th='padding:6px 3px;border:1px solid var(--ln)',td='padding:6px 4px;border:1px solid var(--ln)';
+  var h='<div style="margin-bottom:6px">'+chips+'</div><table style="width:100%;border-collapse:collapse;font-size:11px"><thead><tr style="background:var(--p3)"><th style="'+th+'">#</th><th style="'+th+'">الاسم واللقب</th><th style="'+th+'">القسم</th><th style="'+th+'">النوع</th><th style="'+th+'">التاريخ</th></tr></thead><tbody>';
+  rows.forEach(function(r,i){h+='<tr><td style="'+td+';text-align:center">'+(i+1)+'</td><td style="'+td+';font-weight:800">'+escH(r.s.name)+(r.note?'<div style="font-size:10px;color:var(--tx3);font-weight:600">'+escH(r.note)+'</div>':'')+'</td><td style="'+td+';text-align:center;white-space:nowrap">'+escH(r.cls)+'</td><td style="'+td+';text-align:center;color:'+LV_COL[r.ty]+';font-weight:800">'+LV_T[r.ty]+'</td><td style="'+td+';text-align:center;white-space:nowrap">'+fmtDMY(r.dt)+'</td></tr>';});
+  h+='</tbody></table><div style="margin-top:8px;font-size:11px;font-weight:800;color:var(--tx3)">المجموع: '+rows.length+' تلميذ</div>';
+  el.innerHTML=h;
+}
+function lvrPrint(){
+  var cid=document.getElementById('lvr-cls').value,ty=document.getElementById('lvr-type').value;
+  var rows=lvrRows(cid,ty),cn=lvrCounts(rows),tc=escH(D.settings.teacher||'—'),sch=escH(D.settings.school||'—'),yr=escH(D.settings.year||'—'),pr=escH(dirName()||'—');
+  var cls=cid?GC(cid):null,scope=(cls?'القسم: '+escH(cls.name):'كل الأقسام')+(ty?' · '+LV_T[ty]:'');
+  var sum='';LV_ORDER.forEach(function(k){if(cn[k])sum+='<tr><td>'+LV_T[k]+'</td><td style="text-align:center;font-weight:800">'+cn[k]+'</td></tr>';});
+  sum+='<tr style="background:#f3f3f3;font-weight:900"><td>المجموع</td><td style="text-align:center">'+rows.length+'</td></tr>';
+  var b='';rows.forEach(function(r,i){b+='<tr><td style="text-align:center">'+(i+1)+'</td><td>'+escH(r.s.name)+'</td><td style="text-align:center">'+escH(r.cls)+'</td><td style="text-align:center;font-weight:800;color:'+LV_COL[r.ty]+'">'+LV_T[r.ty]+'</td><td style="text-align:center" dir="ltr">'+fmtDMY(r.dt)+'</td><td style="font-size:11px">'+escH(r.note)+'</td></tr>';});
+  if(!b)b='<tr><td colspan="6" style="text-align:center;color:#1a6b3a;font-weight:700;padding:14px">لا يوجد تلاميذ مغادرون ✅</td></tr>';
+  var html='<!DOCTYPE html><html dir="rtl" lang="ar"><head><meta charset="UTF-8"><title>كشف المغادرين</title><style>*{box-sizing:border-box;margin:0;padding:0}body{font-family:Arial,sans-serif;direction:rtl;padding:20px;color:#111;font-size:13px}.card{max-width:700px;margin:0 auto;border:2px solid #1a6b3a;border-radius:12px;overflow:hidden}.hd{background:#1a6b3a;color:#fff;padding:14px 18px;display:flex;justify-content:space-between;align-items:center}.hd h1{font-size:16px}.hd p{font-size:11px;opacity:.85;margin-top:2px}.bd{padding:14px 18px}table{width:100%;border-collapse:collapse;margin:8px 0}th{background:#e8f5e9;padding:7px 4px;font-size:11px;border:1px solid #ccc}td{border:1px solid #ccc;padding:6px;font-size:12px}.ft{display:flex;justify-content:space-between;margin-top:18px;padding-top:10px;border-top:1px solid #ccc}.sig{text-align:center}.sl{border-top:1px solid #333;width:120px;margin:24px auto 4px}</style></head><body><div class="card"><div class="hd"><div><h1>كشف التلاميذ المغادرين — السنة الدراسية '+yr+'</h1><p>'+scope+' · مادة التربية البدنية والرياضية</p></div><div style="text-align:left;font-size:11px"><div>'+sch+'</div><div>'+yr+'</div></div></div><div class="bd"><table style="max-width:320px"><thead><tr><th>النوع</th><th>العدد</th></tr></thead><tbody>'+sum+'</tbody></table><table><thead><tr><th>#</th><th>الاسم واللقب</th><th>القسم</th><th>نوع المغادرة</th><th>التاريخ</th><th>ملاحظة</th></tr></thead><tbody>'+b+'</tbody></table><div class="ft"><div class="sig"><div>أستاذ التربية البدنية</div><div style="color:#555;margin-top:2px">'+tc+'</div><div class="sl"></div></div><div class="sig"><div>المدير</div><div style="color:#555;margin-top:2px">'+pr+'</div><div class="sl"></div></div></div></div></div></body></html>';
+  document.getElementById('ov-iframe-title').textContent='🚪 كشف المغادرين'+(cls?' · '+cls.name:'');
+  document.getElementById('ov-iframe').style.display='flex';
+  document.getElementById('pdfFrame').srcdoc=html;
+}
+function lvrExcel(){
+  if(typeof XLSX==='undefined'){toast('خطأ','مكتبة Excel غير محمّلة','er');return;}
+  var cid=document.getElementById('lvr-cls').value,ty=document.getElementById('lvr-type').value,rows=lvrRows(cid,ty);
+  if(!rows.length){toast('تنبيه','لا يوجد مغادرون للتصدير','wa');return;}
+  var cn=lvrCounts(rows),tc=D.settings.teacher||'—',sch=D.settings.school||'الثانوية',yr=D.settings.year||'—',cls=cid?GC(cid):null;
+  var head=[['Smart_Sport — '+sch+' — كشف التلاميذ المغادرين'],['السنة الدراسية: '+yr+' — '+(cls?'القسم: '+cls.name:'كل الأقسام')+(ty?' — '+LV_T[ty]:'')],[]];
+  var sum=[['النوع','العدد']];LV_ORDER.forEach(function(k){if(cn[k])sum.push([LV_T[k],cn[k]]);});sum.push(['المجموع',rows.length],[]);
+  var cols=['الرقم','الاسم واللقب','القسم','نوع المغادرة','التاريخ','ملاحظة'];
+  var data=rows.map(function(r,i){return [i+1,r.s.name,r.cls,LV_T[r.ty],fmtDMY(r.dt),r.note];});
+  var foot=[[],['أستاذ التربية البدنية والرياضية: '+tc,'','','','المدير: '+(dirName()||'_______________')]];
+  var ws=XLSX.utils.aoa_to_sheet([].concat(head,sum,[cols],data,foot));
+  ws['!cols']=[{wch:7},{wch:30},{wch:14},{wch:24},{wch:12},{wch:30}];
+  ws['!merges']=[{s:{r:0,c:0},e:{r:0,c:5}},{s:{r:1,c:0},e:{r:1,c:5}}];
+  var wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,'المغادرون');
+  XLSX.writeFile(wb,'المغادرون_'+String(yr).replace(/[\/\\]/g,'-')+'.xlsx');
+  toast('تم التصدير','ملف Excel جاهز للتنزيل');
+}
 // 🗑️ سلة المحذوفات (30 يوماً) — تُحفظ داخل البيانات فتُزامَن مع الأجهزة
 var TRASH_DAYS=30;
 function trashList(){if(!D.trash)D.trash=[];var lim=Date.now()-TRASH_DAYS*86400000;var n0=D.trash.length;D.trash=D.trash.filter(function(x){return x.at>lim;});return D.trash;}
@@ -5552,7 +5659,9 @@ tr:nth-child(even)td{background:#f9faff}
 <div class="steps">
 <div class="step"><strong>🔀 التحويل:</strong> زر «تعديل» تحت التلميذ ← «القسم» ← اختر القسم الجديد ← حفظ. ينتقل بكل نقاطه وغياباته وإعفاءاته</div>
 <div class="step"><strong>🚪 المغادرة:</strong> «تعديل» ← «تسجيل مغادرة التلميذ». يختفي من القائمة والقرعة والإحصائيات والنداء، وتبقى نقاطه محفوظة، ويظهر في الكشوف بعبارة «(غادر بتاريخ…)»</div>
-<div class="step"><strong>↩️ الإرجاع:</strong> من الفلتر اختر «🚪 المغادرون» ← «تعديل» تحت التلميذ ← «إرجاعه إلى القسم»</div>
+<div class="step"><strong>↩️ الإرجاع:</strong> من الفلتر اختر «🚪 المغادرون» ← «تعديل» تحت التلميذ ← «إرجاعه»</div>
+<div class="step"><strong>🚪 أنواع المغادرة (2.8.0):</strong> اختر الفئة (تحويل · فصل · مرض · انقطاع · أخرى)؛ وللتحويل والفصل يظهر مفتاح «⚖️ بمجلس تأديبي». أضف ملاحظة اختيارية (المؤسسة أو رقم المقرر). للتصحيح بعد التسجيل: «تعديل» ← «✏️ تعديل المغادرة».</div>
+<div class="step"><strong>📄 كشف المغادرين السنوي:</strong> 📊 كشوف وإحصاء ← «كشف المغادرين السنوي»: ملخص بعدد كل نوع وجدول بالاسم والقسم والنوع والتاريخ، بتصفية القسم والنوع، وتصدير PDF أو Excel.</div>
 <div class="step"><strong>🗑️ سلة المحذوفات:</strong> ⚙️ الإعدادات ← التلميذ أو القسم المحذوف يبقى 30 يوماً ويمكن «♻️ استرجاعه» بكل بياناته، ثم يُحذف نهائياً تلقائياً</div>
 </div></div>
 
@@ -5635,7 +5744,7 @@ tr:nth-child(even)td{background:#f9faff}
 <div class="step"><strong>🪟 النوافذ الموحّدة:</strong> كل تأكيد أصبح نافذة واحدة الشكل: أيقونة ولون حسب الخطورة (🟠 تنبيه · 🔴 خطر · 🔵 معلومة)، وبطاقة المعني بالإجراء، وصفوف توضّح ما يختفي وما يبقى، وزر باسم الإجراء</div>
 <div class="step"><strong>⌨️ التأكيد بالكتابة:</strong> الإجراءات النهائية فقط (إفراغ السلة · الحذف النهائي · استبدال البيانات · مسح كل البيانات) تطلب كتابة كلمة قبل تفعيل الزر</div>
 <div class="step"><strong>↩️ تراجع:</strong> بعد المغادرة والحذف وإعادة م.م ومسح النتائج والتحويل والتنقيط الجماعي واعتماد السلم، يظهر إشعار فيه زر «↩️ تراجع» لمدة 6 ثوانٍ (يتراجع فقط إن لم تجرِ عملية أخرى بعده)</div>
-<div class="step"><strong>🚪 المغادرة:</strong> تُسجَّل بسبب (انتقل لمؤسسة أخرى · انقطع · فُصل · أخرى) وتاريخ، ويظهران في صفحة التلميذ وقائمة «المغادرون»</div>
+<div class="step"><strong>🚪 المغادرة:</strong> تُسجَّل بسبب (تحويل · فصل · مرض · انقطاع · أخرى، مع «بمجلس تأديبي» للتحويل والفصل) وتاريخ، ويظهران في صفحة التلميذ وقائمة «المغادرون»</div>
 <div class="step">النقر على الخلفية أو السحب للأسفل من الترويسة يغلق النوافذ العادية، أما نوافذ التأكيد والنماذج فلا تُغلق إلا بأزرارها أو بزر الرجوع</div>
 </div></div>
 
@@ -9186,9 +9295,10 @@ function invBillRe(i){var f=invD().bills[i];if(!f)return;invBillOut({sup:f.sup,n
 function invBillRm(i){var v=invD(),f=v.bills[i];if(!f)return;dlgConfirm({icon:'🗑️',tone:'red',title:'حذف الفاتورة من الأرشيف؟',subject:{ini:'🧾',name:'فاتورة '+(f.no||''),meta:f.sup||''},sub:'لا يُعدَّل المخزن؛ الكميات المُدخلة تبقى فيه.',confirmText:'حذف'}).then(function(ok){if(!ok)return;snapshot('حذف فاتورة');v.bills.splice(i,1);SD();invBills();});}
 
 var CHANGELOG = {
-  version: '2.7.2',
-  date: '18 أكتوبر 2026',
+  version: '2.8.0',
+  date: '19 أكتوبر 2026',
   items: [
+    {ic:'🚪', t:'أنواع المغادرة + كشف المغادرين السنوي', d:'سبعة أنواع: تحويل عادي · تحويل بمجلس تأديبي · فصل عادي · فصل بمجلس تأديبي · مرض · انقطاع عن الدراسة · حالة أخرى، باختيار الفئة ثم مفتاح «بمجلس تأديبي»، مع ملاحظة اختيارية وزر «تعديل المغادرة». كشف سنوي في 📊 كشوف وإحصاء: ملخص بالأعداد وجدول بالاسم والقسم والنوع والتاريخ (PDF وExcel). المغادرات القديمة تُرحَّل تلقائيًا إلى أنواعها.'},
     {ic:'🔐', t:'ترويسات أمان + مكتبات محلية', d:'سياسة أمان (CSP) تحصر اتصال التطبيق بخوادمه فقط وتمنع تضمينه في مواقع أخرى؛ مكتبات Excel وPDF وZIP وتصوير الصور صارت داخل التطبيق نفسه بدل شبكة خارجية، فتعمل أسرع وأوثق دون إنترنت؛ وحارس يرفض أي ملف Excel يحاول تعديل بنية المتصفح.'},
     {ic:'🛡️', t:'حماية: تعقيم الأسماء والنصوص + تحقق النسخة الاحتياطية', d:'أي نص يدخل من ملف Excel أو نسخة احتياطية أو السحابة يُنظَّف من وسوم HTML والرموز الخفية قبل أن يُعرض، ويُرفض ملف استعادة غير سليم البنية؛ وروابط واتساب تُفتح دون ربط بالتطبيق. لا تغيير في الواجهة.'},
     {ic:'🧩', t:'قسم «المظهر» + مجموعتا ألوان + حجم الأسماء', d:'الخط وخانات الكتابة والألوان في قسم واحد قابل للطي؛ الألوان: الأصلي · ملوّن هادئ · ملوّن واضح؛ حجم أسماء التلاميذ: عادي · كبير · أكبر؛ والمظهر يُحفظ ضمن النسخة الاحتياطية. وأيقونة بطاقة «عن التطبيق» صارت الجديدة.'},
