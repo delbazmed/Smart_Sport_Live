@@ -1054,6 +1054,9 @@ body{max-width:480px;margin:0 auto;display:flex;flex-direction:column;-webkit-fo
       <div style="background:var(--p2);border:1px solid var(--ln);border-radius:var(--rl);overflow:hidden;margin-bottom:14px">
         <button onclick="openTsm()" style="display:flex;align-items:center;gap:12px;width:100%;padding:14px;background:none;border:none;cursor:pointer;font-family:var(--ff);text-align:right"><span style="font-size:22px">📋</span><span style="flex:1"><span style="display:block;font-size:13px;font-weight:900;color:var(--tx)">ملخص نهاية الفصل</span><span style="display:block;font-size:10px;color:var(--tx3);font-weight:600">صفحة واحدة للإدارة والمفتش — PDF</span></span></button>
       </div>
+      <div style="background:var(--p2);border:1px solid var(--ln);border-radius:var(--rl);overflow:hidden;margin-bottom:14px">
+        <button onclick="openExemptionList()" style="display:flex;align-items:center;gap:12px;width:100%;padding:14px;background:none;border:none;cursor:pointer;font-family:var(--ff);text-align:right"><span style="font-size:22px">🚫</span><span style="flex:1"><span style="display:block;font-size:13px;font-weight:900;color:var(--tx)">قائمة المعفيين</span><span style="display:block;font-size:10px;color:var(--tx3);font-weight:600">التلاميذ المعفيون من الحصة — لكل الأقسام</span></span></button>
+      </div>
       </div>
     </div>
     <div class="acc-sec" style="margin:0 18px 12px;background:var(--p2);border:1px solid var(--ln);border-radius:var(--rl);overflow:hidden">
@@ -1297,7 +1300,6 @@ body{max-width:480px;margin:0 auto;display:flex;flex-direction:column;-webkit-fo
         <div class="bkrow">
           <button class="btn btn-g" style="flex:1" onclick="doBackup()"><svg><use href="#i-bk"/></svg>تنزيل نسخة</button>
           <button class="btn btn-gh" style="flex:1" onclick="doRestore()"><svg><use href="#i-rst"/></svg>استعادة</button>
-        <button class="btn btn-fw" onclick="openExemptionList()" style="background:rgba(232,121,249,.1);border:1px solid rgba(232,121,249,.3);color:var(--pnk);margin-top:4px">📋 قائمة المعفيين</button>
         </div>
       </div>
     </div>
@@ -1361,7 +1363,7 @@ body{max-width:480px;margin:0 auto;display:flex;flex-direction:column;-webkit-fo
         <div class="ail">التطبيق الاحترافي لأساتذة التربية البدنية والرياضية</div>
         <div style="height:14px"></div>
         <div class="ail">المطور: <strong style="color:var(--g)">Delbaz_Med</strong></div>
-        <div class="ail">الإصدار: <strong style="color:var(--gold)">2.8.2 · 19 أكتوبر 2026</strong></div>
+        <div class="ail">الإصدار: <strong style="color:var(--gold)">2.8.3 · 19 أكتوبر 2026</strong></div>
         <div class="ail" style="margin-top:4px">EPS · DZ · 2026</div>
       </div>
     </div>
@@ -9539,9 +9541,10 @@ function invBillRe(i){var f=invD().bills[i];if(!f)return;invBillOut({sup:f.sup,n
 function invBillRm(i){var v=invD(),f=v.bills[i];if(!f)return;dlgConfirm({icon:'🗑️',tone:'red',title:'حذف الفاتورة من الأرشيف؟',subject:{ini:'🧾',name:'فاتورة '+(f.no||''),meta:f.sup||''},sub:'لا يُعدَّل المخزن؛ الكميات المُدخلة تبقى فيه.',confirmText:'حذف'}).then(function(ok){if(!ok)return;snapshot('حذف فاتورة');v.bills.splice(i,1);SD();invBills();});}
 
 var CHANGELOG = {
-  version: '2.8.2',
+  version: '2.8.3',
   date: '19 أكتوبر 2026',
   items: [
+    {ic:'📋', t:'قائمة المعفيين في الكشوف', d:'نُقلت قائمة المعفيين من الإعدادات إلى 📊 كشوف وإحصاء ← إحصاء الأقسام، مع باقي الكشوف الإدارية. الوظيفة نفسها دون تغيير.'},
     {ic:'⚙️', t:'صفحة إعدادات منظَّمة', d:'تجميع الإعدادات في ست مجموعات قابلة للطيّ: المظهر والاستعمال، المزامنة والنسخ الاحتياطي، البيانات والموسم، القفل والحماية، المشاركة والمساعدة. لم تُحذف أي وظيفة.'},
     {ic:'📅', t:'كشف الغيابات الشهري وملخص نهاية الفصل', d:'كشف شهري بالغائب والمبرّر والمريض ونسبة الحضور لكل تلميذ (PDF وExcel)، وملخص فصلي في صفحة واحدة بالأعداد والحضور والمعدلات والمغادرين لكل الأقسام.'},
     {ic:'💾', t:'تذكير أسبوعي بالنسخة الاحتياطية + صفحة الخصوصية', d:'شريط في الرئيسية إن مرّت 7 أيام دون نسخة (يمكن إيقافه من الإعدادات)، وصفحة «🔒 الخصوصية» توضح أين تُحفظ بياناتك وما يخرج منها.'},
