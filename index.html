@@ -1374,7 +1374,7 @@ body{max-width:480px;margin:0 auto;display:flex;flex-direction:column;-webkit-fo
         <div class="ail">التطبيق الاحترافي لأساتذة التربية البدنية والرياضية</div>
         <div style="height:14px"></div>
         <div class="ail">المطور: <strong style="color:var(--g)">Delbaz_Med</strong></div>
-        <div class="ail">الإصدار: <strong style="color:var(--gold)">2.8.5 · 20 أكتوبر 2026</strong></div>
+        <div class="ail">الإصدار: <strong style="color:var(--gold)">2.8.6 · 20 أكتوبر 2026</strong></div>
         <div class="ail" style="margin-top:4px">EPS · DZ · 2026</div>
       </div>
     </div>
@@ -3953,6 +3953,13 @@ async function testTts(){
   if(r&&r.ok&&!r.cancelled)toast('✅ النطق يعمل',r.how||'','su',2600);else if(r&&!r.ok){var ll=ttsLogLines(3);toast('🔇 لا يوجد نطق',(r.why||'')+(ll.length?' | '+ll.join(' | '):''),'wa',9000);}
   try{ttsDraw();}catch(e){}
 }
+// طلب الصوت بلا Referer: خدمة Google تقبل الفتح المباشر وقد ترفض الطلب القادم من موقع آخر (خطأ وسائط 4)
+function ttsNoRef(fn){
+  var m=document.querySelector('meta[name="referrer"]'),made=false,old=null;
+  try{if(!m){m=document.createElement('meta');m.name='referrer';document.head.appendChild(m);made=true;}else old=m.content;m.content='no-referrer';}catch(e){}
+  var r;try{r=fn();}finally{setTimeout(function(){try{if(made)m.remove();else m.content=old;}catch(e){}},5000);}
+  return r;
+}
 function ttsStop(){try{if(TTS.audio){TTS.audio.pause();TTS.audio=null;}}catch(e){}try{if(ttsSupported()&&(speechSynthesis.speaking||speechSynthesis.pending))speechSynthesis.cancel();}catch(e){}TTS.cur=null;}
 function ttsAttempt(txt,voice,lang,ms){
   return new Promise(function(res){
@@ -3978,7 +3985,7 @@ async function ttsOnline(txt,why){
   var urls=['https://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&tl=ar&q=','https://translate.googleapis.com/translate_tts?ie=UTF-8&client=gtx&tl=ar&q='];
   for(var i=0;i<urls.length;i++){
     var why2='';
-    var ok=await new Promise(function(res){var a=new Audio(urls[i]+encodeURIComponent(txt));TTS.audio=a;var d=false,f=function(v){if(!d){d=true;res(v);}};
+    var ok=await new Promise(function(res){var a=ttsNoRef(function(){return new Audio(urls[i]+encodeURIComponent(txt));});TTS.audio=a;var d=false,f=function(v){if(!d){d=true;res(v);}};
       a.onended=function(){f(true);};a.onerror=function(){try{why2='خطأ وسائط '+(a.error?a.error.code:'?');}catch(e){}f(false);};
       var p=a.play();if(p&&p.then)p.then(function(){f(true);}).catch(function(e){why2='play: '+(e&&e.name||'?');f(false);});
       setTimeout(function(){if(!why2)why2='مهلة';f(false);},6000);});
@@ -9563,9 +9570,10 @@ function invBillRe(i){var f=invD().bills[i];if(!f)return;invBillOut({sup:f.sup,n
 function invBillRm(i){var v=invD(),f=v.bills[i];if(!f)return;dlgConfirm({icon:'🗑️',tone:'red',title:'حذف الفاتورة من الأرشيف؟',subject:{ini:'🧾',name:'فاتورة '+(f.no||''),meta:f.sup||''},sub:'لا يُعدَّل المخزن؛ الكميات المُدخلة تبقى فيه.',confirmText:'حذف'}).then(function(ok){if(!ok)return;snapshot('حذف فاتورة');v.bills.splice(i,1);SD();invBills();});}
 
 var CHANGELOG = {
-  version: '2.8.5',
+  version: '2.8.6',
   date: '20 أكتوبر 2026',
   items: [
+    {ic:'🔊', t:'النطق عبر الإنترنت بلا Referer', d:'طلب صوت Google صار يُرسَل دون ترويسة المرجع، بعد أن ظهر أن الخدمة تعمل عند الفتح المباشر وتفشل من داخل التطبيق. وأُعيدت قاعدة الأمان للوسائط إلى خدمتي Google فقط.'},
     {ic:'🔊', t:'إصلاح النطق عبر الإنترنت + تشخيص', d:'السماح لملفات الصوت بالتحميل من أي موقع آمن (https) بعد أن كانت قاعدة الأمان تحصرها في خدمتين، وتسجيل سبب الفشل بدقة في زر «🔊 تجربة النطق».'},
     {ic:'🗣️', t:'التحكم في نطق الأسماء', d:'إضافة «🗣️ نطق الأسماء» في الإعدادات ← المظهر والاستعمال: مفتاح السماح بالنطق عبر الإنترنت (كان رفضه السابق دائماً بلا وسيلة لتغييره) وزر «🔊 تجربة النطق» لمعرفة سبب الصمت.'},
     {ic:'📋', t:'قائمة المعفيين في الكشوف', d:'نُقلت قائمة المعفيين من الإعدادات إلى 📊 كشوف وإحصاء ← إحصاء الأقسام، مع باقي الكشوف الإدارية. الوظيفة نفسها دون تغيير.'},
