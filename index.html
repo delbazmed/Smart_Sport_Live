@@ -1374,7 +1374,7 @@ body{max-width:480px;margin:0 auto;display:flex;flex-direction:column;-webkit-fo
         <div class="ail">التطبيق الاحترافي لأساتذة التربية البدنية والرياضية</div>
         <div style="height:14px"></div>
         <div class="ail">المطور: <strong style="color:var(--g)">Delbaz_Med</strong></div>
-        <div class="ail">الإصدار: <strong style="color:var(--gold)">2.8.6 · 20 أكتوبر 2026</strong></div>
+        <div class="ail">الإصدار: <strong style="color:var(--gold)">2.9.0 · 21 أكتوبر 2026</strong></div>
         <div class="ail" style="margin-top:4px">EPS · DZ · 2026</div>
       </div>
     </div>
@@ -2579,9 +2579,10 @@ function rHome(){
   if(!S.cid&&D.classes.length)S.cid=D.classes[0].id;
   setTimeout(initClsDrag,0);
   const body=document.getElementById('hbody');
-  if(!D.classes.length){body.innerHTML='<div class="emp" style="margin-top:30px"><div class="empic"><svg><use href="#i-fld"/></svg></div><div class="empt">لا توجد أقسام بعد</div><div class="empd">اضغط + في شريط الأقسام</div></div>';return;}
+  if(!D.classes.length){body.innerHTML=obHtml();return;}
   if(!S.cid){body.innerHTML='';return;}
   const cls=GC(S.cid);if(!cls){S.cid=null;rHome();return;}
+  if(!D.students.length){body.innerHTML=obStep2(cls);return;}
   const allStus=GSC(S.cid);allStus.forEach(initStu);const stus=allStus.filter(s=>!s.left);const leftN=allStus.length-stus.length;
   let h=bkBanner()+privBanner();
   if(isPendingStale()){
@@ -2675,7 +2676,7 @@ function rHome(){
     '</select>'+
   '</div>';
   h+='<div class="srows" id="srows-main">';
-  if(!allStus.length){h+='<div class="emp" style="padding:30px 0"><div class="empic" style="width:60px;height:60px"><svg><use href="#i-usr"/></svg></div><div class="empd">لا يوجد تلاميذ بعد</div></div>';}
+  if(!allStus.length){h+='<div style="padding:6px 18px 0"><div style="text-align:center;margin:10px 0 12px;font-size:14px;font-weight:900;color:var(--tx)">لا يوجد تلاميذ في هذا القسم بعد</div>'+obStuActions()+obConds()+'</div>';}
   else{
     const clsStus=D.students.filter(s=>s.classId===S.cid);
     const homeMode2=curHomeMode();
@@ -5473,6 +5474,43 @@ function tsmPrint(){
   document.getElementById('ov-iframe-title').textContent='📋 ملخص '+TLB[tk];
   document.getElementById('ov-iframe').style.display='flex';
   document.getElementById('pdfFrame').srcdoc=html;
+}
+
+// ═══ 2.9.0 · شاشة البداية للمستخدم الجديد: (1) الأقسام ثم (2) التلاميذ ═══
+function obCard(fn,ic,t,sub,main){
+  return '<button onclick="'+fn+'" style="display:flex;align-items:center;gap:12px;width:100%;padding:14px;margin-bottom:10px;background:'+(main?'rgba(0,217,126,.09)':'var(--p2)')+';border:'+(main?'1.5px solid rgba(0,217,126,.45)':'1px solid var(--ln)')+';border-radius:var(--rl);cursor:pointer;font-family:var(--ff);text-align:right"><span style="font-size:24px">'+ic+'</span><span style="flex:1"><span style="display:block;font-size:13.5px;font-weight:900;color:var(--tx)">'+t+'</span><span style="display:block;font-size:11px;color:var(--tx3);font-weight:600;margin-top:2px;line-height:1.5">'+sub+'</span></span></button>';
+}
+function obSteps(n){
+  var d=function(k,t){var on=k<=n;return '<span style="display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:800;color:'+(on?'var(--g)':'var(--tx3)')+'"><span style="width:20px;height:20px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;background:'+(on?'var(--g)':'var(--p3)')+';color:'+(on?'#04170d':'var(--tx3)')+';font-size:11px">'+k+'</span>'+t+'</span>';};
+  return '<div style="display:flex;justify-content:center;gap:14px;margin-bottom:16px">'+d(1,'الأقسام')+d(2,'التلاميذ')+'</div>';
+}
+// ملاحظة التثبيت (تختفي إن كان التطبيق مثبّتاً أصلاً)
+function obInstall(){
+  var standalone=false;try{standalone=matchMedia('(display-mode: standalone)').matches||navigator.standalone;}catch(e){}
+  if(standalone)return '';
+  return '<div style="background:rgba(245,185,50,.09);border:1px solid rgba(245,185,50,.4);border-radius:var(--rl);padding:12px 14px;margin-bottom:12px"><div style="font-size:13px;font-weight:900;color:var(--tx);margin-bottom:6px">📲 قبل البدء: ثبّت التطبيق على هاتفك</div><div style="font-size:11px;color:var(--tx2);font-weight:600;line-height:1.9">يعمل التطبيق المثبَّت كتطبيق مستقل، ويفتح من أيقونته دون إنترنت، فلا تضيع منك الصفحة.<br><b style="color:var(--tx)">أندرويد (Chrome):</b> اضغط ⋮ أعلى المتصفح ← «تثبيت التطبيق» أو «إضافة إلى الشاشة الرئيسية» ← «تثبيت».<br><b style="color:var(--tx)">آيفون (Safari):</b> اضغط زر المشاركة ⬆️ ← «إضافة إلى الشاشة الرئيسية» ← «إضافة».<br>ثم افتح التطبيق من أيقونته، وأضف قسمك الأول 👇</div></div>';
+}
+// الخطوة 1: لا أقسام بعد
+function obHtml(){
+  return '<div style="padding:6px 18px 0"><div style="text-align:center;margin:14px 0 14px"><div style="font-size:34px">👋</div><div style="font-size:18px;font-weight:900;color:var(--tx);margin-top:6px">مرحباً بك في Smart_Sport</div><div style="font-size:12px;color:var(--tx3);font-weight:600;margin-top:4px">ابدأ بخطوتين بسيطتين</div></div>'
+   +obSteps(1)+obInstall()
+   +obCard("openOv('ov-cls')",'➕','أضف قسمك الأول','اكتب اسم القسم واختر مستواه، ويمكنك إضافة بقية أقسامك بزر «+» في الأعلى',true)
+   +'</div>';
+}
+// أزرار إضافة التلاميذ (نفس أدوات القسم)
+function obStuActions(){
+  return obCard('importExcel()','📊','استيراد التلاميذ من ملف Excel','الأسرع: قائمة القسم كاملة دفعة واحدة',true)
+   +obCard('downloadStuTemplate()','📥','تنزيل نموذج Excel جاهز','املأه ثم استورده — الأعمدة جاهزة')
+   +obCard('openAddStu()','➕','إضافة تلميذ يدوياً','تلميذاً تلميذاً');
+}
+function obConds(){
+  return '<div style="background:var(--p2);border:1px solid var(--ln);border-radius:var(--rl);padding:12px 14px;font-size:11px;color:var(--tx2);font-weight:600;line-height:1.9"><div style="font-weight:900;color:var(--tx);margin-bottom:4px">📌 شروط الاستيراد</div>'
+   +'• يُضاف إلى القسم المحدّد في الشريط أعلاه<br>• يقبل أي قائمة (حتى الرسمية): يتجاهل أسطر العنوان والترقيم ورقم التعريف وتاريخ الميلاد<br>• يتعرّف على الأعمدة بأسمائها (عربية أو فرنسية) بأي ترتيب: <b>اللقب · الاسم · الجنس · هاتف الولي</b> (الهاتف اختياري)<br>• قبل الإضافة ترى معاينة: تصحّح الجنس وتُتخطّى الأسماء المكرّرة</div>';
+}
+// الخطوة 2: توجد أقسام ولا يوجد أي تلميذ في التطبيق
+function obStep2(cls){
+  return '<div style="padding:6px 18px 0"><div style="text-align:center;margin:14px 0 14px"><div style="font-size:34px">✅</div><div style="font-size:17px;font-weight:900;color:var(--tx);margin-top:6px">تمت إضافة القسم «'+escH(cls.name)+'»</div><div style="font-size:12px;color:var(--tx3);font-weight:600;margin-top:4px">الآن أضف تلاميذ هذا القسم</div></div>'
+   +obSteps(2)+obStuActions()+obConds()+'</div>';
 }
 // 🗑️ سلة المحذوفات (30 يوماً) — تُحفظ داخل البيانات فتُزامَن مع الأجهزة
 var TRASH_DAYS=30;
@@ -9570,9 +9608,10 @@ function invBillRe(i){var f=invD().bills[i];if(!f)return;invBillOut({sup:f.sup,n
 function invBillRm(i){var v=invD(),f=v.bills[i];if(!f)return;dlgConfirm({icon:'🗑️',tone:'red',title:'حذف الفاتورة من الأرشيف؟',subject:{ini:'🧾',name:'فاتورة '+(f.no||''),meta:f.sup||''},sub:'لا يُعدَّل المخزن؛ الكميات المُدخلة تبقى فيه.',confirmText:'حذف'}).then(function(ok){if(!ok)return;snapshot('حذف فاتورة');v.bills.splice(i,1);SD();invBills();});}
 
 var CHANGELOG = {
-  version: '2.8.6',
-  date: '20 أكتوبر 2026',
+  version: '2.9.0',
+  date: '21 أكتوبر 2026',
   items: [
+    {ic:'👋', t:'شاشة ترحيب للمستخدم الجديد', d:'خطوتان: إضافة الأقسام ثم التلاميذ (استيراد Excel بشروطه مع نموذج جاهز، أو إضافة يدوية)، مع ملاحظة تثبيت التطبيق على الهاتف قبل البدء. تختفي بمجرد وجود تلاميذ فتظهر الشاشة المعتادة كاملة.'},
     {ic:'🔊', t:'النطق عبر الإنترنت بلا Referer', d:'طلب صوت Google صار يُرسَل دون ترويسة المرجع، بعد أن ظهر أن الخدمة تعمل عند الفتح المباشر وتفشل من داخل التطبيق. وأُعيدت قاعدة الأمان للوسائط إلى خدمتي Google فقط.'},
     {ic:'🔊', t:'إصلاح النطق عبر الإنترنت + تشخيص', d:'السماح لملفات الصوت بالتحميل من أي موقع آمن (https) بعد أن كانت قاعدة الأمان تحصرها في خدمتين، وتسجيل سبب الفشل بدقة في زر «🔊 تجربة النطق».'},
     {ic:'🗣️', t:'التحكم في نطق الأسماء', d:'إضافة «🗣️ نطق الأسماء» في الإعدادات ← المظهر والاستعمال: مفتاح السماح بالنطق عبر الإنترنت (كان رفضه السابق دائماً بلا وسيلة لتغييره) وزر «🔊 تجربة النطق» لمعرفة سبب الصمت.'},
