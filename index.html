@@ -1243,6 +1243,17 @@ body{max-width:480px;margin:0 auto;display:flex;flex-direction:column;-webkit-fo
       </div>
     </div>
     <div class="setsec">
+      <div class="ey" style="margin-bottom:12px">🗣️ نطق الأسماء</div>
+      <div class="setc">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:10px">
+          <div><div style="font-size:13px;font-weight:800;color:var(--tx)">🌐 السماح بالنطق عبر الإنترنت</div><div style="font-size:11px;color:var(--tx3);margin-top:2px;line-height:1.6">يُستعمل فقط إن لم يتوفر صوت عربي في هاتفك. يُرسَل الاسم إلى خدمة Google للنطق.</div></div>
+          <div class="tgl" id="tts-tgl" onclick="toggleTtsOnline()"></div>
+        </div>
+        <div id="tts-state" style="font-size:11px;color:var(--tx3);font-weight:700;margin:10px 0"></div>
+        <button class="btn btn-fw" onclick="testTts()">🔊 تجربة النطق</button>
+      </div>
+    </div>
+    <div class="setsec">
       <div class="ey" style="margin-bottom:12px">🎨 المظهر</div>
       <div class="setc" id="app-body">
         <div style="font-size:11px;color:var(--tx3);font-weight:700;margin:0 0 8px">🔤 نوع الخط:</div>
@@ -1363,7 +1374,7 @@ body{max-width:480px;margin:0 auto;display:flex;flex-direction:column;-webkit-fo
         <div class="ail">التطبيق الاحترافي لأساتذة التربية البدنية والرياضية</div>
         <div style="height:14px"></div>
         <div class="ail">المطور: <strong style="color:var(--g)">Delbaz_Med</strong></div>
-        <div class="ail">الإصدار: <strong style="color:var(--gold)">2.8.3 · 19 أكتوبر 2026</strong></div>
+        <div class="ail">الإصدار: <strong style="color:var(--gold)">2.8.4 · 20 أكتوبر 2026</strong></div>
         <div class="ail" style="margin-top:4px">EPS · DZ · 2026</div>
       </div>
     </div>
@@ -3932,6 +3943,15 @@ function ttsVoicesAsync(){return new Promise(function(res){var s=window.speechSy
   if(v.length)return res(v);var done=false;var fin=function(){if(done)return;done=true;var x=[];try{x=s.getVoices()||[];}catch(e){}res(x);};
   try{s.addEventListener('voiceschanged',fin,{once:true});}catch(e){s.onvoiceschanged=fin;}setTimeout(fin,1500);});}
 function ttsArabicVoices(vs){return vs.filter(function(v){var l=String(v.lang||'').toLowerCase().replace('_','-'),n=String(v.name||'');return /^ar(-|$)/.test(l)||/^ara/.test(l)||/arab|عرب/i.test(n);});}
+function ttsOnlineMode(){return lsGet('ss_tts_online');}
+function ttsDraw(){var m=ttsOnlineMode(),t=document.getElementById('tts-tgl');if(t)t.className='tgl'+(m==='1'?' on':'');var e=document.getElementById('tts-state');if(e)e.textContent=m==='1'?'مسموح':m==='0'?'مرفوض — لن يُستعمل الإنترنت للنطق':'لم يُحدَّد بعد — سيسألك التطبيق عند الحاجة';}
+function toggleTtsOnline(){lsSet('ss_tts_online',ttsOnlineMode()==='1'?'0':'1');ttsDraw();}
+async function testTts(){
+  toast('🔊 جارٍ التجربة','استمع قليلاً…','su',1800);
+  var r;try{r=await ttsSpeak('مرحباً بكم في حصة التربية البدنية');}catch(e){r={ok:false,why:String(e&&e.message||e)};}
+  if(r&&r.ok&&!r.cancelled)toast('✅ النطق يعمل',r.how||'','su',2600);else if(r&&!r.ok)toast('🔇 لا يوجد نطق',r.why||'','wa',4500);
+  try{ttsDraw();}catch(e){}
+}
 function ttsStop(){try{if(TTS.audio){TTS.audio.pause();TTS.audio=null;}}catch(e){}try{if(ttsSupported()&&(speechSynthesis.speaking||speechSynthesis.pending))speechSynthesis.cancel();}catch(e){}TTS.cur=null;}
 function ttsAttempt(txt,voice,lang,ms){
   return new Promise(function(res){
@@ -3948,7 +3968,7 @@ function ttsAttempt(txt,voice,lang,ms){
 }
 async function ttsOnline(txt,why){
   var allow=null;try{allow=localStorage.getItem('ss_tts_online');}catch(e){}
-  if(allow==='0')return {ok:false,why:why+' — النطق عبر الإنترنت غير مسموح (يُغيَّر من ⚙️ الإعدادات ← فحص الحفظ والجهاز)'};
+  if(allow==='0')return {ok:false,why:why+' — النطق عبر الإنترنت غير مسموح (يُغيَّر من ⚙️ الإعدادات ← المظهر والاستعمال ← نطق الأسماء)'};
   if(allow!=='1'){
     var yes=await dlgConfirm({tone:'blu',icon:'🗣️',title:'تعذّر النطق داخل الهاتف',sub:'لا يوجد صوت عربي يستجيب في هذا الهاتف. يمكن نطق الأسماء عبر خدمة صوت على الإنترنت',rows:[['🌐','<b>يُرسَل إلى الخدمة:</b> الاسم المنطوق فقط، لحظة النطق'],['🔒','لا تُرسل أي بيانات أخرى ولا يُحفظ شيء عندنا'],['📶','تحتاج إنترنت أثناء الحصة']],confirmText:'🌐 السماح بالنطق عبر الإنترنت',cancelText:'لا، دون نطق'});
     try{localStorage.setItem('ss_tts_online',yes?'1':'0');}catch(e){}
@@ -5052,7 +5072,7 @@ function toggleApp(){var b=document.getElementById('app-body'),a=document.getEle
 function ftSave(o){try{localStorage.setItem('ss_font',JSON.stringify(o));}catch(e){}ftApply();rFont();}
 function ftSet(k){var o=ftGet();o.f=k;ftSave(o);toast('🔤 الخط',FTS[k].n,'su',1600);}
 function ftScope(s){var o=ftGet();o.s=s;ftSave(o);}
-function rSettings(){try{rFont();}catch(e){}document.getElementById('st-tc').value=D.settings.teacher||'';document.getElementById('st-sc').value=D.settings.school||'';document.getElementById('st-yr').value=D.settings.year||'';document.getElementById('st-pr').value=D.settings.principal||'';document.getElementById('st-dr').value=D.settings.director||'';var sit=document.getElementById('sync-ind-tgl');if(sit)sit.className='tgl'+(localStorage.getItem('ss_syncIndicatorOff')==='1'?'':' on');var wt=document.getElementById('wake-tgl');if(wt)wt.className='tgl'+(wakeOn()?' on':'');rTrash();rSlots();try{bkDraw();}catch(e){}}
+function rSettings(){try{rFont();}catch(e){}document.getElementById('st-tc').value=D.settings.teacher||'';document.getElementById('st-sc').value=D.settings.school||'';document.getElementById('st-yr').value=D.settings.year||'';document.getElementById('st-pr').value=D.settings.principal||'';document.getElementById('st-dr').value=D.settings.director||'';var sit=document.getElementById('sync-ind-tgl');if(sit)sit.className='tgl'+(localStorage.getItem('ss_syncIndicatorOff')==='1'?'':' on');var wt=document.getElementById('wake-tgl');if(wt)wt.className='tgl'+(wakeOn()?' on':'');rTrash();rSlots();try{bkDraw();}catch(e){}try{ttsDraw();}catch(e){}}
 function saveSettings(){D.settings.teacher=ssName(document.getElementById('st-tc').value.trim());D.settings.school=ssName(document.getElementById('st-sc').value.trim());D.settings.year=ssName(document.getElementById('st-yr').value.trim())||'2025-2026';D.settings.principal=ssName(document.getElementById('st-pr').value.trim());D.settings.director=ssName(document.getElementById('st-dr').value.trim());SD();toast('تم الحفظ','تم حفظ المعلومات الشخصية');}
 
 // ═══════════════════════════════════════════════════════
@@ -9541,9 +9561,10 @@ function invBillRe(i){var f=invD().bills[i];if(!f)return;invBillOut({sup:f.sup,n
 function invBillRm(i){var v=invD(),f=v.bills[i];if(!f)return;dlgConfirm({icon:'🗑️',tone:'red',title:'حذف الفاتورة من الأرشيف؟',subject:{ini:'🧾',name:'فاتورة '+(f.no||''),meta:f.sup||''},sub:'لا يُعدَّل المخزن؛ الكميات المُدخلة تبقى فيه.',confirmText:'حذف'}).then(function(ok){if(!ok)return;snapshot('حذف فاتورة');v.bills.splice(i,1);SD();invBills();});}
 
 var CHANGELOG = {
-  version: '2.8.3',
-  date: '19 أكتوبر 2026',
+  version: '2.8.4',
+  date: '20 أكتوبر 2026',
   items: [
+    {ic:'🗣️', t:'التحكم في نطق الأسماء', d:'إضافة «🗣️ نطق الأسماء» في الإعدادات ← المظهر والاستعمال: مفتاح السماح بالنطق عبر الإنترنت (كان رفضه السابق دائماً بلا وسيلة لتغييره) وزر «🔊 تجربة النطق» لمعرفة سبب الصمت.'},
     {ic:'📋', t:'قائمة المعفيين في الكشوف', d:'نُقلت قائمة المعفيين من الإعدادات إلى 📊 كشوف وإحصاء ← إحصاء الأقسام، مع باقي الكشوف الإدارية. الوظيفة نفسها دون تغيير.'},
     {ic:'⚙️', t:'صفحة إعدادات منظَّمة', d:'تجميع الإعدادات في ست مجموعات قابلة للطيّ: المظهر والاستعمال، المزامنة والنسخ الاحتياطي، البيانات والموسم، القفل والحماية، المشاركة والمساعدة. لم تُحذف أي وظيفة.'},
     {ic:'📅', t:'كشف الغيابات الشهري وملخص نهاية الفصل', d:'كشف شهري بالغائب والمبرّر والمريض ونسبة الحضور لكل تلميذ (PDF وExcel)، وملخص فصلي في صفحة واحدة بالأعداد والحضور والمعدلات والمغادرين لكل الأقسام.'},
