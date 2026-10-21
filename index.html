@@ -1317,6 +1317,15 @@ body{max-width:480px;margin:0 auto;display:flex;flex-direction:column;-webkit-fo
     </div></div>
     <div class="sg" id="sg-data"><button class="sgh" onclick="sgToggle('data')"><span class="sgi">🗄️</span><span class="sgt"><b>البيانات والموسم</b><small>أرشفة الموسم · موسم جديد · سلة المحذوفات</small></span><span class="sga">▸</span></button><div class="sgb">
     <div class="setsec">
+      <div class="ey" style="margin-bottom:12px">🚪 المغادرون في الكشوف</div>
+      <div class="setc">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:10px">
+          <div><div style="font-size:13px;font-weight:800;color:var(--tx)">🙈 إخفاء المغادرين من الكشوف</div><div style="font-size:11px;color:var(--tx3);margin-top:2px;line-height:1.6">عند التشغيل لا يظهر المغادرون في الكشوف المطبوعة وملفات Excel. بياناتهم تبقى محفوظة، ويعرضهم «كشف المغادرين السنوي» والأرشيف دائماً. لا يمسّ استيراد ملف المنصة وتعبئته.</div></div>
+          <div class="tgl" id="hl-tgl" onclick="toggleHideLeft()"></div>
+        </div>
+      </div>
+    </div>
+    <div class="setsec">
       <div class="ey" style="margin-bottom:12px">🗄️ الأرشيف والموسم الجديد</div>
       <div class="setc">
         <div style="font-size:12px;color:var(--tx2);font-weight:500;margin-bottom:14px;line-height:1.6">احفظ نتائج الموسم كاملة (JSON قابل للاستعادة + Excel + كشوف PDF) دون حذف أي شيء، أو ابدأ موسماً جديداً.</div>
@@ -1374,7 +1383,7 @@ body{max-width:480px;margin:0 auto;display:flex;flex-direction:column;-webkit-fo
         <div class="ail">التطبيق الاحترافي لأساتذة التربية البدنية والرياضية</div>
         <div style="height:14px"></div>
         <div class="ail">المطور: <strong style="color:var(--g)">Delbaz_Med</strong></div>
-        <div class="ail">الإصدار: <strong style="color:var(--gold)">2.9.0 · 21 أكتوبر 2026</strong></div>
+        <div class="ail">الإصدار: <strong style="color:var(--gold)">2.9.1 · 21 أكتوبر 2026</strong></div>
         <div class="ail" style="margin-top:4px">EPS · DZ · 2026</div>
       </div>
     </div>
@@ -2389,6 +2398,8 @@ function GC(id){return D.classes.find(c=>c.id===id);}
 function GS(id){return D.students.find(s=>s.id===id);}
 function GSC(cid){return D.students.filter(s=>s.classId===cid);}
 // 🚪 التلاميذ النشطون فقط (بدون المغادرين)
+function hideLeft(){return !window.__keepLeft&&lsGet('ss_hideLeft')==='1';}
+function GSR(cid){return D.students.filter(s=>s.classId===cid&&!(hideLeft()&&s.left));}
 function GSA(cid){return D.students.filter(s=>s.classId===cid&&!s.left);}
 function leftTag(s,nm){return s&&s.left?nm+' (غادر '+fmtDM(s.left)+')':nm;}
 function initStu(s){if(!s.terms)s.terms={};['t1','t2','t3'].forEach(k=>{if(!s.terms[k])s.terms[k]={exempted:false,actF:null,actJ:null,mc:{ses:[2,2,2,2,2,2,2],discipline:2,participation:0,creativity:0,mcEntered:false,_discTouched:false},fard:{tr:[],jg:null},test:{tr:[],jg:null}};else{var _mc=s.terms[k].mc;if(_mc.mcEntered===undefined)_mc.mcEntered=false;if(_mc.discipline===undefined||_mc.discipline===null)_mc.discipline=2;else if(_mc.discipline===0&&!_mc._discTouched)_mc.discipline=2;if(_mc.ses&&_mc.ses.length&&_mc.ses.every(function(v){return v===0;}))_mc.ses=[2,2,2,2,2,2,2];}var _m=s.terms[k].mc;if(typeof _m.perf!=='number'){if(typeof _m.pb!=='number')_m.pb=parseFloat(_m.participation)||0;_m.perf=(typeof perfDefault==='function')?perfDefault():0;_m.perfDef=true;_m.participation=Math.min(2,Math.round((_m.perf+_m.pb)*100)/100);}});}
@@ -5082,7 +5093,7 @@ function toggleApp(){var b=document.getElementById('app-body'),a=document.getEle
 function ftSave(o){try{localStorage.setItem('ss_font',JSON.stringify(o));}catch(e){}ftApply();rFont();}
 function ftSet(k){var o=ftGet();o.f=k;ftSave(o);toast('🔤 الخط',FTS[k].n,'su',1600);}
 function ftScope(s){var o=ftGet();o.s=s;ftSave(o);}
-function rSettings(){try{rFont();}catch(e){}document.getElementById('st-tc').value=D.settings.teacher||'';document.getElementById('st-sc').value=D.settings.school||'';document.getElementById('st-yr').value=D.settings.year||'';document.getElementById('st-pr').value=D.settings.principal||'';document.getElementById('st-dr').value=D.settings.director||'';var sit=document.getElementById('sync-ind-tgl');if(sit)sit.className='tgl'+(localStorage.getItem('ss_syncIndicatorOff')==='1'?'':' on');var wt=document.getElementById('wake-tgl');if(wt)wt.className='tgl'+(wakeOn()?' on':'');rTrash();rSlots();try{bkDraw();}catch(e){}try{ttsDraw();}catch(e){}}
+function rSettings(){try{rFont();}catch(e){}document.getElementById('st-tc').value=D.settings.teacher||'';document.getElementById('st-sc').value=D.settings.school||'';document.getElementById('st-yr').value=D.settings.year||'';document.getElementById('st-pr').value=D.settings.principal||'';document.getElementById('st-dr').value=D.settings.director||'';var sit=document.getElementById('sync-ind-tgl');if(sit)sit.className='tgl'+(localStorage.getItem('ss_syncIndicatorOff')==='1'?'':' on');var wt=document.getElementById('wake-tgl');if(wt)wt.className='tgl'+(wakeOn()?' on':'');rTrash();rSlots();try{bkDraw();}catch(e){}try{ttsDraw();}catch(e){}try{hlDraw();}catch(e){}}
 function saveSettings(){D.settings.teacher=ssName(document.getElementById('st-tc').value.trim());D.settings.school=ssName(document.getElementById('st-sc').value.trim());D.settings.year=ssName(document.getElementById('st-yr').value.trim())||'2025-2026';D.settings.principal=ssName(document.getElementById('st-pr').value.trim());D.settings.director=ssName(document.getElementById('st-dr').value.trim());SD();toast('تم الحفظ','تم حفظ المعلومات الشخصية');}
 
 // ═══════════════════════════════════════════════════════
@@ -5329,6 +5340,8 @@ function bkBanner(){
   return '<div id="bk-banner" style="margin:0 18px 14px;background:rgba(245,185,50,.1);border:1px solid rgba(245,185,50,.4);border-radius:var(--r);padding:12px 14px"><div style="font-size:13px;font-weight:900;color:var(--tx)">⚠️ '+(lastTs?'آخر نسخة احتياطية قبل '+d+' أيام':'لم تحفظ نسخة احتياطية بعد')+'</div><div style="font-size:11px;color:var(--tx3);font-weight:600;margin:4px 0 10px;line-height:1.6">احفظ نسخة الآن حتى لا تضيع بياناتك إن ضاع الهاتف.</div><div style="display:flex;gap:8px"><button class="btn btn-g" style="flex:2" onclick="doBackup()">💾 حفظ نسخة الآن</button><button class="btn" style="flex:1" onclick="bkLater()">لاحقاً</button></div></div>';
 }
 function bkLater(){lsSet('ss_bkSnooze',String(Date.now()+864e5));rHome();}
+function hlDraw(){var t=document.getElementById('hl-tgl');if(t)t.className='tgl'+(lsGet('ss_hideLeft')==='1'?' on':'');}
+function toggleHideLeft(){lsSet('ss_hideLeft',lsGet('ss_hideLeft')==='1'?'0':'1');hlDraw();toast(lsGet('ss_hideLeft')==='1'?'🙈 المغادرون مخفيون من الكشوف':'المغادرون يظهرون في الكشوف بعلامة «غادر»','','su',2200);}
 function toggleBkRemind(){var on=lsGet('ss_bkRemind')==='0';lsSet('ss_bkRemind',on?'1':'0');bkDraw();toast(on?'⏰ التذكير الأسبوعي مفعّل':'التذكير الأسبوعي متوقف','','su',1800);}
 function bkDraw(){
   var t=document.getElementById('bk-tgl');if(t)t.className='tgl'+(lsGet('ss_bkRemind')==='0'?'':' on');
@@ -6192,7 +6205,7 @@ function exportAllTermsExcel(){
   const termLabels={t1:'الفصل الأول',t2:'الفصل الثاني',t3:'الفصل الثالث'};
   D.classes.forEach(cls=>{
     ['t1','t2','t3'].forEach(tk=>{
-      const stus=D.students.filter(s=>s.classId===cls.id);
+      const stus=GSR(cls.id);
       const acts=D.settings.acts[tk];
       const fn=acts.f?AF[acts.f].n:'—'; const jn=acts.j?AJ[acts.j].n:'—';
       const header=[['Smart_Sport — '+sch+' — '+cls.name+' ('+LVL[cls.level]+')'],[termLabels[tk]+' — الموسم: '+yr+' — فردي: '+fn+' — جماعي: '+jn],[]];
@@ -6227,7 +6240,7 @@ function exportAllAnnualExcel(){
   const tc=D.settings.teacher||'—',sch=D.settings.school||'الثانوية',yr=D.settings.year||'—';
   const wb=XLSX.utils.book_new();
   D.classes.forEach(cls=>{
-    const stus=D.students.filter(s=>s.classId===cls.id);
+    const stus=GSR(cls.id);
     const header=[['Smart_Sport — '+sch+' — '+cls.name+' ('+LVL[cls.level]+')'],[' كشف النقاط السنوي — الموسم: '+yr],[]];
     const cols=['الرقم','الاسم واللقب','الجنس','الفصل 1 /20','الفصل 2 /20','الفصل 3 /20','المعدل السنوي /20','التقدير','الإرشادات'];
     const rows=[];
@@ -6302,7 +6315,7 @@ tr:nth-child(even)td{background:#f5f5f5}
 
 function buildTermSheet(clsId, tk, tc, sch, yr){const pr=dirName()||'_______________';
   const cls=GC(clsId);if(!cls)return'';
-  const stus=D.students.filter(s=>s.classId===clsId);
+  const stus=GSR(clsId);
   const termLabels={t1:'الفصل الأول',t2:'الفصل الثاني',t3:'الفصل الثالث'};
   const acts=D.settings.acts[tk];
   const fn=acts.f?AF[acts.f].ic+' '+AF[acts.f].n:'—';
@@ -6328,7 +6341,7 @@ function buildTermSheet(clsId, tk, tc, sch, yr){const pr=dirName()||'___________
 
 function buildAnnualSheet(clsId, tc, sch, yr){const pr=dirName()||'_______________';
   const cls=GC(clsId);if(!cls)return'';
-  const stus=D.students.filter(s=>s.classId===clsId);
+  const stus=GSR(clsId);
   let rows='';
   stus.forEach((s,i)=>{
     initStu(s);
@@ -6378,7 +6391,7 @@ function nameUnits(n){var toks=String(n||'').trim().split(/\s+/).filter(Boolean)
 function shortName(n){if(!n)return'';var u=nameUnits(n);return u.length>2?u[0]+' '+u[1]:String(n).trim().replace(/\\s+/g,' ');}
 function buildMCSheetCx(clsId, tk, tc, sch, yr){const pr=dirName()||'_______________';
   const cls=GC(clsId);if(!cls)return'';
-  const stus=D.students.filter(s=>s.classId===clsId);const cr=mcCrits();
+  const stus=GSR(clsId);const cr=mcCrits();
   const termLabels={t1:'الفصل الأول',t2:'الفصل الثاني',t3:'الفصل الثالث'};
   let rows='';let sum=0,cnt=0;
   stus.forEach(function(s){initStu(s);const t=s.terms[tk];const nm=leftTag(s,shortName(s.name));const gn=s.gender==='male'?'ذ':'أ';
@@ -6397,7 +6410,7 @@ function buildMCSheetCx(clsId, tk, tc, sch, yr){const pr=dirName()||'___________
 function buildMCSheet(clsId, tk, tc, sch, yr){const pr=dirName()||'_______________';
   const cls=GC(clsId);if(!cls)return'';
   {const _f=D.students.filter(x=>x.classId===clsId)[0];if(mcModeOf(_f&&_f.terms&&_f.terms[tk]?_f.terms[tk]:null)==='custom')return buildMCSheetCx(clsId,tk,tc,sch,yr);}
-  const stus=D.students.filter(s=>s.classId===clsId);
+  const stus=GSR(clsId);
   const termLabels={t1:'الفصل الأول',t2:'الفصل الثاني',t3:'الفصل الثالث'};
   const showSesT=(t,i)=>{const st=sesState(t,i);return st==='ab'?'<td style="color:#c0392b;font-weight:700">A</td>':st==='ju'?'<td style="color:#d35400;font-weight:700">غم</td>':st==='sk'?'<td style="color:#e67e22;font-weight:700">M</td>':'<td></td>';};
   let rows='';let sum=0,cnt=0;
@@ -6448,7 +6461,7 @@ function buildMCSheet(clsId, tk, tc, sch, yr){const pr=dirName()||'_____________
 
 function buildFETSheet(clsId, tk, et, tc, sch, yr){const pr=dirName()||'_______________';
   const cls=GC(clsId);if(!cls)return'';
-  const stus=D.students.filter(s=>s.classId===clsId);
+  const stus=GSR(clsId);
   const termLabels={t1:'الفصل الأول',t2:'الفصل الثاني',t3:'الفصل الثالث'};
   const acts=D.settings.acts[tk];const defAk=acts?acts.f:null;
   const ac=defAk?AF[defAk]:null;const unit=ac?ac.u:'';const unitLbl=unit?(' ('+unit+')'):'';
@@ -6699,7 +6712,7 @@ function exportArchiveExcel(label){
   const wb=XLSX.utils.book_new();
   // Sheet per class (annual)
   D.classes.forEach(cls=>{
-    const stus=D.students.filter(s=>s.classId===cls.id);
+    const stus=GSR(cls.id);
     const hdr=[['📊 '+label+' — '+sch+' — '+cls.name],[yr+' | أستاذ: '+tc],[]];
     const cols=['الرقم','الاسم','الجنس','ف1/20','ف2/20','ف3/20','المعدل السنوي','التقدير','الإرشادات'];
     const rows=stus.map((s,i)=>{
@@ -6726,6 +6739,7 @@ function exportArchiveExcel(label){
 // 🗄️ أرشفة الموسم الحالي: JSON كامل (قابل للاستعادة) + Excel + كشوف PDF — دون أي حذف
 function archiveSeason(){
   if(!D.classes.length){toast('تنبيه','لا توجد أقسام للأرشفة','wa');return false;}
+  window.__keepLeft=true;setTimeout(function(){window.__keepLeft=false;},4000);
   var yr=(D.settings.year||'موسم').replace(/[\/\\\s]/g,'-');
   try{
     var blob=new Blob([JSON.stringify(D,null,2)],{type:'application/json'});
@@ -9608,9 +9622,10 @@ function invBillRe(i){var f=invD().bills[i];if(!f)return;invBillOut({sup:f.sup,n
 function invBillRm(i){var v=invD(),f=v.bills[i];if(!f)return;dlgConfirm({icon:'🗑️',tone:'red',title:'حذف الفاتورة من الأرشيف؟',subject:{ini:'🧾',name:'فاتورة '+(f.no||''),meta:f.sup||''},sub:'لا يُعدَّل المخزن؛ الكميات المُدخلة تبقى فيه.',confirmText:'حذف'}).then(function(ok){if(!ok)return;snapshot('حذف فاتورة');v.bills.splice(i,1);SD();invBills();});}
 
 var CHANGELOG = {
-  version: '2.9.0',
+  version: '2.9.1',
   date: '21 أكتوبر 2026',
   items: [
+    {ic:'🙈', t:'إخفاء المغادرين من الكشوف (اختياري)', d:'مفتاح في الإعدادات ← البيانات والموسم: عند تشغيله يختفي المغادرون من الكشوف المطبوعة وملفات Excel. مطفأ افتراضياً (يظهرون بعلامة «غادر»). كشف المغادرين السنوي والأرشيف يعرضانهم دائماً، ولا يتأثر استيراد ملف المنصة وتعبئته.'},
     {ic:'👋', t:'شاشة ترحيب للمستخدم الجديد', d:'خطوتان: إضافة الأقسام ثم التلاميذ (استيراد Excel بشروطه مع نموذج جاهز، أو إضافة يدوية)، مع ملاحظة تثبيت التطبيق على الهاتف قبل البدء. تختفي بمجرد وجود تلاميذ فتظهر الشاشة المعتادة كاملة.'},
     {ic:'🔊', t:'النطق عبر الإنترنت بلا Referer', d:'طلب صوت Google صار يُرسَل دون ترويسة المرجع، بعد أن ظهر أن الخدمة تعمل عند الفتح المباشر وتفشل من داخل التطبيق. وأُعيدت قاعدة الأمان للوسائط إلى خدمتي Google فقط.'},
     {ic:'🔊', t:'إصلاح النطق عبر الإنترنت + تشخيص', d:'السماح لملفات الصوت بالتحميل من أي موقع آمن (https) بعد أن كانت قاعدة الأمان تحصرها في خدمتين، وتسجيل سبب الفشل بدقة في زر «🔊 تجربة النطق».'},
