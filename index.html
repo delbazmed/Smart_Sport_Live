@@ -1388,7 +1388,7 @@ body{max-width:480px;margin:0 auto;display:flex;flex-direction:column;-webkit-fo
         <div class="ail">التطبيق الاحترافي لأساتذة التربية البدنية والرياضية</div>
         <div style="height:14px"></div>
         <div class="ail">المطور: <strong style="color:var(--g)">Delbaz_Med</strong></div>
-        <div class="ail">الإصدار: <strong style="color:var(--gold)">2.10.4 · 21 أكتوبر 2026</strong></div>
+        <div class="ail">الإصدار: <strong style="color:var(--gold)">2.10.5 · 22 أكتوبر 2026</strong></div>
         <div class="ail" style="margin-top:4px">EPS · DZ · 2026</div>
       </div>
     </div>
@@ -1612,6 +1612,11 @@ body{max-width:480px;margin:0 auto;display:flex;flex-direction:column;-webkit-fo
       <div style="display:flex;gap:8px;margin-bottom:10px">
         <select id="abc-cls" class="sinp" style="flex:1.4" onchange="abcDraw()"></select>
         <select id="abc-term" class="sinp" style="flex:1" onchange="abcDraw()"><option value="t1">الفصل 1</option><option value="t2">الفصل 2</option><option value="t3">الفصل 3</option></select>
+      </div>
+      <div style="display:flex;gap:6px;margin-bottom:10px">
+        <select id="abc-g" class="sinp" style="flex:1;min-width:0" onchange="abcDraw()"><option value="all">👥 الكل</option><option value="male">👦 ذكور</option><option value="female">👧 إناث</option></select>
+        <select id="abc-s" class="sinp" style="flex:1.2;min-width:0" onchange="abcDraw()"></select>
+        <select id="abc-t" class="sinp" style="flex:1.2;min-width:0" onchange="abcDraw()"><option value="all">الكل</option><option value="ab">🔴 غائب</option><option value="ju">🟠 مبرّر</option><option value="sk">🤒 مريض</option></select>
       </div>
       <div id="abc-body" style="max-height:56vh;overflow-y:auto"></div>
       <button class="btn btn-fw" onclick="abcPrint()" style="margin-top:10px">📄 PDF / طباعة</button>
@@ -4864,7 +4869,7 @@ function abcRows(cid,tk){
     sesArr(t).forEach(function(v,i){
       var st=sesState(t,i);if(st==='pr')return;
       var dk=sesDayOf(cid,tk,i)||'';
-      rows.push({name:s.name,i:i,dk:dk,hr:abcHour(cid,dk),st:st});
+      rows.push({name:s.name,g:s.gender==='female'?'female':'male',i:i,dk:dk,hr:abcHour(cid,dk),st:st});
     });
   });
   rows.sort(function(a,b){
@@ -4875,34 +4880,49 @@ function abcRows(cid,tk){
   });
   return rows;
 }
+function abcFilter(all){
+  var g=(document.getElementById('abc-g')||{}).value||'all',sv=(document.getElementById('abc-s')||{}).value||'all',ty=(document.getElementById('abc-t')||{}).value||'all';
+  return all.filter(function(r){return (g==='all'||r.g===g)&&(sv==='all'||String(r.i)===sv)&&(ty==='all'||r.st===ty);});}
+function abcSesOpts(all){
+  var el=document.getElementById('abc-s');if(!el)return;var cur=el.value||'all',seen={},o=[];
+  all.forEach(function(r){if(seen[r.i])return;seen[r.i]=1;o.push(r);});o.sort(function(a,b){return a.i-b.i;});
+  el.innerHTML='<option value="all">⏱️ كل الحصص</option>'+o.map(function(r){return '<option value="'+r.i+'">ح'+(r.i+1)+(r.dk?' · '+fmtDMY(r.dk).slice(0,5):'')+'</option>';}).join('');
+  el.value=seen[cur]?cur:'all';}
+function abcFiltTxt(){
+  var a=[],g=document.getElementById('abc-g'),s2=document.getElementById('abc-s'),t=document.getElementById('abc-t');
+  if(g&&g.value!=='all')a.push(g.value==='male'?'ذكور':'إناث');
+  if(s2&&s2.value!=='all')a.push('ح'+(parseInt(s2.value,10)+1));
+  if(t&&t.value!=='all')a.push(ABC_LB[t.value]);
+  return a.join(' · ');}
 function openAbsClass(cid){
   var sel=document.getElementById('abc-cls');
   sel.innerHTML=D.classes.map(function(c){return '<option value="'+c.id+'">'+c.name+' · '+((LVLS&&LVLS[c.level])||'')+'</option>';}).join('');
   sel.value=cid&&GC(cid)?cid:(D.classes[0]||{}).id||'';
   var tk=(S.term==='t1'||S.term==='t2'||S.term==='t3')?S.term:'t1';
   document.getElementById('abc-term').value=tk;
+  ['abc-g','abc-t'].forEach(function(i){document.getElementById(i).value='all';});document.getElementById('abc-s').innerHTML='';
   abcDraw();openOv('ov-abc');
 }
 function abcDraw(){
   var cid=document.getElementById('abc-cls').value,tk=document.getElementById('abc-term').value;
   var el=document.getElementById('abc-body');if(!cid){el.innerHTML='<div style="text-align:center;padding:20px;color:var(--tx3);font-size:12px">لا توجد أقسام</div>';return;}
-  var rows=abcRows(cid,tk);
-  if(!rows.length){el.innerHTML='<div style="text-align:center;padding:24px 10px;color:var(--g);font-size:13px;font-weight:800">لا توجد غيابات مسجّلة ✅</div>';return;}
+  var allR=abcRows(cid,tk);abcSesOpts(allR);var rows=abcFilter(allR);
+  if(!rows.length){el.innerHTML='<div style="text-align:center;padding:24px 10px;color:var(--g);font-size:13px;font-weight:800">'+(allR.length?'لا توجد غيابات مطابقة للتصفية':'لا توجد غيابات مسجّلة ✅')+'</div>';return;}
   var cnt={ab:0,ju:0,sk:0};
   var h='<table style="width:100%;border-collapse:collapse;font-size:11px"><thead><tr style="background:var(--p3)"><th style="padding:6px 3px;border:1px solid var(--ln)">الاسم واللقب</th><th style="padding:6px 3px;border:1px solid var(--ln)">التاريخ</th><th style="padding:6px 3px;border:1px solid var(--ln)">الساعة</th><th style="padding:6px 3px;border:1px solid var(--ln)">النوع</th></tr></thead><tbody>';
   rows.forEach(function(r){cnt[r.st]++;
     h+='<tr><td style="padding:6px 4px;border:1px solid var(--ln);font-weight:800">'+r.name+'</td><td style="padding:6px 3px;border:1px solid var(--ln);text-align:center;white-space:nowrap">'+(r.dk?fmtDMY(r.dk):'ح'+(r.i+1))+'</td><td style="padding:6px 3px;border:1px solid var(--ln);text-align:center;white-space:nowrap" dir="ltr">'+(r.hr||'—')+'</td><td style="padding:6px 3px;border:1px solid var(--ln);text-align:center;font-weight:900;color:'+ABC_COL[r.st]+'">'+ABC_LB[r.st]+'</td></tr>';});
-  h+='</tbody></table><div style="margin-top:8px;font-size:11px;font-weight:800;color:var(--tx3)">المجموع: '+cnt.ab+' غائب · '+cnt.ju+' مبرّر · '+cnt.sk+' مريض</div>';
+  h+='</tbody></table><div style="margin-top:8px;font-size:11px;font-weight:800;color:var(--tx3)">المجموع: '+cnt.ab+' غائب · '+cnt.ju+' مبرّر · '+cnt.sk+' مريض'+(abcFiltTxt()?' <span style="color:var(--gold)">('+abcFiltTxt()+')</span>':'')+'</div>';
   el.innerHTML=h;
 }
 function abcPrint(){
   var cid=document.getElementById('abc-cls').value,tk=document.getElementById('abc-term').value;var cls=GC(cid);if(!cls)return;
-  var rows=abcRows(cid,tk),tc=D.settings.teacher||'—',sch=D.settings.school||'—',yr=D.settings.year||'—',pr=dirName()||'—';
+  var rows=abcFilter(abcRows(cid,tk)),ft=abcFiltTxt(),tc=D.settings.teacher||'—',sch=D.settings.school||'—',yr=D.settings.year||'—',pr=dirName()||'—';
   var cnt={ab:0,ju:0,sk:0},b='';
   rows.forEach(function(r,k){cnt[r.st]++;b+='<tr><td style="text-align:center">'+(k+1)+'</td><td>'+r.name+'</td><td style="text-align:center">'+(r.dk?fmtDMY(r.dk):'ح'+(r.i+1))+'</td><td style="text-align:center" dir="ltr">'+(r.hr||'—')+'</td><td style="text-align:center;font-weight:800;color:'+ABC_COL[r.st]+'">'+ABC_LB[r.st]+'</td></tr>';});
   if(!b)b='<tr><td colspan="5" style="text-align:center;color:#1a6b3a;font-weight:700;padding:14px">لا توجد غيابات مسجّلة ✅</td></tr>';
-  var html='<!DOCTYPE html><html dir="rtl" lang="ar"><head><meta charset="UTF-8"><title>غيابات '+cls.name+'</title><style>*{box-sizing:border-box;margin:0;padding:0}body{font-family:Arial,sans-serif;direction:rtl;padding:20px;color:#111;font-size:13px}.card{max-width:700px;margin:0 auto;border:2px solid #1a6b3a;border-radius:12px;overflow:hidden}.hd{background:#1a6b3a;color:#fff;padding:14px 18px;display:flex;justify-content:space-between;align-items:center}.hd h1{font-size:16px}.hd p{font-size:11px;opacity:.85;margin-top:2px}.bd{padding:14px 18px}table{width:100%;border-collapse:collapse;margin:8px 0}th{background:#e8f5e9;padding:7px 4px;font-size:11px;border:1px solid #ccc}td{border:1px solid #ccc;padding:6px;font-size:12px}.ft{display:flex;justify-content:space-between;margin-top:18px;padding-top:10px;border-top:1px solid #ccc}.sig{text-align:center}.sl{border-top:1px solid #333;width:120px;margin:24px auto 4px}</style></head><body><div class="card"><div class="hd"><div><h1>غيابات القسم — '+cls.name+'</h1><p>'+TLB[tk]+' · مادة التربية البدنية والرياضية</p></div><div style="text-align:left;font-size:11px"><div>'+sch+'</div><div>'+yr+'</div></div></div><div class="bd"><table><thead><tr><th>#</th><th>الاسم واللقب</th><th>التاريخ</th><th>الساعة</th><th>النوع</th></tr></thead><tbody>'+b+'</tbody></table><div style="font-size:12px;font-weight:800">المجموع: '+cnt.ab+' غائب · '+cnt.ju+' مبرّر · '+cnt.sk+' مريض</div><div class="ft"><div class="sig"><div>أستاذ التربية البدنية</div><div style="color:#555;margin-top:2px">'+tc+'</div><div class="sl"></div></div><div class="sig"><div>المدير</div><div style="color:#555;margin-top:2px">'+pr+'</div><div class="sl"></div></div></div></div></div></body></html>';
-  document.getElementById('ov-iframe-title').textContent='📅 غيابات '+cls.name+' · '+TLB[tk];
+  var html='<!DOCTYPE html><html dir="rtl" lang="ar"><head><meta charset="UTF-8"><title>غيابات '+cls.name+'</title><style>*{box-sizing:border-box;margin:0;padding:0}body{font-family:Arial,sans-serif;direction:rtl;padding:20px;color:#111;font-size:13px}.card{max-width:700px;margin:0 auto;border:2px solid #1a6b3a;border-radius:12px;overflow:hidden}.hd{background:#1a6b3a;color:#fff;padding:14px 18px;display:flex;justify-content:space-between;align-items:center}.hd h1{font-size:16px}.hd p{font-size:11px;opacity:.85;margin-top:2px}.bd{padding:14px 18px}table{width:100%;border-collapse:collapse;margin:8px 0}th{background:#e8f5e9;padding:7px 4px;font-size:11px;border:1px solid #ccc}td{border:1px solid #ccc;padding:6px;font-size:12px}.ft{display:flex;justify-content:space-between;margin-top:18px;padding-top:10px;border-top:1px solid #ccc}.sig{text-align:center}.sl{border-top:1px solid #333;width:120px;margin:24px auto 4px}</style></head><body><div class="card"><div class="hd"><div><h1>غيابات القسم — '+cls.name+(ft?' ('+ft+')':'')+'</h1><p>'+TLB[tk]+' · مادة التربية البدنية والرياضية</p></div><div style="text-align:left;font-size:11px"><div>'+sch+'</div><div>'+yr+'</div></div></div><div class="bd"><table><thead><tr><th>#</th><th>الاسم واللقب</th><th>التاريخ</th><th>الساعة</th><th>النوع</th></tr></thead><tbody>'+b+'</tbody></table><div style="font-size:12px;font-weight:800">المجموع: '+cnt.ab+' غائب · '+cnt.ju+' مبرّر · '+cnt.sk+' مريض</div><div class="ft"><div class="sig"><div>أستاذ التربية البدنية</div><div style="color:#555;margin-top:2px">'+tc+'</div><div class="sl"></div></div><div class="sig"><div>المدير</div><div style="color:#555;margin-top:2px">'+pr+'</div><div class="sl"></div></div></div></div></div></body></html>';
+  document.getElementById('ov-iframe-title').textContent='📅 غيابات '+cls.name+' · '+TLB[tk]+(ft?' · '+ft:'');
   document.getElementById('ov-iframe').style.display='flex';
   document.getElementById('pdfFrame').srcdoc=html;
 }
@@ -9751,9 +9771,10 @@ function invBillRe(i){var f=invD().bills[i];if(!f)return;invBillOut({sup:f.sup,n
 function invBillRm(i){var v=invD(),f=v.bills[i];if(!f)return;dlgConfirm({icon:'🗑️',tone:'red',title:'حذف الفاتورة من الأرشيف؟',subject:{ini:'🧾',name:'فاتورة '+(f.no||''),meta:f.sup||''},sub:'لا يُعدَّل المخزن؛ الكميات المُدخلة تبقى فيه.',confirmText:'حذف'}).then(function(ok){if(!ok)return;snapshot('حذف فاتورة');v.bills.splice(i,1);SD();invBills();});}
 
 var CHANGELOG = {
-  version: '2.10.4',
-  date: '21 أكتوبر 2026',
+  version: '2.10.5',
+  date: '22 أكتوبر 2026',
   items: [
+    {ic:'🔎', t:'تصفية غيابات القسم', d:'في «غيابات القسم» ثلاث تصفيات: الجنس (الكل/ذكور/إناث)، الحصة (برقمها وتاريخها)، والنوع (غائب/مبرّر/مريض). المجموع والطباعة (PDF) يتبعان التصفية المختارة.'},
     {ic:'🎛️', t:'م.م المخصَّصة: نفس أزرار الافتراضية أمام التلميذ', d:'🟢 للمعيار ذي الزيادة (بدل المشاركة) و🟡 للمعيار ذي النقصان (بدل الانضباط) و🔴 غياب (مع سؤال: غائب أم غائب مبرّر) و🤒 مرض؛ كل ضغطة تُسجَّل مباشرة في الكشف مع إشعار وتراجع. الغياب يخصم قيمة حصة كاملة، والمرض والغياب المبرّر نصفها. معايير «القيمة المباشرة» لها شريط في الأعلى (يبدأ على «بدون»: ألوان واسم التلميذ فقط)، وعند اختيار معيار منها تظهر خانة كتابة النقطة أمام كل تلميذ. تحدّد في الإعداد المعيارَ المرتبط بكل لون؛ وإن وُجد معياران أو أكثر من نوع واحد (زيادة أو نقصان) يظهر في الشريط صف لاختيار المعيار الذي يعمل به اللون الآن.'},
     {ic:'🔒', t:'الرصد السريع يبدأ «بدون رصد»', d:'الشريط يبدأ «بدون رصد» دون أزرار (تفادياً للضغط الخاطئ). وعند اختيار معيار يظهر زر واحد: 🟢 أخضر ➕ للمعيار الذي يبدأ من الصفر، 🟠 برتقالي ➖ للذي يبدأ كاملاً، ولمس الرقم يفتح تصحيح القيمة، مع زر تراجع.'},
     {ic:'🏷️', t:'مهام تنظيمية + معايير بلا حد + إصلاح عرض المعيار', d:'في م.م المخصَّصة: تسمّي مهامك وتختار معيارها وقيمتها وتسندها للتلميذ من زر الدور؛ وعدد المعايير بلا حد؛ وأُصلح اختيار المعيار في «مكافأة الأدوار» الذي كان يظهر ضيقاً.'},
