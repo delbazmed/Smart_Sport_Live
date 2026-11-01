@@ -1392,7 +1392,7 @@ body{max-width:480px;margin:0 auto;display:flex;flex-direction:column;-webkit-fo
         <div class="ail">التطبيق الاحترافي لأساتذة التربية البدنية والرياضية</div>
         <div style="height:14px"></div>
         <div class="ail">المطور: <strong style="color:var(--g)">Delbaz_Med</strong></div>
-        <div class="ail">الإصدار: <strong style="color:var(--gold)">2.14.1 · 1 نوفمبر 2026</strong></div>
+        <div class="ail">الإصدار: <strong style="color:var(--gold)">2.14.2 · 1 نوفمبر 2026</strong></div>
         <button onclick="showWhatsNewModal(true)" style="margin-top:10px;padding:9px 16px;border-radius:10px;border:1px solid var(--ln);background:var(--p3);color:var(--tx);font-family:var(--ff);font-size:12px;font-weight:800;cursor:pointer">📜 سجل التغييرات</button>
         <div class="ail" style="margin-top:8px">EPS · DZ · 2026</div>
       </div>
@@ -5101,7 +5101,7 @@ function incStats(scope){
   var byT=d0.byT,byA=d0.byA,byP=d0.byP,stu={},rep=d0.rep;list.forEach(function(x){stu[x.sid]=1;});
   var ek=function(v,l){return '<div style="flex:1;background:var(--p3);border:1px solid var(--ln);border-radius:12px;padding:10px 6px;text-align:center"><div style="font-size:19px;font-weight:900;color:var(--g)">'+v+'</div><div style="font-size:9px;color:var(--tx3);font-weight:700;margin-top:2px;line-height:1.4">'+l+'</div></div>';};
   h+='<div style="display:flex;gap:6px;margin-bottom:14px">'+ek(list.length,'حادثاً')+ek(Object.keys(stu).length,'تلميذاً مصاباً')+ek(byA[0]?escA(byA[0][0]):'—','الأكثر حوادث (نشاط)')+'</div>';
-  var bars=function(title,rows,col){var mx=rows[0][1];return '<div style="font-size:12px;font-weight:900;color:var(--tx);margin:14px 0 6px">'+title+'</div>'+rows.slice(0,8).map(function(r){return '<div style="margin-bottom:6px"><div style="display:flex;justify-content:space-between;font-size:11px;font-weight:700;color:var(--tx2);margin-bottom:2px"><span>'+escA(r[0])+'</span><span style="color:var(--tx3)">'+r[1]+' · '+Math.round(r[1]*100/list.length)+'%</span></div><div style="height:8px;border-radius:5px;background:var(--p3);overflow:hidden"><div style="height:100%;width:'+Math.max(4,Math.round(r[1]*100/mx))+'%;background:'+col+';border-radius:5px"></div></div></div>';}).join('');};
+  var bars=function(title,rows,col){var mx=rows[0][1];return '<div style="font-size:12px;font-weight:900;color:var(--tx);margin:14px 0 6px">'+title+'</div>'+rows.slice(0,8).map(function(r){return '<div style="margin-bottom:6px"><div style="display:flex;justify-content:space-between;font-size:11px;font-weight:700;color:var(--tx2);margin-bottom:2px"><span>'+escA(r[0])+'</span><span style="color:var(--tx3)">'+r[1]+' حوادث · '+r[2]+' تلاميذ · '+((r[3]||d0.tot)?(Math.round(r[2]*1000/(r[3]||d0.tot))/10)+'%':'—')+'</span></div><div style="height:8px;border-radius:5px;background:var(--p3);overflow:hidden"><div style="height:100%;width:'+Math.max(4,Math.round(r[1]*100/mx))+'%;background:'+col+';border-radius:5px"></div></div></div>';}).join('');};
   h+=bars('🩹 حسب نوع الإصابة',byT,'#e74c3c')+bars('🏃 حسب النشاط',byA,'#00d97e')+bars('📍 حسب المكان',byP,'#3498db');
   if(scope==='all'){h+=bars('🏫 حسب القسم',d0.byC,'#9b59b6');}
   if(rep.length)h+='<div style="font-size:12px;font-weight:900;color:var(--tx);margin:14px 0 6px">🔁 تلاميذ تكرّرت إصاباتهم</div>'+rep.slice(0,6).map(function(r){return '<div style="display:flex;justify-content:space-between;font-size:11px;font-weight:700;padding:6px 10px;background:var(--p3);border-radius:8px;margin-bottom:4px"><span style="color:var(--tx)">'+escA(r[0])+'</span><span style="color:var(--gold)">'+r[1]+' مرات</span></div>';}).join('');
@@ -9950,9 +9950,10 @@ function invBillRe(i){var f=invD().bills[i];if(!f)return;invBillOut({sup:f.sup,n
 function invBillRm(i){var v=invD(),f=v.bills[i];if(!f)return;dlgConfirm({icon:'🗑️',tone:'red',title:'حذف الفاتورة من الأرشيف؟',subject:{ini:'🧾',name:'فاتورة '+(f.no||''),meta:f.sup||''},sub:'لا يُعدَّل المخزن؛ الكميات المُدخلة تبقى فيه.',confirmText:'حذف'}).then(function(ok){if(!ok)return;snapshot('حذف فاتورة');v.bills.splice(i,1);SD();invBills();});}
 
 var CHANGELOG = {
-  version: '2.14.1',
+  version: '2.14.2',
   date: '1 نوفمبر 2026',
   items: [
+    {ic:'🔢', t:'توضيح أرقام شاشة إحصاءات الحوادث', d:'كل سطر يعرض الآن: عدد الحوادث · عدد التلاميذ المصابين · نسبتهم من تلاميذ القسم، بدل نسبة الحوادث فقط.'},
     {ic:'📈', t:'نسب تقرير الإحصاءات على تلاميذ القسم', d:'في تقرير إحصاءات الحوادث: كل جدول يعرض الحوادث وعدد التلاميذ المصابين ونسبتهم من عدد تلاميذ القسم (جدول «حسب القسم» يقسم كل قسم على تلاميذه).'},
     {ic:'📊', t:'إحصاءات الحوادث + تقرير للتحميل', d:'في قائمة تقارير الحوادث: زر «📊 إحصاءات الحوادث» (حسب النوع والنشاط والمكان والقسم وتلاميذ تكرّرت إصاباتهم)، وزر «📄 تقرير للتحميل والطباعة (PDF)» يُخرج ورقة رسمية بالجداول وقائمة كل الحوادث وتوقيعات الأستاذ ومستشار التربية والمدير.'},
     {ic:'🔗', t:'ربط المقتصد والولاية بالعتاد', d:'اسم المقتصد والولاية صارا مصدراً واحداً: ما تكتبه في الإعدادات ← المعلومات الشخصية يظهر في تقارير العتاد (إمضاءات المقتصد وترويسة مديرية التربية)، والولاية تظهر أيضاً في النموذج الرسمي لتقرير الحادث، وما كان مكتوباً في العتاد يظهر في الإعدادات.'},
