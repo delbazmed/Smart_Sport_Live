@@ -1392,7 +1392,7 @@ body{max-width:480px;margin:0 auto;display:flex;flex-direction:column;-webkit-fo
         <div class="ail">التطبيق الاحترافي لأساتذة التربية البدنية والرياضية</div>
         <div style="height:14px"></div>
         <div class="ail">المطور: <strong style="color:var(--g)">Delbaz_Med</strong></div>
-        <div class="ail">الإصدار: <strong style="color:var(--gold)">2.15.0 · 3 نوفمبر 2026</strong></div>
+        <div class="ail">الإصدار: <strong style="color:var(--gold)">2.15.1 · 4 نوفمبر 2026</strong></div>
         <button onclick="showWhatsNewModal(true)" style="margin-top:10px;padding:9px 16px;border-radius:10px;border:1px solid var(--ln);background:var(--p3);color:var(--tx);font-family:var(--ff);font-size:12px;font-weight:800;cursor:pointer">📜 سجل التغييرات</button>
         <div class="ail" style="margin-top:8px">EPS · DZ · 2026</div>
       </div>
@@ -3824,7 +3824,7 @@ function perfChips(sid,tk,ctx){var s=GS(sid);initStu(s);var cur=s.terms[tk].mc.p
   var z0=(cur===0||cur==null);
   return '<div style="display:flex;gap:5px"><button onclick="event.stopPropagation();perfZero(\''+sid+'\',\''+tk+'\',\''+ctx+'\')" style="flex:.8;padding:8px 2px;border-radius:9px;border:1.5px '+(z0&&isDef?'dashed':'solid')+' '+(z0?'var(--tx3)':'var(--ln)')+';background:'+(z0?'rgba(255,255,255,.07)':'var(--p3)')+';color:'+(z0?'var(--tx)':'var(--tx3)')+';font-family:var(--ff);font-size:12px;font-weight:900;cursor:pointer;line-height:1.3">بدون<div style="font-size:9px;font-weight:700;opacity:.8">0</div></button>'+PERF_BANDS.map(function(b,i){var on=cur===b.lo||cur===b.hi;var plus=cur===b.hi;
     return '<button onclick="event.stopPropagation();perfTap(\''+sid+'\',\''+tk+'\','+i+',\''+ctx+'\')" style="flex:1;padding:8px 2px;border-radius:9px;border:1.5px '+(on&&isDef?'dashed':'solid')+' '+(on?'var(--g)':'var(--ln)')+';background:'+(on?'rgba(0,217,126,.14)':'var(--p3)')+';color:'+(on?'var(--g)':'var(--tx2)')+';font-family:var(--ff);font-size:12px;font-weight:900;cursor:pointer;line-height:1.3">'+b.n+(plus?' +':'')+'<div style="font-size:9px;font-weight:700;opacity:.8" dir="ltr">'+(on?(plus?b.hi:b.lo):(b.lo+'–'+b.hi))+'</div></button>';}).join('')+'</div>';}
-function perfZero(sid,tk,ctx){var s=GS(sid);if(!s)return;if(!setPerf(s,tk,0))return;buzz&&buzz(25);perfRefresh(sid,tk,ctx);}
+function perfZero(sid,tk,ctx){var s=GS(sid);if(!s)return;if(!setPerf(s,tk,0))return;var mc=s.terms[tk].mc;mc.pb=0;mcPart(mc);SD();buzz&&buzz(25);perfRefresh(sid,tk,ctx);}
 function perfRefresh(sid,tk,ctx){
   var s=GS(sid);var mc=s.terms[tk].mc;
   if(ctx==='mc'){var e=document.getElementById('perf-mc');if(e)e.innerHTML=perfChips(sid,tk,'mc');var v=document.getElementById('bv-participation');if(v)v.textContent=fmtBeh(mc.participation);if(typeof updMCTot==='function')updMCTot();}
@@ -9977,9 +9977,10 @@ function invBillRe(i){var f=invD().bills[i];if(!f)return;invBillOut({sup:f.sup,n
 function invBillRm(i){var v=invD(),f=v.bills[i];if(!f)return;dlgConfirm({icon:'🗑️',tone:'red',title:'حذف الفاتورة من الأرشيف؟',subject:{ini:'🧾',name:'فاتورة '+(f.no||''),meta:f.sup||''},sub:'لا يُعدَّل المخزن؛ الكميات المُدخلة تبقى فيه.',confirmText:'حذف'}).then(function(ok){if(!ok)return;snapshot('حذف فاتورة');v.bills.splice(i,1);SD();invBills();});}
 
 var CHANGELOG = {
-  version: '2.15.0',
-  date: '3 نوفمبر 2026',
+  version: '2.15.1',
+  date: '4 نوفمبر 2026',
   items: [
+    {ic:'🔧', t:'إصلاح زر «بدون» في المشاركة والأداء', d:'بعد تراكم نقاط الزر الأخضر 🟢 حتى الحد الأقصى، يعيد زر «بدون» العلامة إلى 0 (كان يبقي علاوة الزر الأخضر).'},
     {ic:'✏️', t:'تعديل تقارير الحوادث', d:'زر ✏️ في أرشيف التقارير وفي معاينة التقرير: يفتح النموذج مملوءاً بكل البيانات (الشهود والتصريحات والإجراءات والمخطط) ويحدّث التقرير نفسه مع «آخر تعديل: التاريخ» في الورقة. الحذف صار بتأكيد وإمكانية تراجع، والأرشيف يعرض كل التقارير.'},
     {ic:'🔢', t:'توضيح أرقام شاشة إحصاءات الحوادث', d:'كل سطر يعرض الآن: عدد الحوادث · عدد التلاميذ المصابين · نسبتهم من تلاميذ القسم، بدل نسبة الحوادث فقط.'},
     {ic:'📈', t:'نسب تقرير الإحصاءات على تلاميذ القسم', d:'في تقرير إحصاءات الحوادث: كل جدول يعرض الحوادث وعدد التلاميذ المصابين ونسبتهم من عدد تلاميذ القسم (جدول «حسب القسم» يقسم كل قسم على تلاميذه).'},
