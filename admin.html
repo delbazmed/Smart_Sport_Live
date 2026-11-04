@@ -216,14 +216,14 @@ async function loadUsage(){
     snap.forEach(function(d){
       const x=d.data();const ms=(x.lastSeen&&x.lastSeen.toMillis)?x.lastSeen.toMillis():0;
       visits+=(x.visits||0);if(ms>=wk)act++;
-      rows.push({email:x.email||d.id,visits:x.visits||0,ms:ms,ver:x.ver||'',joined:x.joined||''});
+      rows.push({email:x.email||d.id,name:x.name||'',school:x.school||'',visits:x.visits||0,ms:ms,ver:x.ver||'',joined:x.joined||''});
     });
     rows.sort(function(a,b){return b.ms-a.ms;});
     document.getElementById('n-users').textContent=snap.size;
     document.getElementById('n-visits').textContent=visits;
     document.getElementById('n-active').textContent=act;
     const fmt=function(ms){if(!ms)return '—';try{return new Date(ms).toLocaleString('ar-DZ',{dateStyle:'medium',timeStyle:'short'});}catch(e){return new Date(ms).toLocaleString('ar');}};
-    ul.innerHTML=rows.length?'<div class="tcard" style="padding:0;overflow:hidden">'+rows.map(function(r,i){return '<div style="display:flex;align-items:center;gap:8px;padding:10px 12px;'+(i?'border-top:1px solid rgba(255,255,255,.07);':'')+'"><div style="flex:1;min-width:0"><div class="tc-mail" style="direction:ltr;text-align:right;overflow:hidden;text-overflow:ellipsis">'+esc(r.email)+'</div><div style="font-size:11px;opacity:.7;margin-top:2px">🕓 آخر دخول: <b>'+esc(fmt(r.ms))+'</b>'+(r.ver?' · v'+esc(r.ver):'')+'</div></div><div style="text-align:center;min-width:46px"><div style="font-size:18px;font-weight:900">'+r.visits+'</div><div style="font-size:9px;opacity:.7">دخول</div></div></div>';}).join('')+'</div>':'<div class="empty"><div class="ic">📭</div><div class="t">لا توجد بيانات دخول بعد</div><div class="s">تظهر هنا بعد أن يفتح المسجَّلون الإصدار الجديد</div></div>';
+    ul.innerHTML=rows.length?'<div class="tcard" style="padding:0;overflow:hidden">'+rows.map(function(r,i){return '<div style="display:flex;align-items:center;gap:8px;padding:10px 12px;'+(i?'border-top:1px solid rgba(255,255,255,.07);':'')+'"><div style="flex:1;min-width:0">'+(r.name?'<div style="font-weight:800;font-size:13px">'+esc(r.name)+'</div>':'')+'<div class="tc-mail" style="direction:ltr;text-align:right;overflow:hidden;text-overflow:ellipsis">'+esc(r.email)+'</div>'+(r.school?'<div style="font-size:11px;opacity:.8;margin-top:2px">🏫 '+esc(r.school)+'</div>':'')+'<div style="font-size:11px;opacity:.7;margin-top:2px">🕓 آخر دخول: <b>'+esc(fmt(r.ms))+'</b>'+(r.ver?' · v'+esc(r.ver):'')+'</div></div><div style="text-align:center;min-width:46px"><div style="font-size:18px;font-weight:900">'+r.visits+'</div><div style="font-size:9px;opacity:.7">دخول</div></div></div>';}).join('')+'</div>':'<div class="empty"><div class="ic">📭</div><div class="t">لا توجد بيانات دخول بعد</div><div class="s">تظهر هنا بعد أن يفتح المسجَّلون الإصدار الجديد</div></div>';
   }catch(e){
     ul.innerHTML='<div class="empty"><div class="ic">⚠️</div><div class="t">تعذّر تحميل سجل الدخول</div><div class="s">'+esc(e.code||e.message)+'<br>أضف قاعدة مجموعة usage في Firestore Rules</div></div>';
   }

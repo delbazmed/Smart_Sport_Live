@@ -2284,7 +2284,7 @@ function usagePing(){
     var k='ss_usage_ping',last=+localStorage.getItem(k)||0;
     if(Date.now()-last<30*60*1000)return;
     localStorage.setItem(k,String(Date.now()));
-    FB.setDoc(FB.doc(FB.db,'usage',FB_USER.uid),{email:FB_USER.email,visits:FB.increment(1),lastSeen:FB.serverTimestamp(),ver:(typeof CHANGELOG!=='undefined'?CHANGELOG.version:''),joined:(FB_USER.metadata&&FB_USER.metadata.creationTime)||''},{merge:true})
+    FB.setDoc(FB.doc(FB.db,'usage',FB_USER.uid),{email:FB_USER.email,visits:FB.increment(1),lastSeen:FB.serverTimestamp(),ver:(typeof CHANGELOG!=='undefined'?CHANGELOG.version:''),joined:(FB_USER.metadata&&FB_USER.metadata.creationTime)||'',name:String((D.settings&&D.settings.teacher)||'').slice(0,80),school:String((D.settings&&D.settings.school)||'').slice(0,120)},{merge:true})
       .catch(function(e){localStorage.removeItem(k);try{sessionStorage.setItem('ss_usage_fail','1');}catch(x){}slog('usage ✗ '+(e&&(e.code||e.message)));});
   }catch(e){}
 }
