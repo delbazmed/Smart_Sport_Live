@@ -45,7 +45,7 @@ const firebaseConfig = {
 // ═══════════════════════════════════════════════════════
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-app.js";
 import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-auth.js";
-import { getFirestore, doc, getDoc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-firestore.js";
+import { getFirestore, doc, getDoc, setDoc, serverTimestamp, increment } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-firestore.js";
 
 if(firebaseConfig.apiKey){
   try{
@@ -53,7 +53,7 @@ if(firebaseConfig.apiKey){
     const auth = getAuth(app);
     const db = getFirestore(app);
     // expose to window for the app code
-    window.FB = { auth, db, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged, sendPasswordResetEmail, doc, getDoc, setDoc, serverTimestamp };
+    window.FB = { auth, db, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged, sendPasswordResetEmail, doc, getDoc, setDoc, serverTimestamp, increment };
     window.dispatchEvent(new Event('fb-ready'));
   }catch(e){ console.warn('Firebase init failed', e); }
 } else {
@@ -1392,7 +1392,7 @@ body{max-width:480px;margin:0 auto;display:flex;flex-direction:column;-webkit-fo
         <div class="ail">التطبيق الاحترافي لأساتذة التربية البدنية والرياضية</div>
         <div style="height:14px"></div>
         <div class="ail">المطور: <strong style="color:var(--g)">Delbaz_Med</strong></div>
-        <div class="ail">الإصدار: <strong style="color:var(--gold)">2.16.0 · 4 نوفمبر 2026</strong></div>
+        <div class="ail">الإصدار: <strong style="color:var(--gold)">2.17.0 · 4 نوفمبر 2026</strong></div>
         <button onclick="showWhatsNewModal(true)" style="margin-top:10px;padding:9px 16px;border-radius:10px;border:1px solid var(--ln);background:var(--p3);color:var(--tx);font-family:var(--ff);font-size:12px;font-weight:800;cursor:pointer">📜 سجل التغييرات</button>
         <div class="ail" style="margin-top:8px">EPS · DZ · 2026</div>
       </div>
@@ -1930,6 +1930,7 @@ body{max-width:480px;margin:0 auto;display:flex;flex-direction:column;-webkit-fo
       <div style="font-size:22px;font-weight:900;color:var(--g);font-family:var(--ff)">☁️ Smart Sport</div>
       <div id="auth-sub" style="font-size:12px;color:var(--tx3);font-weight:600;margin-top:2px">تسجيل الدخول للمزامنة السحابية</div>
     </div>
+    
     <input id="auth-email" type="email" inputmode="email" placeholder="البريد الإلكتروني" style="width:100%;padding:13px;margin-bottom:10px;background:var(--p3);border:1px solid var(--ln);border-radius:12px;color:var(--tx);font-family:var(--ff);font-size:14px;direction:ltr;text-align:left;box-sizing:border-box">
     <input id="auth-pass" type="password" placeholder="كلمة السر (6 أحرف على الأقل)" style="width:100%;padding:13px;margin-bottom:14px;background:var(--p3);border:1px solid var(--ln);border-radius:12px;color:var(--tx);font-family:var(--ff);font-size:14px;direction:ltr;text-align:left;box-sizing:border-box">
     <button id="auth-submit" onclick="authSubmit()" style="width:100%;padding:14px;background:linear-gradient(135deg,#00875a,#00d97e);border:none;border-radius:12px;color:#fff;font-family:var(--ff);font-size:14px;font-weight:900;cursor:pointer;margin-bottom:10px">دخول</button>
@@ -1937,7 +1938,7 @@ body{max-width:480px;margin:0 auto;display:flex;flex-direction:column;-webkit-fo
       <button id="auth-toggle" onclick="authToggleMode()" style="background:none;border:none;color:#4ea5ff;cursor:pointer;font-family:var(--ff);font-weight:800">ليس لديك حساب؟ أنشئ واحداً</button>
       <button onclick="authReset()" style="background:none;border:none;color:var(--tx3);cursor:pointer;font-family:var(--ff);font-weight:700">نسيت كلمة السر؟</button>
     </div>
-    <button onclick="closeAuthModal()" style="width:100%;padding:10px;margin-top:14px;background:rgba(255,89,89,.1);border:1px solid rgba(255,89,89,.2);border-radius:10px;color:#ff5959;font-family:var(--ff);font-size:12px;font-weight:700;cursor:pointer">إلغاء</button>
+    <button id="auth-cancel" onclick="closeAuthModal()" style="width:100%;padding:10px;margin-top:14px;background:rgba(255,89,89,.1);border:1px solid rgba(255,89,89,.2);border-radius:10px;color:#ff5959;font-family:var(--ff);font-size:12px;font-weight:700;cursor:pointer">إلغاء</button>
   </div>
 </div>
 
@@ -2263,14 +2264,41 @@ function safeParse(s){try{return JSON.parse(s);}catch(e){return null;}}
 var _syncVer=0; // يزيد مع كل حفظ محلي — لمعرفة هل حدث تعديل أثناء رفع جارٍ
 var DEVID=(function(){try{var d=localStorage.getItem('ss_devid');if(!d){d='d'+Date.now().toString(36)+Math.random().toString(36).slice(2,8);localStorage.setItem('ss_devid',d);}return d;}catch(e){return 'd0';}})();
 
+var AUTH_FORCED=false;
+function authGateShow(){
+  if(!window.FB||FB_USER)return;
+  if(navigator.onLine===false)return; // بلا إنترنت: يعمل التطبيق، ويُطلب التسجيل عند أول اتصال
+  AUTH_FORCED=true;AUTH_MODE='signup';syncAuthModeUI();
+  var c=document.getElementById('auth-cancel');if(c)c.style.display='none';
+  document.getElementById('auth-modal').style.display='flex';
+}
+function authGateHide(){
+  AUTH_FORCED=false;
+  var c=document.getElementById('auth-cancel');if(c)c.style.display='';
+}
+// 📈 عدّاد الدخول: مرة واحدة كل 30 دقيقة كحدّ أدنى، مجهولة الأثر على البيانات (مجموعة usage منفصلة)
+function usagePing(){
+  try{
+    if(!FB_USER||!window.FB||!FB.increment)return;
+    if(sessionStorage.getItem('ss_usage_fail'))return;
+    var k='ss_usage_ping',last=+localStorage.getItem(k)||0;
+    if(Date.now()-last<30*60*1000)return;
+    localStorage.setItem(k,String(Date.now()));
+    FB.setDoc(FB.doc(FB.db,'usage',FB_USER.uid),{email:FB_USER.email,visits:FB.increment(1),lastSeen:FB.serverTimestamp(),ver:(typeof CHANGELOG!=='undefined'?CHANGELOG.version:''),joined:(FB_USER.metadata&&FB_USER.metadata.creationTime)||''},{merge:true})
+      .catch(function(e){localStorage.removeItem(k);try{sessionStorage.setItem('ss_usage_fail','1');}catch(x){}slog('usage ✗ '+(e&&(e.code||e.message)));});
+  }catch(e){}
+}
 window.addEventListener('fb-ready',function(){
   FB.onAuthStateChanged(FB.auth,function(user){
     FB_USER=user;
     updateCloudUI();
     try{rPinRow();}catch(e){}
-    if(user)checkCloudFresh();
+    if(user){authGateHide();var am=document.getElementById('auth-modal');if(am&&am.style.display==='flex')am.style.display='none';checkCloudFresh();usagePing();}
+    else authGateShow();
   });
 });
+window.addEventListener('online',function(){authGateShow();});
+document.addEventListener('visibilitychange',function(){if(document.visibilityState==='visible')usagePing();});
 
 // 🔄 مزامنة سحابية تلقائية صامتة (بدون لمس أي زر)
 // رفع: بعد كل حفظ محلي (SD)، بفاصل 2 ثانية من التهدئة، إن كان مسجَّل الدخول.
@@ -2413,11 +2441,11 @@ function openDevPanel(){
   // يفتح لوحة المطوّر في نفس المجلد على الموقع
   window.open('admin.html','_blank');
 }
-function closeAuthModal(){document.getElementById('auth-modal').style.display='none';}
+function closeAuthModal(){if(AUTH_FORCED&&!(window.FB&&FB.auth&&FB.auth.currentUser))return;authGateHide();document.getElementById('auth-modal').style.display='none';}
 function authToggleMode(){AUTH_MODE=(AUTH_MODE==='login')?'signup':'login';syncAuthModeUI();}
 function syncAuthModeUI(){
   var isLogin=AUTH_MODE==='login';
-  document.getElementById('auth-sub').textContent=isLogin?'تسجيل الدخول للمزامنة السحابية':'إنشاء حساب جديد';
+  document.getElementById('auth-sub').textContent=AUTH_FORCED?(isLogin?'سجّل دخولك للمتابعة':'أنشئ حسابك للمتابعة'):(isLogin?'تسجيل الدخول للمزامنة السحابية':'إنشاء حساب جديد');
   document.getElementById('auth-submit').textContent=isLogin?'دخول':'إنشاء الحساب';
   document.getElementById('auth-toggle').textContent=isLogin?'ليس لديك حساب؟ أنشئ واحداً':'لديك حساب؟ سجّل الدخول';
 }
@@ -9978,9 +10006,10 @@ function invBillRe(i){var f=invD().bills[i];if(!f)return;invBillOut({sup:f.sup,n
 function invBillRm(i){var v=invD(),f=v.bills[i];if(!f)return;dlgConfirm({icon:'🗑️',tone:'red',title:'حذف الفاتورة من الأرشيف؟',subject:{ini:'🧾',name:'فاتورة '+(f.no||''),meta:f.sup||''},sub:'لا يُعدَّل المخزن؛ الكميات المُدخلة تبقى فيه.',confirmText:'حذف'}).then(function(ok){if(!ok)return;snapshot('حذف فاتورة');v.bills.splice(i,1);SD();invBills();});}
 
 var CHANGELOG = {
-  version: '2.16.0',
+  version: '2.17.0',
   date: '4 نوفمبر 2026',
   items: [
+    {ic:'🛠️', t:'تحديث خاص بالجانب الإداري', d:'تحسينات داخلية.'},
     {ic:'🏷️', t:'شارة الحالة بجانب اسم التلميذ', d:'بعد الضغط على 🔴 أو 🤒 أو تسجيل غياب مبرَّر تظهر بجانب الاسم كلمة «غائب» أو «مريض» أو «مبرّر» لحصته الحالية، وتختفي عند الانتقال إلى حصة جديدة.'},
     {ic:'🔧', t:'إصلاح زر «بدون» في المشاركة والأداء', d:'بعد تراكم نقاط الزر الأخضر 🟢 حتى الحد الأقصى، يعيد زر «بدون» العلامة إلى 0 (كان يبقي علاوة الزر الأخضر).'},
     {ic:'✏️', t:'تعديل تقارير الحوادث', d:'زر ✏️ في أرشيف التقارير وفي معاينة التقرير: يفتح النموذج مملوءاً بكل البيانات (الشهود والتصريحات والإجراءات والمخطط) ويحدّث التقرير نفسه مع «آخر تعديل: التاريخ» في الورقة. الحذف صار بتأكيد وإمكانية تراجع، والأرشيف يعرض كل التقارير.'},
