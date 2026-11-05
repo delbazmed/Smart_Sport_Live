@@ -1396,7 +1396,7 @@ body{max-width:480px;margin:0 auto;display:flex;flex-direction:column;-webkit-fo
         <div class="ail">التطبيق الاحترافي لأساتذة التربية البدنية والرياضية</div>
         <div style="height:14px"></div>
         <div class="ail">المطور: <strong style="color:var(--g)">Delbaz_Med</strong></div>
-        <div class="ail">الإصدار: <strong style="color:var(--gold)">2.18.3 · 5 نوفمبر 2026</strong></div>
+        <div class="ail">الإصدار: <strong style="color:var(--gold)">2.18.4 · 5 نوفمبر 2026</strong></div>
         <button onclick="showWhatsNewModal(true)" style="margin-top:10px;padding:9px 16px;border-radius:10px;border:1px solid var(--ln);background:var(--p3);color:var(--tx);font-family:var(--ff);font-size:12px;font-weight:800;cursor:pointer">📜 سجل التغييرات</button>
         <div class="ail" style="margin-top:8px">EPS · DZ · 2026</div>
       </div>
@@ -8895,7 +8895,7 @@ function advanceSes(cid,tk){
   const c=GC(cid);if(!c)return;
   const cur=curSesIdx(cid,tk);
   if(cur>=sesCapG()-1){toast('⚠️ آخر حصة','بلغت ح'+sesCapG()+' (آخر حصة) لهذا الفصل. للتعديل عدّل يدوياً من صفحة التلميذ ← المراقبة المستمرة','wa',3500);return;}
-  c.sesPtr[tk]=cur+1;markSesDate(cid,tk);
+  c.sesPtr[tk]=cur+1;markSesDate(cid,tk,true);
   SD();
   if(S.scr==='home')rHome();
 }
@@ -8903,7 +8903,7 @@ function retreatSes(cid,tk){
   const c=GC(cid);if(!c)return;
   const cur=curSesIdx(cid,tk);
   if(cur<=0){toast('⚠️ أول حصة','أنت بالفعل في ح1 (أول حصة) لهذا الفصل','wa',2500);return;}
-  c.sesPtr[tk]=cur-1;markSesDate(cid,tk);
+  c.sesPtr[tk]=cur-1;markSesDate(cid,tk,true);
   SD();
   if(S.scr==='home')rHome();
 }
@@ -8914,7 +8914,7 @@ function setHomeTerm(tk){S.term=tk;rHome();}
 // تاريخ آخر تسجيل محفوظ لكل قسم × فصل داخل بيانات القسم (يُزامَن بين الأجهزة)
 // ═══════════════════════════════════════════════════════
 function todayKey(){var d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
-function markSesDate(cid,tk){var c=GC(cid);if(!c)return;if(!c.sesDate)c.sesDate={};c.sesDate[tk]=todayKey();
+function markSesDate(cid,tk,noDay){var c=GC(cid);if(!c)return;if(!c.sesDate)c.sesDate={};c.sesDate[tk]=todayKey();if(noDay)return;   // التنقّل اليدوي بين الحصص لا يُثبّت تاريخ اليوم
   // 📅 تاريخ الحصة الحالية (يُحفظ مرة واحدة عند أول تسجيل فيها)
   if(!c.sesDays)c.sesDays={};if(!c.sesDays[tk])c.sesDays[tk]=[];var i=curSesIdx(cid,tk);if(!c.sesDays[tk][i])c.sesDays[tk][i]=todayKey();}
 // 📅 تواريخ حصص القسم الفعلية من جدول التوقيت (بدون العطل وفترات التوقف)
@@ -8948,7 +8948,7 @@ function sdateSave(){var q=SDATE;if(!q)return;var v=(document.getElementById('sd
   if((prev&&v<prev)||(next&&v>next))toast('📅 حُفظ','تنبيه: التاريخ لا يتّفق مع ترتيب الحصص المجاورة','wa',3500);
   else toast('📅 حُفظ','ح'+(q.i+1)+' · '+sesDateFmt(v),'su',2200);
   if(S.scr==='home')rHome();}
-function sesDateChipHtml(cid,tk,i){var d=sesDayOf(cid,tk,i);return '<div onclick="sdateOpen(\''+cid+'\',\''+tk+'\','+i+')" style="display:inline-block;margin-top:5px;padding:3px 10px;border-radius:8px;background:var(--p3);border:1px solid var(--ln);font-size:11px;font-weight:800;color:'+(d?'var(--blu)':'var(--tx3)')+';cursor:pointer">📅 '+(d?sesDateFmt(d):'تاريخ الحصة: اليوم')+' ✏️</div>';}
+function sesDateChipHtml(cid,tk,i){var d=sesDayOf(cid,tk,i);return '<div onclick="sdateOpen(\''+cid+'\',\''+tk+'\','+i+')" style="display:inline-block;margin-top:5px;padding:3px 10px;border-radius:8px;background:var(--p3);border:1px solid var(--ln);font-size:11px;font-weight:800;color:'+(d?'var(--blu)':'var(--tx3)')+';cursor:pointer">📅 '+(d?sesDateFmt(d):'تاريخ الحصة: غير محدَّد (اليوم)')+' ✏️</div>';}
 function sesDayOf(cid,tk,i){var c=GC(cid);return (c&&c.sesDays&&c.sesDays[tk]&&c.sesDays[tk][i])||null;}
 function fmtDM(k){if(!k)return '';var p=String(k).split('-');return p.length===3?(+p[2])+'/'+(+p[1]):'';}
 // ✅ حالة خانة الحصة: pr حاضر · ab غائب · ju غائب مبرّر · sk مريض (المبرّر = قيمة 1 + علامة jus)
@@ -10096,9 +10096,10 @@ function invBillRe(i){var f=invD().bills[i];if(!f)return;invBillOut({sup:f.sup,n
 function invBillRm(i){var v=invD(),f=v.bills[i];if(!f)return;dlgConfirm({icon:'🗑️',tone:'red',title:'حذف الفاتورة من الأرشيف؟',subject:{ini:'🧾',name:'فاتورة '+(f.no||''),meta:f.sup||''},sub:'لا يُعدَّل المخزن؛ الكميات المُدخلة تبقى فيه.',confirmText:'حذف'}).then(function(ok){if(!ok)return;snapshot('حذف فاتورة');v.bills.splice(i,1);SD();invBills();});}
 
 var CHANGELOG = {
-  version: '2.18.3',
+  version: '2.18.4',
   date: '5 نوفمبر 2026',
   items: [
+    {ic:'📅', t:'إصلاح تاريخ الحصة', d:'التنقّل بين الحصص لم يعد يثبّت تاريخ اليوم؛ يُثبَّت تاريخ الحصة عند أول تسجيل فيها، والحصة التي لم يُسجَّل فيها شيء تعرض «غير محدَّد». ويمكن تعديل أي تاريخ من الشريط.'},
     {ic:'🔢', t:'إصلاح ترقيم قائمة القسم', d:'التلميذ المغادر المخفي كان يترك رقماً ناقصاً (16 ثم 18) فيزيد آخر رقم عن عدد التلاميذ. الترقيم الآن للتلاميذ الحاليين فقط، متسلسل بلا قفز.'},
     {ic:'🔀', t:'التحويل الداخلي بين الأقسام', d:'عند نقل تلميذ إلى قسم مدمج تختار فوجه، ويظهر في تعديله سطر «حُوِّل من… بتاريخ…». ويدخل كشف المغادرين بنوع «تحويل داخلي» مع «من القسم القديم إلى الجديد» دون أن يُحتسب مغادراً.'},
     {ic:'👥', t:'أفواج القسم المدمج: حتى 4 أفواج', d:'لمن يجمع ثلاثة أقسام أو أربعة: سمِّ الأفواج وحدّد فوج كل تلميذ بدائرة مرقّمة، فيرتّب «أ↓» كل فوج على حدة.'},
