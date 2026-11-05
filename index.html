@@ -1396,7 +1396,7 @@ body{max-width:480px;margin:0 auto;display:flex;flex-direction:column;-webkit-fo
         <div class="ail">التطبيق الاحترافي لأساتذة التربية البدنية والرياضية</div>
         <div style="height:14px"></div>
         <div class="ail">المطور: <strong style="color:var(--g)">Delbaz_Med</strong></div>
-        <div class="ail">الإصدار: <strong style="color:var(--gold)">2.18.2 · 5 نوفمبر 2026</strong></div>
+        <div class="ail">الإصدار: <strong style="color:var(--gold)">2.18.3 · 5 نوفمبر 2026</strong></div>
         <button onclick="showWhatsNewModal(true)" style="margin-top:10px;padding:9px 16px;border-radius:10px;border:1px solid var(--ln);background:var(--p3);color:var(--tx);font-family:var(--ff);font-size:12px;font-weight:800;cursor:pointer">📜 سجل التغييرات</button>
         <div class="ail" style="margin-top:8px">EPS · DZ · 2026</div>
       </div>
@@ -2944,8 +2944,10 @@ function rHome(){
   else{
     const clsStus=D.students.filter(s=>s.classId===S.cid);
     const homeMode2=curHomeMode();
+    let _nn=0;
     allStus.forEach((s,i)=>{
-      if(COMPACT){h+=compactRow(s,i);return;}
+      const _num=s.left?0:(++_nn);
+      if(COMPACT){h+=compactRow(s,_num);return;}
       let a,ex,anyEx;
       if(homeMode2==='annual'){
         a=calcAnnual(s,cls);ex=isAllEx(s);anyEx=isAnyEx(s);
@@ -2963,7 +2965,7 @@ function rHome(){
       const sIdx=clsStus.findIndex(x=>x.id===s.id);
       h+='<div class="srow-wrap'+(s.left?' left-row':'')+'" data-sid="'+s.id+'"'+(s.left?' style="display:none;opacity:.55"':'')+'>'+
         '<div class="srow" onclick="openStu(\''+s.id+'\')">'+
-          '<div class="snum">'+String(i+1).padStart(2,'0')+'</div>'+
+          '<div class="snum">'+(s.left?'🚪':String(_num).padStart(2,'0'))+'</div>'+
           '<div class="sav '+(s.gender==='male'?'m':'f')+'"></div>'+
           '<div class="sinf">'+
             '<div class="sna">'+s.name+absTag(s)+(roleMark(s)?' <span title="دور">'+roleMark(s)+'</span>':'')+(s.left?' <span style="font-size:10px;color:var(--tx3);font-weight:700">🚪 غادر '+fmtDM(s.left)+(s.leftWhy?' · '+escH(lvText(s)):'')+'</span>':'')+'</div>'+
@@ -3565,7 +3567,7 @@ function compactRow(s,i){
   var bg=st==='ab'?'rgba(255,89,89,.07)':st==='ju'?'rgba(255,159,67,.07)':st==='sk'?'rgba(245,185,50,.07)':'none';
   return '<div class="srow-wrap'+(s.left?' left-row':'')+'" data-sid="'+s.id+'"'+(s.left?' style="display:none;opacity:.55"':'')+'>'+
     '<div class="cmp-row" style="display:flex;align-items:center;gap:5px;padding:7px 12px 7px 4px;background:'+bg+'">'+
-      '<span style="width:22px;font-size:12px;color:var(--tx3);text-align:center;flex-shrink:0">'+String(i+1).padStart(2,'0')+'</span>'+
+      '<span style="width:22px;font-size:12px;color:var(--tx3);text-align:center;flex-shrink:0">'+(s.left?'🚪':String(i).padStart(2,'0'))+'</span>'+
       '<span style="width:8px;height:8px;border-radius:50%;flex-shrink:0;background:'+(s.gender==='male'?'var(--blu)':'var(--pnk)')+'"></span>'+
       '<span onclick="openStu(\''+s.id+'\')" style="flex:1;min-width:0;font-size:14px;font-weight:800;color:var(--tx);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer">'+escA(s.name)+(roleMark(s)?' '+roleMark(s):'')+'<span class="cst">'+compactTag(s)+'</span></span>'+
       (ex?'<span style="padding:3px 8px;background:rgba(255,89,89,.15);border-radius:7px;font-size:11px;font-weight:800;color:var(--red)">معفى</span>':
@@ -10094,9 +10096,10 @@ function invBillRe(i){var f=invD().bills[i];if(!f)return;invBillOut({sup:f.sup,n
 function invBillRm(i){var v=invD(),f=v.bills[i];if(!f)return;dlgConfirm({icon:'🗑️',tone:'red',title:'حذف الفاتورة من الأرشيف؟',subject:{ini:'🧾',name:'فاتورة '+(f.no||''),meta:f.sup||''},sub:'لا يُعدَّل المخزن؛ الكميات المُدخلة تبقى فيه.',confirmText:'حذف'}).then(function(ok){if(!ok)return;snapshot('حذف فاتورة');v.bills.splice(i,1);SD();invBills();});}
 
 var CHANGELOG = {
-  version: '2.18.2',
+  version: '2.18.3',
   date: '5 نوفمبر 2026',
   items: [
+    {ic:'🔢', t:'إصلاح ترقيم قائمة القسم', d:'التلميذ المغادر المخفي كان يترك رقماً ناقصاً (16 ثم 18) فيزيد آخر رقم عن عدد التلاميذ. الترقيم الآن للتلاميذ الحاليين فقط، متسلسل بلا قفز.'},
     {ic:'🔀', t:'التحويل الداخلي بين الأقسام', d:'عند نقل تلميذ إلى قسم مدمج تختار فوجه، ويظهر في تعديله سطر «حُوِّل من… بتاريخ…». ويدخل كشف المغادرين بنوع «تحويل داخلي» مع «من القسم القديم إلى الجديد» دون أن يُحتسب مغادراً.'},
     {ic:'👥', t:'أفواج القسم المدمج: حتى 4 أفواج', d:'لمن يجمع ثلاثة أقسام أو أربعة: سمِّ الأفواج وحدّد فوج كل تلميذ بدائرة مرقّمة، فيرتّب «أ↓» كل فوج على حدة.'},
     {ic:'🎨', t:'أزرار رصد ملوّنة قابلة للتعديل', d:'حتى 4 أزرار أمام التلميذ، لكل زر لون ومعيار (زيادة أو نقصان) من م.م المخصَّصة؛ 🟢 و🟡 يبقيان افتراضيين. من «إنشاء المعايير ← أزرار الرصد».'},
