@@ -2593,6 +2593,7 @@ function cxqMap(){var o={inc:null,dec:null},q=(D&&D.settings&&D.settings.mcQuick
     var so=lsGet('ss_cxq_'+k);var pk=so&&list.filter(function(x){return x.id===so;})[0];if(pk)o[k]=pk;});return o;}
 var BTN_COL={g:['🟢','أخضر'],y:['🟡','أصفر'],b:['🔵','أزرق'],n:['🟤','بني'],w:['⚪','أبيض'],k:['⚫','أسود']};
 // أزرار مخصَّصة: [{c:معيار,k:لون}] حتى 4؛ الاتجاه يُؤخذ من نوع المعيار (يبدأ من الصفر = زيادة، يبدأ كاملاً = نقصان). غيابها = السلوك القديم (أخضر/أصفر)
+function roleBtnOn(){return !(D&&D.settings&&D.settings.hideRoleBtn);}
 function mcBtnsCfg(){var b=D&&D.settings&&D.settings.mcBtns;if(!Array.isArray(b))return null;var cr=mcCrits();
   return b.filter(function(x){var c=cr.filter(function(y){return y.id===x.c;})[0];return c&&(cType(c)==='inc'||cType(c)==='dec')&&BTN_COL[x.k];}).slice(0,4);}
 function cxqPickT(k,id){lsSet('ss_cxq_'+k,id);rHome();}
@@ -2974,7 +2975,7 @@ function rHome(){
           '<div style="display:flex;align-items:center;margin-left:4px">'+scoreHtml+'</div>'+
         '</div>'+
         '<div class="sxtra-row">'+
-          (!isAllEx(s)?'<button class="cap-btn'+((s.captain&&s.equipment)?' on':s.captain?' on':s.equipment?' eq':(stuTasks(s).length?' eq':''))+'" onclick="event.stopPropagation();openRoleMenu(\''+s.id+'\',this)" title="تعيين دور">'+((s.captain&&s.equipment)?'⭐':s.captain?'👑':s.equipment?'🎒':(stuTasks(s).length?'🏷️':'○'))+'</button>'+
+          (!isAllEx(s)&&roleBtnOn()?'<button class="cap-btn'+((s.captain&&s.equipment)?' on':s.captain?' on':s.equipment?' eq':(stuTasks(s).length?' eq':''))+'" onclick="event.stopPropagation();openRoleMenu(\''+s.id+'\',this)" title="تعيين دور">'+((s.captain&&s.equipment)?'⭐':s.captain?'👑':s.equipment?'🎒':(stuTasks(s).length?'🏷️':'○'))+'</button>'+
           '<div class="pcard-wrap">'+
             (mcCustom()?cxqBtns(s,0):'<button class="pcard pc-g" onclick="event.stopPropagation();stuCard(\''+s.id+'\',\'g\')" title="مشاركة +0.25">🟢</button>'+
             '<button class="pcard pc-y" onclick="event.stopPropagation();stuCard(\''+s.id+'\',\'y\')" title="انضباط -0.25">🟡</button>')+
@@ -3571,7 +3572,7 @@ function compactRow(s,i){
       '<span style="width:8px;height:8px;border-radius:50%;flex-shrink:0;background:'+(s.gender==='male'?'var(--blu)':'var(--pnk)')+'"></span>'+
       '<span onclick="openStu(\''+s.id+'\')" style="flex:1;min-width:0;font-size:14px;font-weight:800;color:var(--tx);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer">'+escA(s.name)+(roleMark(s)?' '+roleMark(s):'')+'<span class="cst">'+compactTag(s)+'</span></span>'+
       (ex?'<span style="padding:3px 8px;background:rgba(255,89,89,.15);border-radius:7px;font-size:11px;font-weight:800;color:var(--red)">معفى</span>':
-      '<button class="cap-btn'+((s.captain&&s.equipment)?' on':s.captain?' on':s.equipment?' eq':(stuTasks(s).length?' eq':''))+'" onclick="event.stopPropagation();openRoleMenu(\''+s.id+'\',this)" title="تعيين دور" style="width:32px;height:32px;font-size:14px;flex-shrink:0">'+((s.captain&&s.equipment)?'⭐':s.captain?'👑':s.equipment?'🎒':(stuTasks(s).length?'🏷️':'○'))+'</button>'+
+      (roleBtnOn()?'<button class="cap-btn'+((s.captain&&s.equipment)?' on':s.captain?' on':s.equipment?' eq':(stuTasks(s).length?' eq':''))+'" onclick="event.stopPropagation();openRoleMenu(\''+s.id+'\',this)" title="تعيين دور" style="width:32px;height:32px;font-size:14px;flex-shrink:0">'+((s.captain&&s.equipment)?'⭐':s.captain?'👑':s.equipment?'🎒':(stuTasks(s).length?'🏷️':'○'))+'</button>':'')+
       (mcCustom()?cxqBtns(s,32):'')+[['g','🟢','مشاركة +0.25'],['y','🟡','انضباط -0.25'],['r','🔴','تسجيل غياب'],['m','🤒','تسجيل حالة مرضية']].filter(function(b){return mcCustom()?false:true;}).map(function(b){return '<button class="pcard pc-'+b[0]+'" onclick="event.stopPropagation();stuCard(\''+s.id+'\',\''+b[0]+'\')" title="'+b[2]+'" style="width:32px;height:32px;font-size:14px;flex-shrink:0">'+b[1]+'</button>';}).join(''))+
     '</div></div>';
 }
@@ -3607,7 +3608,7 @@ function mcApplyMode(m){var old=mcCustom()?'custom':'default';snapshot('تغيي
 var MCE=null;
 function openMcEd(from){var st=D.settings;var sc=mcSesCfg();var fresh=!mcCrits().length;
   MCE={crit:mcCrits().map(function(c){return{id:c.id,name:c.name,max:c.max,st:cStart(c),dec:cDec(c),inc:cInc(c),md:cMode(c)};}),sn:fresh?7:sc.n,sv:sc.v,
-    rc:Object.assign({crit:'',val:1},st.mcRoleC||{}),re:Object.assign({crit:'',val:1},st.mcRoleE||{}),tasks:mcTasks().map(function(t){return{id:t.id,name:t.name,crit:t.crit,val:t.val};}),quick:(function(){var m=cxqMap();return{inc:m.inc?m.inc.id:null,dec:m.dec?m.dec.id:null,val:m.val?m.val.id:null};})(),edit:null,from:!!from,btnsDirty:false};
+    hrb:!!st.hideRoleBtn,rc:Object.assign({crit:'',val:1},st.mcRoleC||{}),re:Object.assign({crit:'',val:1},st.mcRoleE||{}),tasks:mcTasks().map(function(t){return{id:t.id,name:t.name,crit:t.crit,val:t.val};}),quick:(function(){var m=cxqMap();return{inc:m.inc?m.inc.id:null,dec:m.dec?m.dec.id:null,val:m.val?m.val.id:null};})(),edit:null,from:!!from,btnsDirty:false};
   MCE.btns=(function(){var cf=mcBtnsCfg();if(cf)return cf.map(function(x){return{c:x.c,k:x.k};});var q=MCE.quick,o=[];if(q.inc)o.push({c:q.inc,k:'g'});if(q.dec)o.push({c:q.dec,k:'y'});return o;})();
   if(!MCE.crit.length)MCE.edit='new';
   rMce();openOv('ov-mce');}
@@ -3653,6 +3654,7 @@ function rMce(){var el=document.getElementById('mce-body');if(!el||!MCE)return;v
   var vals=function(sel){return [0.25,0.5,1,1.5,2].map(function(v){return '<option value="'+v+'"'+(parseFloat(sel)===v?' selected':'')+'>+'+v+'</option>';}).join('');};
   h+='<div style="font-size:11px;font-weight:800;color:var(--tx3);margin:12px 0 6px">مكافأة الأدوار (تُضاف تلقائياً، ولا تتجاوز الحد الأقصى للمعيار)</div>';
   [['rc','👑 قائد الفوج'],['re','🎒 مسؤول العتاد']].forEach(function(r){h+='<div style="display:flex;align-items:center;gap:6px;margin-bottom:6px"><span style="width:96px;font-size:12px;font-weight:800;color:var(--tx2)">'+r[1]+'</span><select onchange="MCE.'+r[0]+'.crit=this.value" style="'+inp+';flex:1;min-width:0;width:auto">'+opts(MCE[r[0]].crit)+'</select><select onchange="MCE.'+r[0]+'.val=parseFloat(this.value)" style="'+inp+';width:76px;flex:none">'+vals(MCE[r[0]].val)+'</select></div>';});
+  h+='<div style="display:flex;gap:6px;margin:4px 0 6px">'+[[false,'👁️ إظهار زر الدور ○'],[true,'🙈 إخفاء زر الدور']].map(function(o){var on=!!MCE.hrb===o[0];return '<button onclick="MCE.hrb='+o[0]+';rMce()" style="flex:1;padding:9px 6px;border-radius:10px;border:1.5px solid '+(on?'var(--g)':'var(--ln)')+';background:'+(on?'rgba(0,217,126,.12)':'transparent')+';color:'+(on?'var(--g)':'var(--tx3)')+';font-family:var(--ff);font-size:11px;font-weight:800;cursor:pointer">'+o[1]+'</button>';}).join('')+'</div><div style="font-size:10.5px;font-weight:600;color:var(--tx3);line-height:1.6;margin-bottom:6px">الإخفاء يزيل الدائرة ○ من صفوف التلاميذ فقط؛ الأدوار المعيّنة سابقاً تبقى ظاهرة بجانب الاسم.</div>';
   h+='<div style="font-size:11px;font-weight:800;color:var(--tx3);margin:16px 0 6px">🏷️ مهام تنظيمية أخرى <span style="font-weight:600">(تسمّيها أنت، وتختار المعيار والقيمة)</span></div>';
   MCE.tasks.forEach(function(t,i){h+='<div style="padding:8px;margin-bottom:6px;border-radius:12px;border:1px solid var(--ln);background:var(--p2)"><div style="display:flex;gap:6px;align-items:center"><input type="text" maxlength="30" value="'+escA(t.name)+'" placeholder="اسم المهمة (مثال: مسؤول الصافرة)" oninput="MCE.tasks['+i+'].name=this.value" style="flex:1;min-width:0;'+inp+'"><button onclick="mceTaskDel('+i+')" style="width:36px;height:36px;border-radius:9px;border:1px solid rgba(255,89,89,.3);background:var(--rb);cursor:pointer;font-size:14px">🗑️</button></div>'+
     '<div style="display:flex;gap:6px;margin-top:6px"><select onchange="MCE.tasks['+i+'].crit=this.value" style="'+inp+';flex:1;min-width:0;width:auto">'+MCE.crit.map(function(c){return '<option value="'+c.id+'"'+(t.crit===c.id?' selected':'')+'>'+escA(c.name)+'</option>';}).join('')+'</select><select onchange="MCE.tasks['+i+'].val=parseFloat(this.value)" style="'+inp+';width:84px;flex:none">'+[0.25,0.5,0.75,1,1.5,2,3].map(function(v){return '<option value="'+v+'"'+(parseFloat(t.val)===v?' selected':'')+'>+'+v+'</option>';}).join('')+'</select></div></div>';});
@@ -3689,7 +3691,7 @@ async function mceSaveAll(){if(!MCE||MCE.edit!==null||mceTot()!==20||!MCE.crit.l
   snapshot('إعداد م.م المخصَّصة');
   var ids={};MCE.crit.forEach(function(c){ids[c.id]=1;});
   var st=D.settings;st.mcCrit=MCE.crit.map(function(c){return{id:c.id,name:c.name,max:c.max,st:c.st,dec:c.dec,inc:c.inc,md:c.md||'step',step:Math.min(c.dec,c.inc)};});
-  st.mcSes={n:MCE.sn,v:MCE.sv};delete st.mcAtt;
+  st.mcSes={n:MCE.sn,v:MCE.sv};delete st.mcAtt;st.hideRoleBtn=!!MCE.hrb;
   if(MCE.btnsDirty){st.mcBtns=MCE.btns.filter(function(b){var c=MCE.crit.filter(function(x){return x.id===b.c;})[0];return c&&(cType(c)==='inc'||cType(c)==='dec')&&BTN_COL[b.k];}).slice(0,4).map(function(b){return{c:b.c,k:b.k};});
     ['inc','dec'].forEach(function(k){var f=st.mcBtns.filter(function(b){var c=MCE.crit.filter(function(x){return x.id===b.c;})[0];return cType(c)===k;})[0];if(f)MCE.quick[k]=f.c;});}
   st.mcQuick=(function(){var o={};['inc','dec'].forEach(function(k){var id=MCE.quick[k];o[k]=(id&&MCE.crit.some(function(c){return c.id===id&&cType(c)===k;}))?id:null;});return o;})();
@@ -10099,6 +10101,7 @@ var CHANGELOG = {
   version: '2.18.5',
   date: '7 نوفمبر 2026',
   items: [
+    {ic:'🙈', t:'إخفاء زر الدور ○', d:'من «إنشاء المعايير» يمكنك إخفاء دائرة الدور من صفوف التلاميذ لمن لا يستعمل الأدوار؛ الأدوار المعيّنة تبقى ظاهرة بجانب الاسم.'},
     {ic:'🔤', t:'رمز الغياب المبرَّر AJ', d:'في كشوف المراقبة المستمرة صار رمز الغياب المبرَّر AJ بدل «غم»، ليوافق A للغائب وM للمريض.'},
     {ic:'📅', t:'إصلاح تاريخ الحصة', d:'التنقّل بين الحصص لم يعد يثبّت تاريخ اليوم؛ يُثبَّت تاريخ الحصة عند أول تسجيل فيها، والحصة التي لم يُسجَّل فيها شيء تعرض «غير محدَّد». ويمكن تعديل أي تاريخ من الشريط.'},
     {ic:'🔢', t:'إصلاح ترقيم قائمة القسم', d:'التلميذ المغادر المخفي كان يترك رقماً ناقصاً (16 ثم 18) فيزيد آخر رقم عن عدد التلاميذ. الترقيم الآن للتلاميذ الحاليين فقط، متسلسل بلا قفز.'},
