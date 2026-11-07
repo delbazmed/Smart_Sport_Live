@@ -1396,7 +1396,7 @@ body{max-width:480px;margin:0 auto;display:flex;flex-direction:column;-webkit-fo
         <div class="ail">التطبيق الاحترافي لأساتذة التربية البدنية والرياضية</div>
         <div style="height:14px"></div>
         <div class="ail">المطور: <strong style="color:var(--g)">Delbaz_Med</strong></div>
-        <div class="ail">الإصدار: <strong style="color:var(--gold)">2.18.4 · 5 نوفمبر 2026</strong></div>
+        <div class="ail">الإصدار: <strong style="color:var(--gold)">2.18.5 · 7 نوفمبر 2026</strong></div>
         <button onclick="showWhatsNewModal(true)" style="margin-top:10px;padding:9px 16px;border-radius:10px;border:1px solid var(--ln);background:var(--p3);color:var(--tx);font-family:var(--ff);font-size:12px;font-weight:800;cursor:pointer">📜 سجل التغييرات</button>
         <div class="ail" style="margin-top:8px">EPS · DZ · 2026</div>
       </div>
@@ -6802,7 +6802,7 @@ function buildMCSheetCx(clsId, tk, tc, sch, yr){const pr=dirName()||'___________
   const cls=GC(clsId);if(!cls)return'';
   const stus=GSR(clsId);const cr=mcCrits();const N=mcSesN();const SM=Math.round(N*mcSesV()*100)/100;
   const termLabels={t1:'الفصل الأول',t2:'الفصل الثاني',t3:'الفصل الثالث'};
-  const showSes=function(t,i){const st=sesState(t,i);return st==='ab'?'<td style="color:#c0392b;font-weight:700">A</td>':st==='ju'?'<td style="color:#d35400;font-weight:700">غم</td>':st==='sk'?'<td style="color:#e67e22;font-weight:700">M</td>':'<td></td>';};
+  const showSes=function(t,i){const st=sesState(t,i);return st==='ab'?'<td style="color:#c0392b;font-weight:700">A</td>':st==='ju'?'<td style="color:#d35400;font-weight:700">AJ</td>':st==='sk'?'<td style="color:#e67e22;font-weight:700">M</td>':'<td></td>';};
   const sesTh=N?(Array.from({length:N},function(_,i){return '<th>ح'+(i+1)+'</th>';}).join('')+'<th>ح/'+fmtCx(SM)+'</th>'):'';
   const cnTh=N?'<th style="background:#922b21;color:#fff">غ</th><th style="background:#935116;color:#fff">م</th>':'';
   const span=(N?N+3:0)+cr.length+1;
@@ -6813,7 +6813,7 @@ function buildMCSheetCx(clsId, tk, tc, sch, yr){const pr=dirName()||'___________
     let sesTd='',cnTd='';
     if(N){const ar=sesArr(t);const ab=ar.filter(function(v){return v===0;}).length;const sk=ar.filter(function(v,i){return sesState(t,i)==='sk';}).length;const ju=ar.filter(function(v,i){return sesState(t,i)==='ju';}).length;
       sesTd=ar.map(function(v,i){return showSes(t,i);}).join('')+'<td style="font-weight:700">'+(mc!==null?fmtCx(sesSumC(t)):'—')+'</td>';
-      cnTd='<td style="color:#c0392b;font-weight:700">'+(ab||'0')+(ju?'<span style="color:#d35400;font-size:9px"> +'+ju+'م</span>':'')+'</td><td style="color:#e67e22;font-weight:700">'+(sk||'0')+'</td>';}
+      cnTd='<td style="color:#c0392b;font-weight:700">'+(ab||'0')+(ju?'<span style="color:#d35400;font-size:9px"> +'+ju+'AJ</span>':'')+'</td><td style="color:#e67e22;font-weight:700">'+(sk||'0')+'</td>';}
     rows+='<tr><td style="text-align:right">'+nm+'</td><td>'+gn+'</td>'+sesTd+cr.map(function(c){return '<td>'+fmtCx(cxVal(t,c))+'</td>';}).join('')+cnTd+
       '<td style="background:#e8f5e9;font-weight:800;color:'+(mc!==null?(mc>=10?'#1a6b3a':'#c0392b'):'#888')+'">'+(mc!==null?fmt(mc):'—')+'</td></tr>';});
   const classAvg=cnt?Math.round(sum/cnt*100)/100:null;
@@ -6829,7 +6829,7 @@ function buildMCSheet(clsId, tk, tc, sch, yr){const pr=dirName()||'_____________
   {const _f=D.students.filter(x=>x.classId===clsId)[0];if(mcModeOf(_f&&_f.terms&&_f.terms[tk]?_f.terms[tk]:null)==='custom')return buildMCSheetCx(clsId,tk,tc,sch,yr);}
   const stus=GSR(clsId);
   const termLabels={t1:'الفصل الأول',t2:'الفصل الثاني',t3:'الفصل الثالث'};
-  const showSesT=(t,i)=>{const st=sesState(t,i);return st==='ab'?'<td style="color:#c0392b;font-weight:700">A</td>':st==='ju'?'<td style="color:#d35400;font-weight:700">غم</td>':st==='sk'?'<td style="color:#e67e22;font-weight:700">M</td>':'<td></td>';};
+  const showSesT=(t,i)=>{const st=sesState(t,i);return st==='ab'?'<td style="color:#c0392b;font-weight:700">A</td>':st==='ju'?'<td style="color:#d35400;font-weight:700">AJ</td>':st==='sk'?'<td style="color:#e67e22;font-weight:700">M</td>':'<td></td>';};
   let rows='';let sum=0,cnt=0;
   stus.forEach((s,i)=>{
     initStu(s);const t=s.terms[tk];
@@ -10096,9 +10096,10 @@ function invBillRe(i){var f=invD().bills[i];if(!f)return;invBillOut({sup:f.sup,n
 function invBillRm(i){var v=invD(),f=v.bills[i];if(!f)return;dlgConfirm({icon:'🗑️',tone:'red',title:'حذف الفاتورة من الأرشيف؟',subject:{ini:'🧾',name:'فاتورة '+(f.no||''),meta:f.sup||''},sub:'لا يُعدَّل المخزن؛ الكميات المُدخلة تبقى فيه.',confirmText:'حذف'}).then(function(ok){if(!ok)return;snapshot('حذف فاتورة');v.bills.splice(i,1);SD();invBills();});}
 
 var CHANGELOG = {
-  version: '2.18.4',
-  date: '5 نوفمبر 2026',
+  version: '2.18.5',
+  date: '7 نوفمبر 2026',
   items: [
+    {ic:'🔤', t:'رمز الغياب المبرَّر AJ', d:'في كشوف المراقبة المستمرة صار رمز الغياب المبرَّر AJ بدل «غم»، ليوافق A للغائب وM للمريض.'},
     {ic:'📅', t:'إصلاح تاريخ الحصة', d:'التنقّل بين الحصص لم يعد يثبّت تاريخ اليوم؛ يُثبَّت تاريخ الحصة عند أول تسجيل فيها، والحصة التي لم يُسجَّل فيها شيء تعرض «غير محدَّد». ويمكن تعديل أي تاريخ من الشريط.'},
     {ic:'🔢', t:'إصلاح ترقيم قائمة القسم', d:'التلميذ المغادر المخفي كان يترك رقماً ناقصاً (16 ثم 18) فيزيد آخر رقم عن عدد التلاميذ. الترقيم الآن للتلاميذ الحاليين فقط، متسلسل بلا قفز.'},
     {ic:'🔀', t:'التحويل الداخلي بين الأقسام', d:'عند نقل تلميذ إلى قسم مدمج تختار فوجه، ويظهر في تعديله سطر «حُوِّل من… بتاريخ…». ويدخل كشف المغادرين بنوع «تحويل داخلي» مع «من القسم القديم إلى الجديد» دون أن يُحتسب مغادراً.'},
