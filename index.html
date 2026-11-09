@@ -1396,7 +1396,7 @@ body{max-width:480px;margin:0 auto;display:flex;flex-direction:column;-webkit-fo
         <div class="ail">التطبيق الاحترافي لأساتذة التربية البدنية والرياضية</div>
         <div style="height:14px"></div>
         <div class="ail">المطور: <strong style="color:var(--g)">Delbaz_Med</strong></div>
-        <div class="ail">الإصدار: <strong style="color:var(--gold)">2.18.5 · 7 نوفمبر 2026</strong></div>
+        <div class="ail">الإصدار: <strong style="color:var(--gold)">2.18.6 · 9 نوفمبر 2026</strong></div>
         <button onclick="showWhatsNewModal(true)" style="margin-top:10px;padding:9px 16px;border-radius:10px;border:1px solid var(--ln);background:var(--p3);color:var(--tx);font-family:var(--ff);font-size:12px;font-weight:800;cursor:pointer">📜 سجل التغييرات</button>
         <div class="ail" style="margin-top:8px">EPS · DZ · 2026</div>
       </div>
@@ -5539,7 +5539,7 @@ function printAbsenceReport(){
       <table><thead><tr><th>#</th><th>الاسم واللقب</th><th>غياب</th><th>غياب مبرّر</th><th>مرض</th><th>التفاصيل (الحصة والتاريخ)</th></tr></thead><tbody>${rows}</tbody></table>
       <div class="legend">غ = غياب غير مبرّر (−2) · غ.م = غياب مبرّر (−1) · م = مرض (−1) من نقطتي الحصة</div>
       <div class="footer">
-        <div class="sig"><div>أستاذ التربية البدنية</div><div style="color:#555;margin-top:2px">${tc}</div><div class="sig-line"></div><div>Delbaz_Med</div></div>
+        <div class="sig"><div>أستاذ التربية البدنية</div><div style="color:#555;margin-top:2px">${tc}</div><div class="sig-line"></div><div>التوقيع</div></div>
         <div class="sig"><div>مستشار التربية</div><div style="color:#555;margin-top:2px">${counselorName()||'_______________'}</div><div class="sig-line"></div></div>
         <div class="sig"><div>المدير</div><div style="color:#555;margin-top:2px">${pr}</div><div class="sig-line"></div></div>
       </div>
@@ -5588,7 +5588,7 @@ function printClassStats(){
       <table><thead><tr><th>🏆 أعلى معدل</th><th>📉 أدنى معدل</th></tr></thead><tbody><tr><td style="text-align:center">${st.best?fmt(st.best.avg)+'/20 — '+st.best.name:'—'}</td><td style="text-align:center">${st.worst?fmt(st.worst.avg)+'/20 — '+st.worst.name:'—'}</td></tr></tbody></table>
       <table><thead><tr><th>الشريحة</th><th>عدد التلاميذ</th></tr></thead><tbody>${bandsRows}</tbody></table>
       <div class="footer">
-        <div class="sig"><div>أستاذ التربية البدنية</div><div style="color:#555;margin-top:2px">${tc}</div><div class="sig-line"></div><div>Delbaz_Med</div></div>
+        <div class="sig"><div>أستاذ التربية البدنية</div><div style="color:#555;margin-top:2px">${tc}</div><div class="sig-line"></div><div>التوقيع</div></div>
         <div style="text-align:center;font-size:10px;color:#aaa;align-self:flex-end">Smart_Sport · Mai 26<br>Delbaz_EPS</div>
         <div class="sig"><div>المدير</div><div style="color:#555;margin-top:2px">${pr}</div><div class="sig-line"></div></div>
       </div>
@@ -5713,7 +5713,7 @@ function buildColTbl(){
   return h;
 }
 function expHdr(){const t=D.settings.teacher||'—',sc=D.settings.school||'الثانوية',yr=D.settings.year;return'<div style="text-align:center;margin-bottom:20px;direction:rtl;font-family:Arial"><h2 style="margin:0 0 6px;font-size:18px">'+sc+'</h2><p style="margin:0;color:#555;font-size:13px">الموسم الدراسي: '+yr+'</p></div>';}
-function expFtr(){const t=D.settings.teacher||'—',pr=dirName()||'_______________';return'<div style="display:flex;justify-content:space-between;margin-top:40px;font-family:Arial;direction:rtl;font-size:13px"><div><p>الأستاذ: '+t+'</p><p style="margin-top:30px;border-top:1px solid #333;padding-top:4px">التوقيع: Delbaz_Med</p></div><div style="text-align:center"><p>المدير</p><p style="margin-top:30px;border-top:1px solid #333;padding-top:4px">'+pr+'</p></div></div>';}
+function expFtr(){const t=D.settings.teacher||'—',pr=dirName()||'_______________';return'<div style="display:flex;justify-content:space-between;margin-top:40px;font-family:Arial;direction:rtl;font-size:13px"><div><p>الأستاذ: '+t+'</p><p style="margin-top:30px;border-top:1px solid #333;padding-top:4px">التوقيع:</p></div><div style="text-align:center"><p>المدير</p><p style="margin-top:30px;border-top:1px solid #333;padding-top:4px">'+pr+'</p></div></div>';}
 
 
 function exportScPDF(){
@@ -6630,7 +6630,7 @@ function exportAllTermsExcel(){
         rows.push([i+1,leftTag(s,s.name),s.gender==='male'?'ذكر':'أنثى',mc!==null?parseFloat(fmt(mc)):'-',fard!==null?parseFloat(fmt(fard)):'-',test!==null?parseFloat(fmt(test)):'-',avg!==null?parseFloat(fmt(avg)):'-',gi.g,gi.a]);
       });
       // Footer rows
-      const footerRows=[[],[' ','أستاذ التربية البدنية والرياضية: '+tc,'','','','','','التوقيع: Delbaz_Med','المدير: '+(dirName()||'_______________')]];
+      const footerRows=[[],[' ','أستاذ التربية البدنية والرياضية: '+tc,'','','','','','التوقيع:','المدير: '+(dirName()||'_______________')]];
       const wsData=[...header,[cols],...rows,...footerRows];
       const ws=XLSX.utils.aoa_to_sheet(wsData);
       // Column widths
@@ -6666,7 +6666,7 @@ function exportAllAnnualExcel(){
       if(ex){rows.push([i+1,leftTag(s,s.name),s.gender==='male'?'ذكر':'أنثى','معفى','معفى','معفى','معفى','معفى','—']);}
       else{rows.push([i+1,leftTag(s,s.name),s.gender==='male'?'ذكر':'أنثى',s.terms.t1.exempted?'معفى':cv(t1a),s.terms.t2.exempted?'معفى':cv(t2a),s.terms.t3.exempted?'معفى':cv(t3a),ann!==null?parseFloat(fmt(ann)):'—',gi.g,gi.a]);}
     });
-    const footerRows=[[],[' ','أستاذ التربية البدنية والرياضية: '+tc,'','','','','','Delbaz_Med','المدير: '+(dirName()||'_______________')]];
+    const footerRows=[[],[' ','أستاذ التربية البدنية والرياضية: '+tc,'','','','','','التوقيع:','المدير: '+(dirName()||'_______________')]];
     const wsData=[...header,[cols],...rows,...footerRows];
     const ws=XLSX.utils.aoa_to_sheet(wsData);
     ws['!cols']=[{wch:6},{wch:28},{wch:8},{wch:13},{wch:13},{wch:13},{wch:18},{wch:14},{wch:26}];
@@ -6744,8 +6744,7 @@ function buildTermSheet(clsId, tk, tc, sch, yr){const pr=dirName()||'___________
     '<div class="info-row"><span><strong>الثانوية:</strong> '+sch+'</span><span><strong>القسم:</strong> '+cls.name+' ('+LVL[cls.level]+')</span><span><strong>الموسم:</strong> '+yr+'</span></div>'+
     '<div class="info-row" style="margin-bottom:10px"><span>🏃 فردي: '+fn+'</span><span>🏐 جماعي: '+jn+'</span><span>عدد التلاميذ: '+stus.length+'</span></div>'+
     '<table><thead><tr><th>الرقم</th><th>الاسم واللقب</th><th>الجنس</th><th>م.مستمرة /20</th><th>الفرض /20</th><th>الاختبار /20</th><th>المعدل الفصلي /20</th><th>التقدير</th><th>الإرشادات</th></tr></thead><tbody>'+rows+'</tbody></table>'+
-    '<div class="footer"><div class="sig-box"><div>أستاذ التربية البدنية والرياضية</div><div style="color:#555;margin-top:2px">'+tc+'</div><div class="sig-line"></div><div>Delbaz_Med</div></div>'+
-    '<div class="sig-box"><div>اسم التطبيق: <strong>Smart_Sport</strong></div><div style="color:#555;font-size:10px;margin-top:4px">Mai 26 · Delbaz_Med</div></div>'+
+    '<div class="footer"><div class="sig-box"><div>أستاذ التربية البدنية والرياضية</div><div style="color:#555;margin-top:2px">'+tc+'</div><div class="sig-line"></div><div>التوقيع</div></div>'+
     '<div class="sig-box"><div>المدير</div><div style="color:#555;margin-top:2px">'+pr+'</div><div class="sig-line"></div><div>التوقيع والختم</div></div></div>'+
     '<div class="app-brand">Smart_Sport · EPS · DZ · 2026 · Delbaz_Med</div></div>';
 }
@@ -6772,8 +6771,7 @@ function buildAnnualSheet(clsId, tc, sch, yr){const pr=dirName()||'_____________
     '<h2>مادة التربية البدنية والرياضية</h2>'+
     '<div class="info-row"><span><strong>الثانوية:</strong> '+sch+'</span><span><strong>القسم:</strong> '+cls.name+' ('+LVL[cls.level]+')</span><span><strong>الموسم:</strong> '+yr+'</span></div>'+
     '<table><thead><tr><th>الرقم</th><th>الاسم واللقب</th><th>الجنس</th><th>ف 1 /20</th><th>ف 2 /20</th><th>ف 3 /20</th><th>المعدل السنوي /20</th><th>التقدير</th><th>الإرشادات</th></tr></thead><tbody>'+rows+'</tbody></table>'+
-    '<div class="footer"><div class="sig-box"><div>أستاذ التربية البدنية والرياضية</div><div style="color:#555;margin-top:2px">'+tc+'</div><div class="sig-line"></div><div>Delbaz_Med</div></div>'+
-    '<div class="sig-box"><div>اسم التطبيق: <strong>Smart_Sport</strong></div><div style="color:#555;font-size:10px;margin-top:4px">Mai 26 · Delbaz_Med</div></div>'+
+    '<div class="footer"><div class="sig-box"><div>أستاذ التربية البدنية والرياضية</div><div style="color:#555;margin-top:2px">'+tc+'</div><div class="sig-line"></div><div>التوقيع</div></div>'+
     '<div class="sig-box"><div>المدير</div><div style="color:#555;margin-top:2px">'+pr+'</div><div class="sig-line"></div><div>التوقيع والختم</div></div></div>'+
     '<div class="app-brand">Smart_Sport · EPS · DZ · 2026 · Delbaz_Med</div></div>';
 }
@@ -6783,8 +6781,7 @@ function buildAnnualSheet(clsId, tc, sch, yr){const pr=dirName()||'_____________
 // ═══════════════════════════════════════════
 function todayStr(){const d=new Date();return d.getFullYear()+'/'+(d.getMonth()+1)+'/'+d.getDate();}
 function sigFooter(tc,pr){
-  return '<div class="footer"><div class="sig-box"><div>أستاذ التربية البدنية والرياضية</div><div style="color:#555;margin-top:2px">'+tc+'</div><div class="sig-line"></div><div>Delbaz_Med</div></div>'+
-    '<div class="sig-box"><div>اسم التطبيق: <strong>Smart_Sport</strong></div><div style="color:#555;font-size:10px;margin-top:4px">Mai 26 · Delbaz_Med</div></div>'+
+  return '<div class="footer"><div class="sig-box"><div>أستاذ التربية البدنية والرياضية</div><div style="color:#555;margin-top:2px">'+tc+'</div><div class="sig-line"></div><div>التوقيع</div></div>'+
     '<div class="sig-box"><div>المدير</div><div style="color:#555;margin-top:2px">'+pr+'</div><div class="sig-line"></div><div>التوقيع والختم</div></div></div>';
 }
 
@@ -7004,7 +7001,7 @@ function exportStudentAnnualSheet(){
   const cell=(t,ex2)=>ex2?'<td class="exempt-cell">معفى</td>':t!==null?'<td style="color:'+(t>=10?'#1a6b3a':'#c0392b')+'">'+fmt(t)+'</td>':'<td>—</td>';
   const gi=gradeInfo(ex?null:ann);
   const row='<tr><td>1</td><td style="text-align:right">'+s.name+'</td><td>'+(s.gender==='male'?'ذكر':'أنثى')+'</td>'+cell(t1a,s.terms.t1.exempted)+cell(t2a,s.terms.t2.exempted)+cell(t3a,s.terms.t3.exempted)+(ex?'<td class="exempt-cell" style="font-weight:800" colspan="3">معفى</td>':'<td style="font-weight:800;color:'+(ann!==null&&ann>=10?'#1a6b3a':'#c0392b')+'">'+(ann!==null?fmt(ann):'—')+'</td><td style="font-weight:700;color:'+(ann!==null&&ann>=10?'#1a6b3a':'#c0392b')+'">'+gi.g+'</td><td style="font-size:10px;color:#555">'+gi.a+'</td>')+'</tr>';
-  const html='<div class="page"><div class="watermark">Delbaz_Med 26</div><h1>كشف النقاط السنوي</h1><h2>مادة التربية البدنية والرياضية</h2><div class="info-row"><span><strong>الثانوية:</strong> '+sch+'</span><span><strong>القسم:</strong> '+cls.name+'</span><span><strong>الموسم:</strong> '+yr+'</span></div><table><thead><tr><th>الرقم</th><th>الاسم واللقب</th><th>الجنس</th><th>ف 1 /20</th><th>ف 2 /20</th><th>ف 3 /20</th><th>المعدل السنوي /20</th><th>التقدير</th><th>الإرشادات</th></tr></thead><tbody>'+row+'</tbody></table><div class="footer"><div class="sig-box"><div>أستاذ التربية البدنية والرياضية</div><div style="color:#555;margin-top:2px">'+tc+'</div><div class="sig-line"></div><div>Delbaz_Med</div></div><div class="sig-box"><div>اسم التطبيق: <strong>Smart_Sport</strong></div><div style="color:#555;font-size:10px;margin-top:4px">Mai 26 · Delbaz_Med</div></div><div class="sig-box"><div>المدير</div><div style=\"color:#555;margin-top:2px\">'+(dirName()||'_______________')+'</div><div class=\"sig-line\"></div><div>التوقيع والختم</div></div></div><div class=\"app-brand\">Smart_Sport · EPS · DZ · 2026 · Delbaz_Med</div></div>';
+  const html='<div class="page"><div class="watermark">Delbaz_Med 26</div><h1>كشف النقاط السنوي</h1><h2>مادة التربية البدنية والرياضية</h2><div class="info-row"><span><strong>الثانوية:</strong> '+sch+'</span><span><strong>القسم:</strong> '+cls.name+'</span><span><strong>الموسم:</strong> '+yr+'</span></div><table><thead><tr><th>الرقم</th><th>الاسم واللقب</th><th>الجنس</th><th>ف 1 /20</th><th>ف 2 /20</th><th>ف 3 /20</th><th>المعدل السنوي /20</th><th>التقدير</th><th>الإرشادات</th></tr></thead><tbody>'+row+'</tbody></table><div class="footer"><div class="sig-box"><div>أستاذ التربية البدنية والرياضية</div><div style="color:#555;margin-top:2px">'+tc+'</div><div class="sig-line"></div><div>التوقيع</div></div><div class="sig-box"><div>المدير</div><div style=\"color:#555;margin-top:2px\">'+(dirName()||'_______________')+'</div><div class=\"sig-line\"></div><div>التوقيع والختم</div></div></div><div class=\"app-brand\">Smart_Sport · EPS · DZ · 2026 · Delbaz_Med</div></div>';
   openGradeSheetPDF(html,'كشف '+s.name);
 }
 function archiveYearPDF(){
@@ -7312,7 +7309,7 @@ function printStudentCard(sid){
         <div class="ann-val">${ex?'معفى':ann!==null?fmt(ann)+'/20':'—'}</div>
       </div>
       <div class="footer">
-        <div class="sig"><div>أستاذ التربية البدنية</div><div style="color:#555;margin-top:2px">${tc}</div><div class="sig-line"></div><div>Delbaz_Med</div></div>
+        <div class="sig"><div>أستاذ التربية البدنية</div><div style="color:#555;margin-top:2px">${tc}</div><div class="sig-line"></div><div>التوقيع</div></div>
         <div style="text-align:center;font-size:10px;color:#aaa;align-self:flex-end">Smart_Sport · Mai 26<br>Delbaz_EPS</div>
         <div class="sig"><div>المدير</div><div style="color:#555;margin-top:2px">${pr}</div><div class="sig-line"></div></div>
       </div>
@@ -7365,7 +7362,7 @@ function printTermCard(sid,tk){
         <div class="ann-val">${ex?'معفى':avg!==null?fmt(avg)+'/20':'—'}</div>
       </div>
       <div class="footer">
-        <div class="sig"><div>أستاذ التربية البدنية</div><div style="color:#555;margin-top:2px">${tc}</div><div class="sig-line"></div><div>Delbaz_Med</div></div>
+        <div class="sig"><div>أستاذ التربية البدنية</div><div style="color:#555;margin-top:2px">${tc}</div><div class="sig-line"></div><div>التوقيع</div></div>
         <div style="text-align:center;font-size:10px;color:#aaa;align-self:flex-end">Smart_Sport · Mai 26<br>Delbaz_EPS</div>
         <div class="sig"><div>المدير</div><div style="color:#555;margin-top:2px">${pr}</div><div class="sig-line"></div></div>
       </div>
@@ -7427,7 +7424,7 @@ function printMCCard(){
         <div class="ann-val">${mc!==null?fmt(mc)+'/20':'—'}</div>
       </div>
       <div class="footer">
-        <div class="sig"><div>أستاذ التربية البدنية</div><div style="color:#555;margin-top:2px">${tc}</div><div class="sig-line"></div><div>Delbaz_Med</div></div>
+        <div class="sig"><div>أستاذ التربية البدنية</div><div style="color:#555;margin-top:2px">${tc}</div><div class="sig-line"></div><div>التوقيع</div></div>
         <div style="text-align:center;font-size:10px;color:#aaa;align-self:flex-end">Smart_Sport · Mai 26<br>Delbaz_EPS</div>
         <div class="sig"><div>المدير</div><div style="color:#555;margin-top:2px">${pr}</div><div class="sig-line"></div></div>
       </div>
@@ -7503,7 +7500,7 @@ function printEvalCard(){
         <div class="ann-val">${tot!==null?fmt(tot)+'/20':'—'}</div>
       </div>
       <div class="footer">
-        <div class="sig"><div>أستاذ التربية البدنية</div><div style="color:#555;margin-top:2px">${tc}</div><div class="sig-line"></div><div>Delbaz_Med</div></div>
+        <div class="sig"><div>أستاذ التربية البدنية</div><div style="color:#555;margin-top:2px">${tc}</div><div class="sig-line"></div><div>التوقيع</div></div>
         <div style="text-align:center;font-size:10px;color:#aaa;align-self:flex-end">Smart_Sport · Mai 26<br>Delbaz_EPS</div>
         <div class="sig"><div>المدير</div><div style="color:#555;margin-top:2px">${pr}</div><div class="sig-line"></div></div>
       </div>
@@ -10098,9 +10095,10 @@ function invBillRe(i){var f=invD().bills[i];if(!f)return;invBillOut({sup:f.sup,n
 function invBillRm(i){var v=invD(),f=v.bills[i];if(!f)return;dlgConfirm({icon:'🗑️',tone:'red',title:'حذف الفاتورة من الأرشيف؟',subject:{ini:'🧾',name:'فاتورة '+(f.no||''),meta:f.sup||''},sub:'لا يُعدَّل المخزن؛ الكميات المُدخلة تبقى فيه.',confirmText:'حذف'}).then(function(ok){if(!ok)return;snapshot('حذف فاتورة');v.bills.splice(i,1);SD();invBills();});}
 
 var CHANGELOG = {
-  version: '2.18.5',
-  date: '7 نوفمبر 2026',
+  version: '2.18.6',
+  date: '9 نوفمبر 2026',
   items: [
+    {ic:'🧹', t:'تنظيف تذييل الكشوف', d:'حُذف مربع «اسم التطبيق» من وسط تذييل الكشوف، وحُذف اسم المطوّر من خانة توقيع الأستاذ ليبقى «التوقيع» فقط.'},
     {ic:'🙈', t:'إخفاء زر الدور ○', d:'من «إنشاء المعايير» يمكنك إخفاء دائرة الدور من صفوف التلاميذ لمن لا يستعمل الأدوار؛ الأدوار المعيّنة تبقى ظاهرة بجانب الاسم.'},
     {ic:'🔤', t:'رمز الغياب المبرَّر AJ', d:'في كشوف المراقبة المستمرة صار رمز الغياب المبرَّر AJ بدل «غم»، ليوافق A للغائب وM للمريض.'},
     {ic:'📅', t:'إصلاح تاريخ الحصة', d:'التنقّل بين الحصص لم يعد يثبّت تاريخ اليوم؛ يُثبَّت تاريخ الحصة عند أول تسجيل فيها، والحصة التي لم يُسجَّل فيها شيء تعرض «غير محدَّد». ويمكن تعديل أي تاريخ من الشريط.'},
