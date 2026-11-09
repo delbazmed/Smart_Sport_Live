@@ -8620,7 +8620,7 @@ function generateDigitalDiploma(studentId){
   ctx.fillText('أستاذ المادة',600,775);
   ctx.font='bold 22px Arial';
   ctx.fillStyle='#ffd700';
-  ctx.fillText('دلباز محمد',600,800);
+  ctx.fillText(D.settings.teacher||'',600,800);
   // Watermark - Delbaz_Med diagonal
   ctx.save();
   ctx.translate(600,425);ctx.rotate(-Math.PI/6);
@@ -8720,7 +8720,7 @@ function generateTermDiploma(studentId,tk){
   ctx.fillText('أستاذ المادة',600,775);
   ctx.font='bold 22px Arial';
   ctx.fillStyle='#ffd700';
-  ctx.fillText('دلباز محمد',600,800);
+  ctx.fillText(D.settings.teacher||'',600,800);
   ctx.save();
   ctx.translate(600,425);ctx.rotate(-Math.PI/6);
   ctx.font='bold 120px Arial';
@@ -8813,7 +8813,7 @@ function shareDiplomaWA(){
         navigator.share({
           files:[file],
           title:'شهادة تفوق',
-          text:'🏆 شهادة تفوق للتلميذ(ة) '+name+' - مادة التربية البدنية والرياضية - الأستاذ: دلباز محمد'
+          text:'🏆 شهادة تفوق للتلميذ(ة) '+name+' - مادة التربية البدنية والرياضية - الأستاذ: '+(D.settings.teacher||'')
         }).catch(function(e){console.warn('Share cancelled:',e);});
       }else{
         downloadDiploma();
@@ -9188,7 +9188,7 @@ function openExemptionList(){
     '<div class="sig-box"><div>أستاذ التربية البدنية والرياضية</div><div style="color:#555;margin-top:2px">'+((D.settings.teacher||'')||'_______________')+'</div><div class="sig-line"></div><div>التوقيع</div></div>'+
     '<div class="sig-box"><div>مستشار التربية</div><div style="color:#555;margin-top:2px">'+(counselorName()||'_______________')+'</div><div class="sig-line"></div><div>التوقيع والختم</div></div>'+
     '<div class="sig-box"><div>المدير</div><div style="color:#555;margin-top:2px">'+(dirName()||'_______________')+'</div><div class="sig-line"></div><div>التوقيع والختم</div></div>'+
-    '</div></div>';
+    '</div><div class="app-brand">Smart_Sport · EPS · DZ · 2026 · Delbaz_Med</div></div>';
 
   if(!rows.length){
     toast('معلومة','لا يوجد معفيون في كل الأقسام','su',2000);return;
@@ -10101,7 +10101,7 @@ var CHANGELOG = {
   version: '2.18.6',
   date: '9 نوفمبر 2026',
   items: [
-    {ic:'🧹', t:'تنظيف تذييل الكشوف', d:'حُذف مربع «اسم التطبيق» واسم المطوّر من خانة توقيع الأستاذ؛ وصار تذييل الكشوف يضم توقيع الأستاذ ومستشار التربية والمدير. وتصحيح قائمة المعفيين: يظهر فيها اسم الأستاذ نفسه.'},
+    {ic:'🧹', t:'تنظيف تذييل الكشوف', d:'حُذف مربع «اسم التطبيق» واسم المطوّر من خانة توقيع الأستاذ؛ وصار تذييل الكشوف يضم توقيع الأستاذ ومستشار التربية والمدير. وصار اسم الأستاذ نفسه (لا اسم المطوّر) هو الذي يظهر في قائمة المعفيين وشهادات التفوق.'},
     {ic:'🙈', t:'إخفاء زر الدور ○', d:'من «إنشاء المعايير» يمكنك إخفاء دائرة الدور من صفوف التلاميذ لمن لا يستعمل الأدوار؛ الأدوار المعيّنة تبقى ظاهرة بجانب الاسم.'},
     {ic:'🔤', t:'رمز الغياب المبرَّر AJ', d:'في كشوف المراقبة المستمرة صار رمز الغياب المبرَّر AJ بدل «غم»، ليوافق A للغائب وM للمريض.'},
     {ic:'📅', t:'إصلاح تاريخ الحصة', d:'التنقّل بين الحصص لم يعد يثبّت تاريخ اليوم؛ يُثبَّت تاريخ الحصة عند أول تسجيل فيها، والحصة التي لم يُسجَّل فيها شيء تعرض «غير محدَّد». ويمكن تعديل أي تاريخ من الشريط.'},
