@@ -6745,6 +6745,7 @@ function buildTermSheet(clsId, tk, tc, sch, yr){const pr=dirName()||'___________
     '<div class="info-row" style="margin-bottom:10px"><span>🏃 فردي: '+fn+'</span><span>🏐 جماعي: '+jn+'</span><span>عدد التلاميذ: '+stus.length+'</span></div>'+
     '<table><thead><tr><th>الرقم</th><th>الاسم واللقب</th><th>الجنس</th><th>م.مستمرة /20</th><th>الفرض /20</th><th>الاختبار /20</th><th>المعدل الفصلي /20</th><th>التقدير</th><th>الإرشادات</th></tr></thead><tbody>'+rows+'</tbody></table>'+
     '<div class="footer"><div class="sig-box"><div>أستاذ التربية البدنية والرياضية</div><div style="color:#555;margin-top:2px">'+tc+'</div><div class="sig-line"></div><div>التوقيع</div></div>'+
+    '<div class="sig-box"><div>مستشار التربية</div><div style="color:#555;margin-top:2px">'+(counselorName()||'_______________')+'</div><div class="sig-line"></div><div>التوقيع والختم</div></div>'+
     '<div class="sig-box"><div>المدير</div><div style="color:#555;margin-top:2px">'+pr+'</div><div class="sig-line"></div><div>التوقيع والختم</div></div></div>'+
     '<div class="app-brand">Smart_Sport · EPS · DZ · 2026 · Delbaz_Med</div></div>';
 }
@@ -6772,6 +6773,7 @@ function buildAnnualSheet(clsId, tc, sch, yr){const pr=dirName()||'_____________
     '<div class="info-row"><span><strong>الثانوية:</strong> '+sch+'</span><span><strong>القسم:</strong> '+cls.name+' ('+LVL[cls.level]+')</span><span><strong>الموسم:</strong> '+yr+'</span></div>'+
     '<table><thead><tr><th>الرقم</th><th>الاسم واللقب</th><th>الجنس</th><th>ف 1 /20</th><th>ف 2 /20</th><th>ف 3 /20</th><th>المعدل السنوي /20</th><th>التقدير</th><th>الإرشادات</th></tr></thead><tbody>'+rows+'</tbody></table>'+
     '<div class="footer"><div class="sig-box"><div>أستاذ التربية البدنية والرياضية</div><div style="color:#555;margin-top:2px">'+tc+'</div><div class="sig-line"></div><div>التوقيع</div></div>'+
+    '<div class="sig-box"><div>مستشار التربية</div><div style="color:#555;margin-top:2px">'+(counselorName()||'_______________')+'</div><div class="sig-line"></div><div>التوقيع والختم</div></div>'+
     '<div class="sig-box"><div>المدير</div><div style="color:#555;margin-top:2px">'+pr+'</div><div class="sig-line"></div><div>التوقيع والختم</div></div></div>'+
     '<div class="app-brand">Smart_Sport · EPS · DZ · 2026 · Delbaz_Med</div></div>';
 }
@@ -6782,6 +6784,7 @@ function buildAnnualSheet(clsId, tc, sch, yr){const pr=dirName()||'_____________
 function todayStr(){const d=new Date();return d.getFullYear()+'/'+(d.getMonth()+1)+'/'+d.getDate();}
 function sigFooter(tc,pr){
   return '<div class="footer"><div class="sig-box"><div>أستاذ التربية البدنية والرياضية</div><div style="color:#555;margin-top:2px">'+tc+'</div><div class="sig-line"></div><div>التوقيع</div></div>'+
+    '<div class="sig-box"><div>مستشار التربية</div><div style="color:#555;margin-top:2px">'+(counselorName()||'_______________')+'</div><div class="sig-line"></div><div>التوقيع والختم</div></div>'+
     '<div class="sig-box"><div>المدير</div><div style="color:#555;margin-top:2px">'+pr+'</div><div class="sig-line"></div><div>التوقيع والختم</div></div></div>';
 }
 
@@ -7001,7 +7004,7 @@ function exportStudentAnnualSheet(){
   const cell=(t,ex2)=>ex2?'<td class="exempt-cell">معفى</td>':t!==null?'<td style="color:'+(t>=10?'#1a6b3a':'#c0392b')+'">'+fmt(t)+'</td>':'<td>—</td>';
   const gi=gradeInfo(ex?null:ann);
   const row='<tr><td>1</td><td style="text-align:right">'+s.name+'</td><td>'+(s.gender==='male'?'ذكر':'أنثى')+'</td>'+cell(t1a,s.terms.t1.exempted)+cell(t2a,s.terms.t2.exempted)+cell(t3a,s.terms.t3.exempted)+(ex?'<td class="exempt-cell" style="font-weight:800" colspan="3">معفى</td>':'<td style="font-weight:800;color:'+(ann!==null&&ann>=10?'#1a6b3a':'#c0392b')+'">'+(ann!==null?fmt(ann):'—')+'</td><td style="font-weight:700;color:'+(ann!==null&&ann>=10?'#1a6b3a':'#c0392b')+'">'+gi.g+'</td><td style="font-size:10px;color:#555">'+gi.a+'</td>')+'</tr>';
-  const html='<div class="page"><div class="watermark">Delbaz_Med 26</div><h1>كشف النقاط السنوي</h1><h2>مادة التربية البدنية والرياضية</h2><div class="info-row"><span><strong>الثانوية:</strong> '+sch+'</span><span><strong>القسم:</strong> '+cls.name+'</span><span><strong>الموسم:</strong> '+yr+'</span></div><table><thead><tr><th>الرقم</th><th>الاسم واللقب</th><th>الجنس</th><th>ف 1 /20</th><th>ف 2 /20</th><th>ف 3 /20</th><th>المعدل السنوي /20</th><th>التقدير</th><th>الإرشادات</th></tr></thead><tbody>'+row+'</tbody></table><div class="footer"><div class="sig-box"><div>أستاذ التربية البدنية والرياضية</div><div style="color:#555;margin-top:2px">'+tc+'</div><div class="sig-line"></div><div>التوقيع</div></div><div class="sig-box"><div>المدير</div><div style=\"color:#555;margin-top:2px\">'+(dirName()||'_______________')+'</div><div class=\"sig-line\"></div><div>التوقيع والختم</div></div></div><div class=\"app-brand\">Smart_Sport · EPS · DZ · 2026 · Delbaz_Med</div></div>';
+  const html='<div class="page"><div class="watermark">Delbaz_Med 26</div><h1>كشف النقاط السنوي</h1><h2>مادة التربية البدنية والرياضية</h2><div class="info-row"><span><strong>الثانوية:</strong> '+sch+'</span><span><strong>القسم:</strong> '+cls.name+'</span><span><strong>الموسم:</strong> '+yr+'</span></div><table><thead><tr><th>الرقم</th><th>الاسم واللقب</th><th>الجنس</th><th>ف 1 /20</th><th>ف 2 /20</th><th>ف 3 /20</th><th>المعدل السنوي /20</th><th>التقدير</th><th>الإرشادات</th></tr></thead><tbody>'+row+'</tbody></table><div class="footer"><div class="sig-box"><div>أستاذ التربية البدنية والرياضية</div><div style="color:#555;margin-top:2px">'+tc+'</div><div class="sig-line"></div><div>التوقيع</div></div><div class="sig-box"><div>مستشار التربية</div><div style="color:#555;margin-top:2px">'+(counselorName()||'_______________')+'</div><div class="sig-line"></div><div>التوقيع والختم</div></div><div class="sig-box"><div>المدير</div><div style=\"color:#555;margin-top:2px\">'+(dirName()||'_______________')+'</div><div class=\"sig-line\"></div><div>التوقيع والختم</div></div></div><div class=\"app-brand\">Smart_Sport · EPS · DZ · 2026 · Delbaz_Med</div></div>';
   openGradeSheetPDF(html,'كشف '+s.name);
 }
 function archiveYearPDF(){
@@ -9182,7 +9185,7 @@ function openExemptionList(){
     '<th style="background:#c0392b">الملاحظة</th>'+
     '</tr></thead><tbody>'+tbody+'</tbody></table>'+
     '<div class="footer">'+
-    '<div class="sig-box"><div>أستاذ التربية البدنية والرياضية</div><div class="sig-line"></div><div style="font-weight:700">دلباز محمد</div></div>'+
+    '<div class="sig-box"><div>أستاذ التربية البدنية والرياضية</div><div style="color:#555;margin-top:2px">'+((D.settings.teacher||'')||'_______________')+'</div><div class="sig-line"></div><div>التوقيع</div></div>'+
     '<div class="sig-box"><div>مستشار التربية</div><div style="color:#555;margin-top:2px">'+(counselorName()||'_______________')+'</div><div class="sig-line"></div><div>التوقيع والختم</div></div>'+
     '<div class="sig-box"><div>المدير</div><div style="color:#555;margin-top:2px">'+(dirName()||'_______________')+'</div><div class="sig-line"></div><div>التوقيع والختم</div></div>'+
     '</div></div>';
@@ -10098,7 +10101,7 @@ var CHANGELOG = {
   version: '2.18.6',
   date: '9 نوفمبر 2026',
   items: [
-    {ic:'🧹', t:'تنظيف تذييل الكشوف', d:'حُذف مربع «اسم التطبيق» من وسط تذييل الكشوف، وحُذف اسم المطوّر من خانة توقيع الأستاذ ليبقى «التوقيع» فقط.'},
+    {ic:'🧹', t:'تنظيف تذييل الكشوف', d:'حُذف مربع «اسم التطبيق» واسم المطوّر من خانة توقيع الأستاذ؛ وصار تذييل الكشوف يضم توقيع الأستاذ ومستشار التربية والمدير. وتصحيح قائمة المعفيين: يظهر فيها اسم الأستاذ نفسه.'},
     {ic:'🙈', t:'إخفاء زر الدور ○', d:'من «إنشاء المعايير» يمكنك إخفاء دائرة الدور من صفوف التلاميذ لمن لا يستعمل الأدوار؛ الأدوار المعيّنة تبقى ظاهرة بجانب الاسم.'},
     {ic:'🔤', t:'رمز الغياب المبرَّر AJ', d:'في كشوف المراقبة المستمرة صار رمز الغياب المبرَّر AJ بدل «غم»، ليوافق A للغائب وM للمريض.'},
     {ic:'📅', t:'إصلاح تاريخ الحصة', d:'التنقّل بين الحصص لم يعد يثبّت تاريخ اليوم؛ يُثبَّت تاريخ الحصة عند أول تسجيل فيها، والحصة التي لم يُسجَّل فيها شيء تعرض «غير محدَّد». ويمكن تعديل أي تاريخ من الشريط.'},
