@@ -1396,7 +1396,7 @@ body{max-width:480px;margin:0 auto;display:flex;flex-direction:column;-webkit-fo
         <div class="ail">التطبيق الاحترافي لأساتذة التربية البدنية والرياضية</div>
         <div style="height:14px"></div>
         <div class="ail">المطور: <strong style="color:var(--g)">Delbaz_Med</strong></div>
-        <div class="ail">الإصدار: <strong style="color:var(--gold)">2.19.0 · 11 نوفمبر 2026</strong></div>
+        <div class="ail">الإصدار: <strong style="color:var(--gold)">2.19.1 · 11 نوفمبر 2026</strong></div>
         <button onclick="showWhatsNewModal(true)" style="margin-top:10px;padding:9px 16px;border-radius:10px;border:1px solid var(--ln);background:var(--p3);color:var(--tx);font-family:var(--ff);font-size:12px;font-weight:800;cursor:pointer">📜 سجل التغييرات</button>
         <div class="ail" style="margin-top:8px">EPS · DZ · 2026</div>
       </div>
@@ -10451,9 +10451,10 @@ function invBillRe(i){var f=invD().bills[i];if(!f)return;invBillOut({sup:f.sup,n
 function invBillRm(i){var v=invD(),f=v.bills[i];if(!f)return;dlgConfirm({icon:'🗑️',tone:'red',title:'حذف الفاتورة من الأرشيف؟',subject:{ini:'🧾',name:'فاتورة '+(f.no||''),meta:f.sup||''},sub:'لا يُعدَّل المخزن؛ الكميات المُدخلة تبقى فيه.',confirmText:'حذف'}).then(function(ok){if(!ok)return;snapshot('حذف فاتورة');v.bills.splice(i,1);SD();invBills();});}
 
 var CHANGELOG = {
-  version: '2.19.0',
+  version: '2.19.1',
   date: '11 نوفمبر 2026',
   items: [
+    {ic:'📅', t:'تاريخ الحصة تلقائياً', d:'عند دخول وقت حصة القسم في جدول التوقيت يأخذ تاريخ الحصة الحالية تاريخ الهاتف تلقائياً، دون المساس بحصة سابقة فيها غيابات مسجّلة.'},
     {ic:'💬', t:'اسأل الدليل', d:'في دليل المستخدم اكتب سؤالك بالفصحى أو الدارجة أو الفرنسية (مثل «كيفاش نسجّل غياب؟») فيظهر جوابه بالخطوات والصور، أو تصفّح كل الأسئلة (96 سؤالاً).'},
     {ic:'🛠️', t:'تحديث إداري', d:'تحسينات داخلية.'},
     {ic:'🧹', t:'تنظيف تذييل الكشوف', d:'حُذف مربع «اسم التطبيق» واسم المطوّر من خانة توقيع الأستاذ؛ وصار تذييل الكشوف يضم توقيع الأستاذ ومستشار التربية والمدير. وصار اسم الأستاذ نفسه (لا اسم المطوّر) هو الذي يظهر في قائمة المعفيين وشهادات التفوق.'},
