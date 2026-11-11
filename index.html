@@ -6495,7 +6495,7 @@ tr:nth-child(even) td{background:#f8faff}
   var c=document.getElementById('gd-cnt');if(c)c.textContent='';
   var x=document.getElementById('gd-clr');if(x)x.style.display='none';
   document.getElementById('gd-sub').textContent='Smart_Sport · الإصدار '+((typeof CHANGELOG!=='undefined'&&CHANGELOG.version)||'');
-  document.getElementById('guideFrame').srcdoc=html;
+  var _gf=document.getElementById('guideFrame');_gf.onload=function(){try{faqRender(_gf.contentDocument,'');}catch(e){}};_gf.srcdoc=html;
   var o=document.getElementById('ov-guide');o.style.display='flex';
 }
 function closeGuide(){_ovClose('ov-guide');}
@@ -6535,7 +6535,7 @@ var FAQ=[
 ];
 // قاموس: كل كلمة (فصحى/دارجة/فرنسية) ← جذر موحّد
 var FAQ_SYN={'غايب':'غياب','غائب':'غياب','غيابات':'غياب','ماجاش':'غياب','ماجاتش':'غياب','absent':'غياب','absence':'غياب','absences':'غياب',
- 'مريض':'مرض','عيان':'مرض','malade':'مرض','مرضى':'مرض','مبرر':'مبرر','مبرره':'مبرر','justifie':'مبرر','justifiee':'مبرر','justifier':'مبرر','justification':'مبرر','aj':'مبرر','تبرير':'مبرر','نبرر':'مبرر','شهاده':'مبرر','وثيقه':'مبرر',
+ 'مريض':'مرض','عيان':'مرض','malade':'مرض','مرضى':'مرض','مبرر':'مبرر','مبرره':'مبرر','justifie':'مبرر','justifiee':'مبرر','justifier':'مبرر','justification':'مبرر','aj':'مبرر','تبرير':'مبرر','نبرر':'مبرر','طبيه':'مبرر','وثيقه':'مبرر',
  'نسجل':'سجل','تسجيل':'سجل','سجل':'سجل','نقيد':'سجل','نكتب':'سجل','ندخل':'سجل','ادخال':'سجل',
  'نحذف':'حذف','نمحي':'حذف','نحي':'حذف','نحيد':'حذف','نلغي':'حذف','الغاء':'حذف','مسح':'حذف','supprimer':'حذف',
  'نبدل':'تعديل','نغير':'تعديل','تغيير':'تعديل','تبديل':'تعديل','نعدل':'تعديل','نصحح':'تعديل','تصحيح':'تعديل','modifier':'تعديل','changer':'تعديل',
@@ -6544,7 +6544,13 @@ var FAQ_SYN={'غايب':'غياب','غائب':'غياب','غيابات':'غيا�
  'حصه':'حصه','حصص':'حصه','seance':'حصه','séance':'حصه','سيونس':'حصه',
  'تلميذ':'تلميذ','تلاميذ':'تلميذ','طالب':'تلميذ','eleve':'تلميذ','élève':'تلميذ','قسم':'قسم','اقسام':'قسم','classe':'قسم','كلاس':'قسم',
  'زر':'زر','بوطون':'زر','bouton':'زر','دور':'دور','ادوار':'دور','قائد':'دور','capitaine':'دور',
- 'نخفي':'اخفاء','نخبي':'اخفاء','اخفاء':'اخفاء','cacher':'اخفاء','نقطه':'نقطه','نقاط':'نقطه','note':'نقطه','notes':'نقطه','علامه':'نقطه'};
+ 'نخفي':'اخفاء','نخبي':'اخفاء','اخفاء':'اخفاء','cacher':'اخفاء','نقطه':'نقطه','نقاط':'نقطه','note':'نقطه','notes':'نقطه','علامه':'نقطه',
+ 'واتساب':'واتساب','whatsapp':'واتساب','وتساب':'واتساب','طباعه':'طباعه','نطبع':'طباعه','نطبعو':'طباعه','imprimer':'طباعه','impression':'طباعه','كشف':'كشف','كشوف':'كشف','fiche':'كشف','pdf':'pdf','excel':'اكسل','اكسل':'اكسل','اكسال':'اكسل',
+ 'معفي':'اعفاء','معفى':'اعفاء','معفيين':'اعفاء','اعفاء':'اعفاء','نعفي':'اعفاء','dispense':'اعفاء','exempt':'اعفاء','عتاد':'عتاد','materiel':'عتاد','لوازم':'عتاد','وسائل':'عتاد','قفل':'قفل','نقفل':'قفل','verrouiller':'قفل','نسخه':'نسخه','sauvegarde':'نسخه','backup':'نسخه','احتياطيه':'نسخه',
+ 'هاتف':'هاتف','تيليفون':'هاتف','telephone':'هاتف','بورتابل':'هاتف','فرض':'فرض','devoir':'فرض','اختبار':'اختبار','examen':'اختبار','composition':'اختبار','معدل':'معدل','moyenne':'معدل','ترتيب':'ترتيب','نرتب':'ترتيب','مغادر':'مغادر','غادر':'مغادر','مغادرين':'مغادر','depart':'مغادر',
+ 'فوج':'فوج','افواج':'فوج','groupe':'فوج','قرعه':'قرعه','tirage':'قرعه','كرونو':'ميقاتي','chrono':'ميقاتي','ميقاتي':'ميقاتي','جدول':'جدول','emploi':'جدول','منصه':'منصه','رقمنه':'منصه','plateforme':'منصه','حادث':'حادث','accident':'حادث','طاح':'حادث','تجرح':'حادث','اصابه':'حادث',
+ 'شهاده':'شهاده','diplome':'شهاده','تفوق':'شهاده','موسم':'موسم','عام':'موسم','annee':'موسم','عطله':'عطله','vacances':'عطله','اضراب':'عطله','greve':'عطله','سلم':'سلم','bareme':'سلم','معايير':'معيار','معيار':'معيار','critere':'معيار','criteres':'معيار',
+ 'مظهر':'مظهر','ليلي':'مظهر','داكن':'مظهر','theme':'مظهر','خط':'مظهر','تحديث':'تحديث','update':'تحديث','mise':'تحديث','qr':'qr','زميل':'زميل','زملاء':'زميل','collegue':'زميل','فريق':'فريق','فرق':'فريق','equipe':'فريق','equipes':'فريق','مستوى':'مستوى','مستويات':'مستوى','niveau':'مستوى'};
 var FAQ_STOP={'كيف':1,'كيفاش':1,'كيفما':1,'واش':1,'وش':1,'شحال':1,'وين':1,'علاش':1,'ماذا':1,'لماذا':1,'هل':1,'من':1,'في':1,'على':1,'الى':1,'الي':1,'عن':1,'او':1,'ان':1,'ما':1,'لي':1,'نتاع':1,'تاع':1,'ديال':1,'باش':1,'comment':1,'pourquoi':1,'je':1,'le':1,'la':1,'les':1,'un':1,'une':1,'de':1,'des':1,'du':1,'et':1,'ou':1,'est':1,'ce':1};
 function faqNorm(x){return String(x||'').replace(/<[^>]+>/g,' ').replace(/[\u0623\u0625\u0622\u0671]/g,'\u0627').replace(/\u0626/g,'\u064A').replace(/\u0624/g,'\u0648').replace(/\u0649/g,'\u064A').replace(/\u0629/g,'\u0647').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f\u064B-\u065F\u0670\u0640]/g,'');}
 function faqStem(w){if(FAQ_SYN[w])return FAQ_SYN[w];var c=[w],v=w;
@@ -6562,15 +6568,19 @@ function faqFind(v,max){var qt=faqToks(v);if(!qt.length)return [];
    .filter(function(r){return r.sc>=1.5;}).sort(function(a,b){return b.sc-a.sc;});
   if(!r.length)return [];var top=r[0].sc;
   return r.filter(function(x){return x.sc>=top*0.6;}).slice(0,max||3).map(function(x){return x.f;});}
-var FAQ_CSS='#faq-box{padding:12px 12px 4px}#faq-box .fq-h{font-size:12px;font-weight:800;color:#5b6684;margin:2px 4px 8px}.fq{background:#fff;border:1px solid #dfe5f1;border-radius:16px;padding:12px 14px;margin-bottom:12px;box-shadow:0 2px 10px rgba(20,40,80,.06)}.fq h3{font-size:15px;color:#0f5a2e;margin-bottom:6px;line-height:1.6}.fq ol{padding-right:20px;margin:4px 0}.fq li{margin:3px 0}.fq-tip{background:#fff8e6;border-radius:10px;padding:6px 10px;font-size:12.5px;margin:6px 0}.fq-im{display:flex;gap:8px;overflow-x:auto;margin-top:8px;scroll-snap-type:x mandatory}.fq-im img{width:78%;max-width:300px;flex:none;border-radius:12px;border:1px solid #dfe5f1;scroll-snap-align:start;background:#eef2f8}.fq-im img:only-child{width:100%}.fq-more{display:inline-block;margin-top:8px;font-size:12px;font-weight:800;color:#2563eb;text-decoration:none}.fq-no{background:#fff;border:1px dashed #c9d2e6;border-radius:14px;padding:12px;font-size:12.5px;color:#5b6684;margin-bottom:12px}';
+var FAQ_CSS='#faq-box{padding:12px 12px 4px}#faq-box .fq-h{font-size:12px;font-weight:800;color:#5b6684;margin:2px 4px 8px}.fq{background:#fff;border:1px solid #dfe5f1;border-radius:16px;padding:12px 14px;margin-bottom:12px;box-shadow:0 2px 10px rgba(20,40,80,.06)}.fq h3{font-size:15px;color:#0f5a2e;margin-bottom:6px;line-height:1.6}.fq ol{padding-right:20px;margin:4px 0}.fq li{margin:3px 0}.fq-tip{background:#fff8e6;border-radius:10px;padding:6px 10px;font-size:12.5px;margin:6px 0}.fq-im{display:flex;gap:8px;overflow-x:auto;margin-top:8px;scroll-snap-type:x mandatory}.fq-im img{width:78%;max-width:300px;flex:none;border-radius:12px;border:1px solid #dfe5f1;scroll-snap-align:start;background:#eef2f8}.fq-im img:only-child{width:100%}.fq-more{display:inline-block;margin-top:8px;font-size:12px;font-weight:800;color:#2563eb;text-decoration:none}.fq-ask{background:#eaf6ef;border:1px solid #bfe3cd;border-radius:14px;padding:10px 12px;font-size:12.5px;color:#0f5a2e;font-weight:700;line-height:1.8;margin-bottom:6px}.fq-ask button{display:block;margin-top:8px;width:100%;padding:9px;border-radius:10px;border:1px solid #0f5a2e;background:#fff;color:#0f5a2e;font-weight:800;font-family:inherit;font-size:13px}.fq-list{display:flex;flex-direction:column;gap:6px;margin-bottom:12px}.fq-li{background:#fff;border:1px solid #dfe5f1;border-radius:12px;padding:9px 12px;font-weight:700;font-size:13px;color:#1b2238;cursor:pointer}@media print{#faq-box{display:none!important}}.fq-no{background:#fff;border:1px dashed #c9d2e6;border-radius:14px;padding:12px;font-size:12.5px;color:#5b6684;margin-bottom:12px}';
 function faqHtml(f){return '<div class="fq" id="fq-'+f.id+'"><h3>❓ '+f.q+'</h3>'+f.a+(f.img&&f.img.length?'<div class="fq-im">'+f.img.map(function(u){return '<img loading="lazy" src="'+u+'" alt="" onerror="this.style.display=\'none\'">';}).join('')+'</div>':'')+(f.s?'<a class="fq-more" href="#s'+f.s+'" onclick="parent.guideGoSec('+f.s+');return false">📖 المزيد في القسم '+f.s+' من الدليل</a>':'')+'</div>';}
 function faqRender(d,v){var b=d.getElementById('faq-box');
   if(!d.getElementById('faq-css')){var st=d.createElement('style');st.id='faq-css';st.textContent=FAQ_CSS;d.head.appendChild(st);}
   if(!b){b=d.createElement('div');b.id='faq-box';d.body.insertBefore(b,d.body.firstChild);}
-  var n=(v||'').trim();if(n.length<2){b.innerHTML='';b.style.display='none';return 0;}
+  var n=(v||'').trim();if(n.length<2){b.style.display='';b.innerHTML='<div class="fq-ask">💬 اكتب سؤالك في خانة البحث أعلاه بالفصحى أو الدارجة أو الفرنسية — مثل «كيفاش نسجّل غياب؟»<button onclick="parent.faqAll()">📚 تصفّح كل الأسئلة ('+FAQ.length+')</button></div>';return 0;}
   var r=faqFind(n,3);b.style.display='';
   b.innerHTML=r.length?'<div class="fq-h">💬 أقرب الأجوبة لسؤالك</div>'+r.map(faqHtml).join(''):'';
   return r.length;}
+function faqAll(){var d=document.getElementById('guideFrame').contentDocument;if(!d)return;var b=d.getElementById('faq-box');if(!b)return;
+  b.innerHTML='<div class="fq-h">📚 كل الأسئلة ('+FAQ.length+') — اضغط سؤالاً لعرض جوابه</div><div class="fq-list">'+FAQ.slice().sort(function(a,b){return a.s-b.s||(a.id<b.id?-1:1);}).map(function(f){return '<div class="fq-li" onclick="parent.faqOpen(\''+f.id+'\',this)">❓ '+f.q+'</div>';}).join('')+'</div>';
+  d.body.classList.add('srch');[].slice.call(d.querySelectorAll('.page')).forEach(function(p){p.classList.add('h');});try{d.defaultView.scrollTo(0,0);}catch(e){}}
+function faqOpen(id,el){var f=FAQ.filter(function(x){return x.id===id;})[0];if(!f||!el)return;var nx=el.nextElementSibling;if(nx&&nx.classList.contains('fq')){nx.remove();return;}var w=el.ownerDocument.createElement('div');w.innerHTML=faqHtml(f);el.parentNode.insertBefore(w.firstChild,el.nextSibling);}
 function guideGoSec(n){guideClear();setTimeout(function(){var d=document.getElementById('guideFrame').contentDocument,e=d&&d.getElementById('s'+n);if(e)e.scrollIntoView();},60);}
 function guideClear(){var q=document.getElementById('gd-q');if(q)q.value='';guideSearch('');}
 function guidePrint(){guideClear();try{window.frames['guideFrame'].focus();window.frames['guideFrame'].print();}catch(e){toast('تنبيه','تعذّرت الطباعة من هذه النافذة','wa');}}
