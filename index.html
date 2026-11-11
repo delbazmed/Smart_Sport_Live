@@ -4956,7 +4956,7 @@ function ttCatchDo(mode){
   var tk=q.tk,cur=q.cur,last=q.last;
   var fresh=GSC(q.cid).every(function(s){initStu(s);return s.terms[tk].mc.ses[tgt]===2;});
   snapshot('انتقال آلي للحصة (حصص فائتة)');
-  c.sesPtr[tk]=tgt;markSesDate(q.cid,tk);SD();
+  c.sesPtr[tk]=tgt;markSesDate(q.cid,tk);SD();try{if(ttNow()&&ttNow().cid===q.cid)ttStampNow(q.cid,tk);}catch(e){}
   toast('🗓️ حصة جديدة',c.name+': انتقلنا إلى ح'+(tgt+1),'su',7000,{label:'↩️ تراجع',fn:function(){
     var cc=GC(q.cid);if(!cc||curSesIdx(q.cid,tk)!==tgt){toast('تنبيه','تغيّرت الحصة بعدها — استعمل أزرار ◀ ▶','wa',3000);return;}
     if(fresh)GSC(q.cid).forEach(function(s){initStu(s);var m=s.terms[tk].mc;if(m.ses[tgt]!==2){try{dailyNotifyRemove(s.id);}catch(e){}}m.ses[tgt]=2;if(m.jus)m.jus[tgt]=false;});
@@ -5306,14 +5306,22 @@ function ttSlotAdvance(cid,d,i,tkIn){
   try{if(ttData().catchUp!==false&&last){var _ms=ttMissed(cid,last);if(_ms>0&&_ms<=14){SD();ttCatchAsk(cid,tk,cur,last,_ms);return false;}}}catch(e){}
   var n=cur+1;var fresh=GSC(cid).every(function(s){initStu(s);return s.terms[tk].mc.ses[n]===2;});
   snapshot('انتقال آلي للحصة (الجدول)');
-  c.sesPtr[tk]=n;markSesDate(cid,tk);SD();
+  c.sesPtr[tk]=n;markSesDate(cid,tk);SD();try{if(ttNow()&&ttNow().cid===cid)ttStampNow(cid,tk);}catch(e){}
   toast('🗓️ حصة جديدة',c.name+': انتقلنا إلى ح'+(n+1),'su',7000,{label:'↩️ تراجع',fn:function(){sesAutoUndo(cid,tk,cur,last,fresh);}});
   if(S.scr==='home')rHome();
   return true;
 }
+// 📅 عند دخول وقت حصة القسم في جدول التوقيت: تاريخ الحصة الحالية = تاريخ الهاتف (لا يُمسّ تاريخ حصة فيها تسجيلات سابقة)
+function sesHasRec(cid,tk,i){return GSC(cid).some(function(s){initStu(s);var v=s.terms[tk].mc.ses[i];return v===0||v===1;});}
+function ttStampNow(cid,tkIn){try{var c=GC(cid);if(!c)return false;var tk=tkIn||ttTermOf(cid);var today=todayKey();
+  if(isLocked(tk)||ttInStop(today))return false;if(TTC&&TTC.cid===cid)return false;
+  var i=curSesIdx(cid,tk);if(!c.sesDays)c.sesDays={};if(!c.sesDays[tk])c.sesDays[tk]=[];var d=c.sesDays[tk][i];
+  if(d===today)return false;if(d&&sesHasRec(cid,tk,i))return false;
+  c.sesDays[tk][i]=today;SD();return true;}catch(e){return false;}}
 function ttAutoOpen(){
   var n=ttNow();if(!n)return false;
   try{ttSlotAdvance(n.cid,n.d,n.i);}catch(e){}
+  try{if(ttStampNow(n.cid)&&S.scr==='home')rHome();}catch(e){}
   var key=todayKey()+'#'+n.i;
   var done=null;try{done=localStorage.getItem('ss_tt_auto');}catch(e){}
   if(done===key)return false;
@@ -9743,6 +9751,8 @@ function closeScEditor(){
   }catch(e){}
 })();
 document.addEventListener('visibilitychange',function(){if(document.visibilityState==='visible'){try{ttAutoOpen();}catch(e){}}});
+// كل دقيقة: إن دخل وقت حصة والتطبيق مفتوح، يُثبَّت تاريخ اليوم على الحصة الحالية (دون تبديل القسم المعروض)
+setInterval(function(){try{if(document.visibilityState!=='visible')return;var n=ttNow();if(!n)return;ttSlotAdvance(n.cid,n.d,n.i);if(ttStampNow(n.cid)&&S.scr==='home'&&S.cid===n.cid)rHome();}catch(e){}},60000);
 migrateEquipBonus();
 migrateRoleBonus();
 migratePerfZero();
