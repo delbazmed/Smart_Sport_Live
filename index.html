@@ -1860,7 +1860,7 @@ body{max-width:480px;margin:0 auto;display:flex;flex-direction:column;-webkit-fo
     <div class="gd-tt"><div class="gd-ic">📘</div><div><b>دليل المستخدم</b><small id="gd-sub"></small></div></div>
     <button class="gd-x" onclick="closeGuide()" aria-label="إغلاق">✕</button>
   </div>
-  <div class="gd-sr"><span>🔎</span><input id="gd-q" type="search" placeholder="ابحث في الدليل… (مثال: غياب، سلم، نسخة)" oninput="guideSearch(this.value)" autocomplete="off"><span id="gd-cnt"></span><button id="gd-clr" onclick="guideClear()">✕</button></div>
+  <div class="gd-sr"><span>🔎</span><input id="gd-q" type="search" placeholder="اسأل أو ابحث… (مثال: كيفاش نسجّل غياب؟)" oninput="guideSearch(this.value)" autocomplete="off"><span id="gd-cnt"></span><button id="gd-clr" onclick="guideClear()">✕</button></div>
   <iframe id="guideFrame" name="guideFrame"></iframe>
   <div class="gd-ft">
     <button id="gd-pdf" class="gd-b gd-r" onclick="guidePdf()">⬇️ تحميل PDF</button>
@@ -6505,13 +6505,73 @@ function guideSearch(v){
   var n=guideNorm(v).trim(),cnt=document.getElementById('gd-cnt'),clr=document.getElementById('gd-clr');
   if(clr)clr.style.display=v?'flex':'none';
   var secs=[].slice.call(d.querySelectorAll('.sec')),pages=[].slice.call(d.querySelectorAll('.page'));
+  var fqN=faqRender(d,v);
   if(!n){d.body.classList.remove('srch','none');secs.forEach(function(e){e.classList.remove('h');});pages.forEach(function(e){e.classList.remove('h');});[].slice.call(d.querySelectorAll('.part')).forEach(function(e){e.classList.remove('h');});if(cnt)cnt.textContent='';return;}
   var hits=0;secs.forEach(function(e){var m=guideNorm(e.textContent).indexOf(n)>=0;e.classList.toggle('h',!m);if(m)hits++;});
   pages.forEach(function(p){var any=p.querySelector('.sec:not(.h)');p.classList.toggle('h',!any);});
-  d.body.classList.add('srch');d.body.classList.toggle('none',hits===0);
-  if(cnt)cnt.textContent=hits?hits+' قسم':'لا نتائج';
+  if(!hits&&fqN){pages.forEach(function(p){p.classList.add('h');});}
+  d.body.classList.add('srch');d.body.classList.toggle('none',hits===0&&!fqN);
+  if(cnt)cnt.textContent=(fqN?fqN+' جواب':'')+(fqN&&hits?' · ':'')+(hits?hits+' قسم':'')||'لا نتائج';
   try{d.defaultView.scrollTo(0,0);}catch(e){}
 }
+
+// ═══ ❓ اسأل الدليل (2.19.0): بطاقات سؤال/جواب بالصور + بحث يفهم الفصحى والدارجة والفرنسية ═══
+var FAQ=[
+ {id:'f07',s:5,q:'كيف أسجّل غياباً أو مرضاً أو غياباً مبرّراً؟',kw:'غياب غائب غايب ماجاش ما جاش absent absence مريض مرض عيان malade مبرر مبرّر justifie AJ احمر 🔴 تسجيل نسجل نقيد',
+  a:'<ol><li>في <b>الرئيسية</b> اختر القسم.</li><li>أمام اسم التلميذ اضغط <b>🔴</b> ثم اختر <b>«غائب»</b> أو <b>«غائب مبرَّر»</b>.</li><li>للمرض اضغط <b>🤒</b>.</li><li>تظهر شارة الحالة بجانب الاسم، ويُسجَّل ذلك في <b>الحصة الحالية</b>.</li></ol><p class="fq-tip">💡 أول تسجيل في يوم جديد يسألك «هل هذه حصة جديدة؟».</p>',
+  img:['faq/f07a.webp','faq/f07b.webp']},
+ {id:'f10',s:5,q:'كيف أغيّر تاريخ الحصة أو أسجّل غيابات حصة فاتت؟',kw:'تاريخ date نهار يوم حصة فاتت فايتة قديمة سابقة séance seance رجوع تعديل نبدل نغير',
+  a:'<ol><li>تحت بطاقة <b>«الحصة الحالية»</b> اضغط شريط <b>📅 تاريخ الحصة</b>.</li><li>اختر التاريخ من التقويم، أو من <b>اقتراحات جدول التوقيت</b>.</li><li>اضغط <b>حفظ</b>.</li></ol><p class="fq-tip">💡 لحصة فاتت: ارجع بزر <b>▶</b> إلى رقمها، صحّح تاريخها ثم سجّل الغيابات. لا يُقبل تاريخ مستقبلي.</p>',
+  img:['faq/f10a.webp','faq/f10b.webp']},
+ {id:'f29',s:3,q:'كيف أنقل تلميذاً من قسم إلى قسم (تحويل داخلي)؟',kw:'نقل ننقل تحويل نحول حول نبدل القسم تبديل قسم اخر داخلي transfert changer classe',
+  a:'<ol><li>في سطر التلميذ اضغط <b>«تعديل»</b>.</li><li>في خانة <b>🔀 القسم</b> اختر القسم الجديد (وإن كان مدمجاً اختر <b>الفوج</b>).</li><li>اضغط <b>حفظ</b>.</li></ol><p class="fq-tip">💡 ينتقل بكل نقاطه وغياباته وفرضه واختباره، ويُسجَّل في كشف المغادرين «تحويل داخلي» دون أن يُحتسب مغادراً.</p>',
+  img:['faq/f29a.webp']},
+ {id:'f21',s:12,q:'كيف أخفي زر الدور ○؟',kw:'اخفاء نخفي نخبي نحي نحيد زر بوطون bouton دور الدائرة ○ قائد عتاد مسؤول capitaine cacher',
+  a:'<ol><li><b>🎯 الأنشطة</b> ← بطاقة المراقبة المستمرة ← <b>✏️ إنشاء / تعديل المعايير</b>.</li><li>تحت <b>«مكافأة الأدوار»</b> اختر <b>🙈 إخفاء زر الدور</b>.</li><li>اضغط <b>حفظ</b>.</li></ol><p class="fq-tip">💡 يخص المراقبة المخصَّصة. الأدوار المعيّنة سابقاً تبقى ظاهرة بجانب الاسم.</p>',
+  img:['faq/f21a.webp','faq/f21b.webp']},
+ {id:'f54',s:5,q:'كيف أبرّر غياباً قديماً عندما يُحضر التلميذ الوثيقة؟',kw:'تبرير نبرر مبرر مبرّر شهادة طبية وثيقة ورقة justifie justification AJ غياب قديم فايت سابق',
+  a:'<ol><li>اضغط <b>اسم التلميذ</b> ← اختر <b>الفصل</b> ← <b>المراقبة المستمرة</b>.</li><li>اضغط خانة الحصة (مثل <b>ح3</b>) حتى تصير <b>«مبرَّر»</b>: حاضر ← غائب ← مبرَّر ← مريض.</li><li>يُحفظ تلقائياً، ويظهر <b>AJ</b> في الكشف.</li></ol>',
+  img:['faq/f54a.webp']}
+];
+// قاموس: كل كلمة (فصحى/دارجة/فرنسية) ← جذر موحّد
+var FAQ_SYN={'غايب':'غياب','غائب':'غياب','غيابات':'غياب','ماجاش':'غياب','ماجاتش':'غياب','absent':'غياب','absence':'غياب','absences':'غياب',
+ 'مريض':'مرض','عيان':'مرض','malade':'مرض','مرضى':'مرض','مبرر':'مبرر','مبرره':'مبرر','justifie':'مبرر','justifiee':'مبرر','justifier':'مبرر','justification':'مبرر','aj':'مبرر','تبرير':'مبرر','نبرر':'مبرر','شهاده':'مبرر','وثيقه':'مبرر',
+ 'نسجل':'سجل','تسجيل':'سجل','سجل':'سجل','نقيد':'سجل','نكتب':'سجل','ندخل':'سجل','ادخال':'سجل',
+ 'نحذف':'حذف','نمحي':'حذف','نحي':'حذف','نحيد':'حذف','نلغي':'حذف','الغاء':'حذف','مسح':'حذف','supprimer':'حذف',
+ 'نبدل':'تعديل','نغير':'تعديل','تغيير':'تعديل','تبديل':'تعديل','نعدل':'تعديل','نصحح':'تعديل','تصحيح':'تعديل','modifier':'تعديل','changer':'تعديل',
+ 'ننقل':'تحويل','نقل':'تحويل','نحول':'تحويل','حول':'تحويل','transfert':'تحويل','transferer':'تحويل',
+ 'نهار':'تاريخ','يوم':'تاريخ','date':'تاريخ','تاريخ':'تاريخ',
+ 'حصه':'حصه','حصص':'حصه','seance':'حصه','séance':'حصه','سيونس':'حصه',
+ 'تلميذ':'تلميذ','تلاميذ':'تلميذ','طالب':'تلميذ','eleve':'تلميذ','élève':'تلميذ','قسم':'قسم','اقسام':'قسم','classe':'قسم','كلاس':'قسم',
+ 'زر':'زر','بوطون':'زر','bouton':'زر','دور':'دور','ادوار':'دور','قائد':'دور','capitaine':'دور',
+ 'نخفي':'اخفاء','نخبي':'اخفاء','اخفاء':'اخفاء','cacher':'اخفاء','نقطه':'نقطه','نقاط':'نقطه','note':'نقطه','notes':'نقطه','علامه':'نقطه'};
+var FAQ_STOP={'كيف':1,'كيفاش':1,'كيفما':1,'واش':1,'وش':1,'شحال':1,'وين':1,'علاش':1,'ماذا':1,'لماذا':1,'هل':1,'من':1,'في':1,'على':1,'الى':1,'الي':1,'عن':1,'او':1,'ان':1,'ما':1,'لي':1,'نتاع':1,'تاع':1,'ديال':1,'باش':1,'comment':1,'pourquoi':1,'je':1,'le':1,'la':1,'les':1,'un':1,'une':1,'de':1,'des':1,'du':1,'et':1,'ou':1,'est':1,'ce':1};
+function faqNorm(x){return String(x||'').replace(/<[^>]+>/g,' ').replace(/[\u0623\u0625\u0622\u0671]/g,'\u0627').replace(/\u0626/g,'\u064A').replace(/\u0624/g,'\u0648').replace(/\u0649/g,'\u064A').replace(/\u0629/g,'\u0647').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f\u064B-\u065F\u0670\u0640]/g,'');}
+function faqStem(w){if(FAQ_SYN[w])return FAQ_SYN[w];var c=[w],v=w;
+  if(v.length>4&&/ش$/.test(v)){v=v.replace(/ش$/,'');c.push(v);}
+  if(v.length>3&&/ا$/.test(v)){v=v.replace(/ا$/,'');c.push(v);}
+  var a=v.replace(/^(وال|بال|فال|كال|لل|ال)/,'');if(a.length>=2&&a!==v)c.push(a);
+  [v,a].forEach(function(z){if(z.length>3&&/^[وفبل]/.test(z))c.push(z.slice(1));});
+  for(var k=0;k<c.length;k++){if(FAQ_SYN[c[k]])return FAQ_SYN[c[k]];}
+  var r=(a.length>=2?a:v);if(r.length>3&&/^و/.test(r))r=r.slice(1);if(r.length>4)r=r.replace(/(ات|ين|ون|هم|ها|كم|ته|تها)$/,'');return FAQ_SYN[r]||r;}
+function faqToks(x){return faqNorm(x).split(/[^ء-يa-z0-9○🔴🤒]+/).filter(function(w){return w&&w.length>1&&!FAQ_STOP[w];}).map(faqStem);}
+function faqIdx(){if(FAQ._ix)return FAQ._ix;FAQ._ix=FAQ.map(function(f){var t=faqToks(f.q+' '+f.kw+' '+f.a),q=faqToks(f.q);return {f:f,set:new Set(t),qset:new Set(q),txt:' '+t.join(' ')+' '};});return FAQ._ix;}
+var FAQ_GEN={'تلميذ':1,'قسم':1,'حصه':1,'زر':1,'اسم':1};
+function faqFind(v,max){var qt=faqToks(v);if(!qt.length)return [];
+  var r=faqIdx().map(function(x){var sc=0;qt.forEach(function(t){var w=FAQ_GEN[t]?0.35:1;if(x.qset.has(t))sc+=3*w;else if(x.set.has(t))sc+=2*w;else if(t.length>=3&&x.txt.indexOf(' '+t.slice(0,3))>=0)sc+=0.5*w;});return {f:x.f,sc:sc};})
+   .filter(function(r){return r.sc>=1.5;}).sort(function(a,b){return b.sc-a.sc;});
+  if(!r.length)return [];var top=r[0].sc;
+  return r.filter(function(x){return x.sc>=top*0.6;}).slice(0,max||3).map(function(x){return x.f;});}
+var FAQ_CSS='#faq-box{padding:12px 12px 4px}#faq-box .fq-h{font-size:12px;font-weight:800;color:#5b6684;margin:2px 4px 8px}.fq{background:#fff;border:1px solid #dfe5f1;border-radius:16px;padding:12px 14px;margin-bottom:12px;box-shadow:0 2px 10px rgba(20,40,80,.06)}.fq h3{font-size:15px;color:#0f5a2e;margin-bottom:6px;line-height:1.6}.fq ol{padding-right:20px;margin:4px 0}.fq li{margin:3px 0}.fq-tip{background:#fff8e6;border-radius:10px;padding:6px 10px;font-size:12.5px;margin:6px 0}.fq-im{display:flex;gap:8px;overflow-x:auto;margin-top:8px;scroll-snap-type:x mandatory}.fq-im img{width:78%;max-width:300px;flex:none;border-radius:12px;border:1px solid #dfe5f1;scroll-snap-align:start;background:#eef2f8}.fq-im img:only-child{width:100%}.fq-more{display:inline-block;margin-top:8px;font-size:12px;font-weight:800;color:#2563eb;text-decoration:none}.fq-no{background:#fff;border:1px dashed #c9d2e6;border-radius:14px;padding:12px;font-size:12.5px;color:#5b6684;margin-bottom:12px}';
+function faqHtml(f){return '<div class="fq" id="fq-'+f.id+'"><h3>❓ '+f.q+'</h3>'+f.a+(f.img&&f.img.length?'<div class="fq-im">'+f.img.map(function(u){return '<img loading="lazy" src="'+u+'" alt="" onerror="this.style.display=\'none\'">';}).join('')+'</div>':'')+(f.s?'<a class="fq-more" href="#s'+f.s+'" onclick="parent.guideGoSec('+f.s+');return false">📖 المزيد في القسم '+f.s+' من الدليل</a>':'')+'</div>';}
+function faqRender(d,v){var b=d.getElementById('faq-box');
+  if(!d.getElementById('faq-css')){var st=d.createElement('style');st.id='faq-css';st.textContent=FAQ_CSS;d.head.appendChild(st);}
+  if(!b){b=d.createElement('div');b.id='faq-box';d.body.insertBefore(b,d.body.firstChild);}
+  var n=(v||'').trim();if(n.length<2){b.innerHTML='';b.style.display='none';return 0;}
+  var r=faqFind(n,3);b.style.display='';
+  b.innerHTML=r.length?'<div class="fq-h">💬 أقرب الأجوبة لسؤالك</div>'+r.map(faqHtml).join(''):'';
+  return r.length;}
+function guideGoSec(n){guideClear();setTimeout(function(){var d=document.getElementById('guideFrame').contentDocument,e=d&&d.getElementById('s'+n);if(e)e.scrollIntoView();},60);}
 function guideClear(){var q=document.getElementById('gd-q');if(q)q.value='';guideSearch('');}
 function guidePrint(){guideClear();try{window.frames['guideFrame'].focus();window.frames['guideFrame'].print();}catch(e){toast('تنبيه','تعذّرت الطباعة من هذه النافذة','wa');}}
 async function guidePdf(){
