@@ -4073,7 +4073,7 @@ function blankPage(cls,kind,tk){
     head='<th style="min-width:130px">الاسم واللقب</th><th>ج</th><th>ح1</th><th>ح2</th><th>ح3</th><th>ح4</th><th>ح5</th><th>ح6</th><th>ح7</th><th>ح/14</th><th>انض/2</th><th>مش/2</th><th>إبد/2</th><th style="background:#922b21;color:#fff">غ</th><th style="background:#935116;color:#fff">م</th><th style="background:#0d3d22">م.م/20</th>';span=14;}
   else{title='قائمة '+(kind==='fard'?'الفرض':'الاختبار');
     head='<th style="min-width:130px">الاسم واللقب</th><th>ج</th><th>م1</th><th>م2</th><th>م3</th><th>أحسن</th><th>فردي /20</th><th>جماعي /20</th><th style="background:#0d3d22">النقطة /20</th>';span=7;}
-  stus.forEach(function(s){initStu(s);var ex=tk?s.terms[tk].exempted:isAllEx(s);var nm=shortName(s.name),gn=s.gender==='male'?'ذ':'أ';
+  stus.forEach(function(s){initStu(s);var ex=tk?s.terms[tk].exempted:isAllEx(s);var nm=printName(s.name),gn=s.gender==='male'?'ذ':'أ';
     rows+='<tr style="height:26px"><td style="text-align:right">'+nm+'</td><td>'+gn+'</td>'+(ex?'<td class="exempt-cell" colspan="'+span+'">معفى</td>':new Array(span+1).join(e))+'</tr>';});
   var actLine='';
   if(kind!=='mc'){var a=tk?(D.settings.acts[tk]||{}):{};var af=a.f&&AF[a.f]?AF[a.f].ic+' '+AF[a.f].n:'....................';var aj=a.j&&AJ[a.j]?AJ[a.j].ic+' '+AJ[a.j].n:'....................';actLine=' | فردي: '+af+' | جماعي: '+aj;}
@@ -4431,9 +4431,9 @@ function evaPage(cls,ak,blank){
   var tc=D.settings.teacher||'—',sch=D.settings.school||'الثانوية',pr=dirName()||'_______________';var A=AF[ak];
   var stus=GSA(cls.id);var dD=evaDate(cls.id,ak,'dg'),dA=evaDate(cls.id,ak,'ac');var e0='<td></td>';var rows='';
   stus.forEach(function(s){initStu(s);var ex=isAllEx(s);var e=(s.eva&&s.eva[ak])||{dg:null,ac:null};var g=evaGain(ak,e.dg,e.ac);var gn=s.gender==='male'?'ذ':'أ';
-    if(ex){rows+='<tr style="height:26px"><td style="text-align:right">'+shortName(s.name)+'</td><td>'+gn+'</td><td class="exempt-cell" colspan="3">معفى</td></tr>';return;}
+    if(ex){rows+='<tr style="height:26px"><td style="text-align:right">'+printName(s.name)+'</td><td>'+gn+'</td><td class="exempt-cell" colspan="3">معفى</td></tr>';return;}
     var gcol=g===null?'':g>0?'#1a7a3a':g<0?'#c0392b':'#555';
-    rows+='<tr style="height:26px"><td style="text-align:right">'+shortName(s.name)+'</td><td>'+gn+'</td>'+(blank?e0+e0+e0:'<td>'+evaFmt(e.dg)+'</td><td>'+evaFmt(e.ac)+'</td><td style="font-weight:800;color:'+gcol+'">'+evaFmtGain(g)+'</td>');
+    rows+='<tr style="height:26px"><td style="text-align:right">'+printName(s.name)+'</td><td>'+gn+'</td>'+(blank?e0+e0+e0:'<td>'+evaFmt(e.dg)+'</td><td>'+evaFmt(e.ac)+'</td><td style="font-weight:800;color:'+gcol+'">'+evaFmtGain(g)+'</td>');
     rows+='</tr>';});
   var st=evaStats(ak,stus);
   if(!blank)rows+='<tr style="height:28px;background:#eef6f0;font-weight:800"><td style="text-align:right" colspan="2">المتوسط</td><td>'+(st.dg!==null?st.dg:'')+'</td><td>'+(st.ac!==null?st.ac:'')+'</td><td>'+(st.g!==null?evaFmtGain(st.g):'')+'</td></tr>';
@@ -7148,10 +7148,12 @@ var NM_SUF={'الدين':1,'العابدين':1};
 function nmKey(t){return String(t).replace(/[\u064B-\u065F\u0670\u0640]/g,'').replace(/[أإآٱ]/g,'ا').replace(/ى/g,'ي');}
 function nameUnits(n){var toks=String(n||'').trim().split(/\s+/).filter(Boolean),units=[],buf=[];
   toks.forEach(function(t){var k=nmKey(t);
-    if(NM_SUF[k]&&(buf.length||units.length)){if(buf.length){buf.push(t);units.push(buf.join(' '));buf=[];}else units[units.length-1]+=' '+t;return;}
+    if((NM_SUF[k]||(k.length>3&&k.indexOf('ال')===0))&&(buf.length||units.length)){if(buf.length){buf.push(t);units.push(buf.join(' '));buf=[];}else units[units.length-1]+=' '+t;return;}
     if(NM_PRE[k]){buf.push(t);return;}
     buf.push(t);units.push(buf.join(' '));buf=[];});
   if(buf.length)units.push(buf.join(' '));return units;}
+// الكشوف المطبوعة: الاسم كاملاً دون حذف أي كلمة، مع تصغير الخط للأسماء الطويلة فقط
+function printName(n){var t=String(n||'').trim().replace(/\s+/g,' ');var L=t.length;if(L<=22)return t;return '<span style="font-size:'+(L<=28?'92':L<=34?'85':'78')+'%;letter-spacing:-.1px">'+t+'</span>';}
 function shortName(n){if(!n)return'';var u=nameUnits(n);return u.length>2?u[0]+' '+u[1]:String(n).trim().replace(/\\s+/g,' ');}
 function buildMCSheetCx(clsId, tk, tc, sch, yr){const pr=dirName()||'_______________';
   const cls=GC(clsId);if(!cls)return'';
@@ -7162,7 +7164,7 @@ function buildMCSheetCx(clsId, tk, tc, sch, yr){const pr=dirName()||'___________
   const cnTh=N?'<th style="background:#922b21;color:#fff">غ</th><th style="background:#935116;color:#fff">م</th>':'';
   const span=(N?N+3:0)+cr.length+1;
   let rows='';let sum=0,cnt=0;
-  stus.forEach(function(s){initStu(s);const t=s.terms[tk];const nm=leftTag(s,shortName(s.name));const gn=s.gender==='male'?'ذ':'أ';
+  stus.forEach(function(s){initStu(s);const t=s.terms[tk];const nm=leftTag(s,printName(s.name));const gn=s.gender==='male'?'ذ':'أ';
     if(t.exempted){rows+='<tr><td style="text-align:right">'+nm+'</td><td>'+gn+'</td><td class="exempt-cell" colspan="'+span+'">معفى</td></tr>';return;}
     const mc=calcMC(t);if(mc!==null){sum+=mc;cnt++;}
     let sesTd='',cnTd='';
@@ -7188,7 +7190,7 @@ function buildMCSheet(clsId, tk, tc, sch, yr){const pr=dirName()||'_____________
   let rows='';let sum=0,cnt=0;
   stus.forEach((s,i)=>{
     initStu(s);const t=s.terms[tk];
-    const nm=leftTag(s,shortName(s.name));
+    const nm=leftTag(s,printName(s.name));
     const gn=s.gender==='male'?'ذ':'أ';
     const abCnt=sesArr(t).filter(v=>v===0).length;
     const skCnt=sesArr(t).filter((v,i)=>sesState(t,i)==='sk').length;
@@ -7244,7 +7246,7 @@ function buildFETSheet(clsId, tk, et, tc, sch, yr){const pr=dirName()||'________
   let rows='';let sum=0,cnt=0;
   stus.forEach((s,i)=>{
     initStu(s);const t=s.terms[tk];
-    const nm=leftTag(s,shortName(s.name));
+    const nm=leftTag(s,printName(s.name));
     if(t.exempted){rows+='<tr><td style="text-align:right">'+nm+'</td><td>'+(s.gender==='male'?'ذ':'أ')+'</td><td class="exempt-cell" colspan="7">معفى</td></tr>';return;}
     const akey=t.actF||defAk;
     const ev=t[et];
