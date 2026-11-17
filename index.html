@@ -588,6 +588,9 @@ body{max-width:480px;margin:0 auto;display:flex;flex-direction:column;-webkit-fo
 .sw4-lane.sw4-run{border-color:rgba(57,255,20,.35);background:rgba(57,255,20,.05)}
 .sw4-lane.sw4-run::before{background:radial-gradient(ellipse at 50% 0%,rgba(57,255,20,.12) 0%,transparent 70%);opacity:1}
 .sw4-lane.sw4-run .sw4-tmr{color:#39ff14;text-shadow:0 0 30px rgba(57,255,20,.6),0 0 60px rgba(57,255,20,.2)}
+.sw4-lane.sw4-void{border-color:rgba(255,89,89,.45);background:rgba(255,89,89,.07)}
+.sw4-lane.sw4-void .sw4-tmr{color:#ff5959;text-decoration:line-through}
+.sw4-vd{width:100%;padding:7px 4px;border-radius:10px;border:1px solid rgba(255,89,89,.35);background:rgba(255,89,89,.1);color:#ff5959;font-family:var(--ff);font-size:11px;font-weight:800;cursor:pointer;display:none}
 .sw4-lane.sw4-frz{border-color:rgba(78,165,255,.45);background:rgba(78,165,255,.07)}
 .sw4-lane.sw4-frz::before{background:radial-gradient(ellipse at 50% 0%,rgba(78,165,255,.15) 0%,transparent 70%);opacity:1}
 .sw4-lane.sw4-frz .sw4-tmr{color:#4ea5ff;text-shadow:0 0 24px rgba(78,165,255,.5),0 0 48px rgba(78,165,255,.2)}
@@ -889,6 +892,7 @@ body{max-width:480px;margin:0 auto;display:flex;flex-direction:column;-webkit-fo
         <div style="display:flex;gap:8px;justify-content:center">
           <button id="chrono-start" onclick="chronoStart()" style="flex:1;max-width:120px;padding:13px;background:var(--g);color:#fff;border:none;border-radius:12px;font-family:var(--ff);font-size:14px;font-weight:800;cursor:pointer">▶ ابدأ</button>
           <button id="chrono-stop" onclick="chronoStop()" style="flex:1;max-width:120px;padding:13px;background:var(--p3);color:var(--tx3);border:1px solid var(--ln);border-radius:12px;font-family:var(--ff);font-size:14px;font-weight:700;cursor:pointer;display:none">⏹ إيقاف</button>
+          <button id="chrono-void" onclick="chronoVoid()" style="display:none;flex:1;max-width:150px;padding:13px;background:var(--rb);color:var(--red);border:1px solid rgba(255,89,89,.3);border-radius:12px;font-family:var(--ff);font-size:13px;font-weight:800;cursor:pointer">🚫 إلغاء المحاولة</button>
           <button id="chrono-reset" onclick="chronoReset()" style="padding:13px 14px;background:var(--rb);color:var(--red);border:1px solid rgba(255,89,89,.3);border-radius:12px;font-family:var(--ff);font-size:13px;font-weight:700;cursor:pointer">↺</button>
         </div>
         <div id="chrono-target" style="font-size:11px;color:var(--tx3);margin-top:10px;font-weight:600"></div>
@@ -2012,6 +2016,7 @@ body{max-width:480px;margin:0 auto;display:flex;flex-direction:column;-webkit-fo
   </div>
   <div style="padding:7px 10px 16px;display:flex;gap:7px;flex-shrink:0;border-top:1px solid rgba(255,255,255,.06);background:rgba(255,255,255,.02)">
     <button id="sw4-start-btn" onclick="sw4Start()" style="flex:1;padding:11px 8px;background:linear-gradient(135deg,#00c851,#00d97e);border:none;border-radius:12px;color:#fff;font-family:var(--ff);font-size:13px;font-weight:900;cursor:pointer;letter-spacing:.3px;touch-action:manipulation;box-shadow:0 3px 14px rgba(0,217,126,.25)">🚀 انطلاق</button>
+    <button id="sw4-fs-btn" onclick="sw4FalseStart()" style="display:none;flex:1;padding:11px 8px;background:rgba(255,89,89,.12);border:1.5px solid rgba(255,89,89,.4);border-radius:12px;color:#ff5959;font-family:var(--ff);font-size:13px;font-weight:900;cursor:pointer;touch-action:manipulation">🚫 إلغاء الانطلاقة</button>
     <button id="sw4-save-btn" onclick="sw4Save()" disabled style="flex:1;padding:11px 8px;background:linear-gradient(135deg,rgba(245,185,50,.14),rgba(245,185,50,.06));border:1.5px solid rgba(245,185,50,.3);border-radius:12px;color:#f5b932;font-family:var(--ff);font-size:13px;font-weight:800;cursor:pointer;opacity:.4;touch-action:manipulation">💾 حفظ وترحيل</button>
   </div>
 </div>
@@ -7408,12 +7413,14 @@ function showChrono(){
   const ac=AF[akey];
   const tgt=document.getElementById('chrono-target');
   if(tgt)tgt.textContent='سيُسجَّل في المحاولة '+(chronoTargetTrial+1)+' | الوحدة: '+ac.u;
+  if(chronoLast&&(chronoLast.sid!==S.sid||chronoLast.term!==S.term||chronoLast.et!==S.etype))chronoLast=null;chronoVoidUI();
 }
 function chronoStart(){
   if(chronoRunning)return;
   chronoRunning=true;chronoStart_t=performance.now()-chronoElapsed;
   document.getElementById('chrono-start').style.display='none';
   document.getElementById('chrono-stop').style.display='block';
+  chronoLast=null;chronoVoidUI();
   chronoTimer=setInterval(()=>{
     chronoElapsed=performance.now()-chronoStart_t;
     document.getElementById('chrono-display').textContent=(chronoElapsed/1000).toFixed(2);
@@ -7427,15 +7434,29 @@ function chronoStop(){
   document.getElementById('chrono-stop').style.display='none';
   // Auto-fill trial
   const inp=document.getElementById('tr-inp-'+chronoTargetTrial);
+  const _slot=chronoTargetTrial;
   if(inp){inp.value=secs;updTr(chronoTargetTrial,secs);}
+  chronoLast={slot:_slot,secs:secs,sid:S.sid,term:S.term,et:S.etype};
   // Advance target to next empty
   const s=GS(S.sid);const t=s.terms[S.term];const ev=t[S.etype];
   for(let i=0;i<ev.tr.length;i++){const v=parseFloat(ev.tr[i]);if(isNaN(v)||v<=0){chronoTargetTrial=i;break;}}
   const tgt=document.getElementById('chrono-target');
   if(tgt)tgt.textContent='✅ سُجِّل '+secs+' ث — المحاولة التالية: '+(chronoTargetTrial+1);
+  chronoVoidUI();
+}
+// 🚫 إلغاء المحاولة: أثناء الجري يوقف دون تسجيل، وبعد الإيقاف يمحو الزمن الذي سُجِّل للتو فتعود المحاولة فارغة
+var chronoLast=null;
+function chronoVoidUI(){var b=document.getElementById('chrono-void');if(b)b.style.display=(chronoRunning||chronoLast)?'block':'none';}
+function chronoVoid(){
+  if(chronoRunning){clearInterval(chronoTimer);chronoRunning=false;chronoElapsed=0;document.getElementById('chrono-display').textContent='0.00';document.getElementById('chrono-start').style.display='block';document.getElementById('chrono-stop').style.display='none';
+    var t0=document.getElementById('chrono-target');if(t0)t0.textContent='🚫 أُلغيت المحاولة — لم يُسجَّل شيء · المحاولة '+(chronoTargetTrial+1)+' ما زالت فارغة';chronoLast=null;chronoVoidUI();return;}
+  if(!chronoLast)return;var L=chronoLast;chronoLast=null;if(L.sid!==S.sid||L.term!==S.term||L.et!==S.etype){chronoVoidUI();return;}
+  var inp=document.getElementById('tr-inp-'+L.slot);if(inp){inp.value='';}updTr(L.slot,'');chronoTargetTrial=L.slot;chronoElapsed=0;
+  document.getElementById('chrono-display').textContent='0.00';
+  var t1=document.getElementById('chrono-target');if(t1)t1.textContent='🚫 أُلغي '+L.secs+' ث — المحاولة '+(L.slot+1)+' فارغة من جديد';chronoVoidUI();toast('🚫 أُلغيت المحاولة',L.secs+' ث لا تُحتسب','wa',2200);
 }
 function chronoReset(){
-  clearInterval(chronoTimer);chronoRunning=false;chronoElapsed=0;
+  clearInterval(chronoTimer);chronoRunning=false;chronoElapsed=0;chronoLast=null;chronoVoidUI();
   const d=document.getElementById('chrono-display');if(d)d.textContent='0.00';
   const s=document.getElementById('chrono-start');if(s)s.style.display='block';
   const st=document.getElementById('chrono-stop');if(st)st.style.display='none';
@@ -8503,7 +8524,8 @@ function sw4RenderLanes(){
       `<div class="sw4-sti" id="sw4-sti-${i}"></div>`+
       `<div class="sw4-tmr" id="sw4-disp-${i}">00.00</div>`+
       `<div class="sw4-sc" id="sw4-sc-${i}">—</div>`+
-      `<button class="sw4-stp" id="sw4-stp-${i}" onclick="sw4Stop(${i})" disabled>🏁 إيقاف الحارة</button>`;
+      `<button class="sw4-stp" id="sw4-stp-${i}" onclick="sw4Stop(${i})" disabled>🏁 إيقاف الحارة</button>`+
+      `<button class="sw4-vd" id="sw4-vd-${i}" onclick="sw4Void(${i})">🚫 إلغاء المحاولة</button>`;
   }
   sw4SyncSaveBtn();
 }
@@ -8673,6 +8695,7 @@ function sw4Start(){
     if(!SW4.lanes[i].frozen&&hasStu){if(btn)btn.disabled=false;if(card)card.classList.add('sw4-run');}
   }
   const sb=document.getElementById('sw4-start-btn');if(sb){sb.disabled=true;sb.style.opacity='.35';}
+  sw4VoidUI();
   SW4.raf=requestAnimationFrame(sw4Tick);
 }
 function sw4Tick(){
@@ -8693,7 +8716,7 @@ function sw4NextRunner(lane){
   // Free the lane: clear student, reset display, unfreeze
   SW4.lanes[lane].frozen=false;
   SW4.lanes[lane].time=null;
-  SW4.lanes[lane].stuId=null;SW4.lanes[lane].saved=false;
+  SW4.lanes[lane].stuId=null;SW4.lanes[lane].saved=false;SW4.lanes[lane].voided=false;var _vd=document.getElementById('sw4-vd-'+lane);if(_vd)_vd.style.display='none';
   var sel=document.getElementById('sw4-sel-'+lane);if(sel)sel.value='';
   var sti=document.getElementById('sw4-sti-'+lane);if(sti)sti.innerHTML='';
   var disp=document.getElementById('sw4-disp-'+lane);if(disp)disp.textContent='00.00';
@@ -8744,10 +8767,37 @@ function sw4Stop(lane,stopAt){
     sw4ShowWhistleStatus('✅ كل الحارات مسجلة - اضغط حفظ');
   }
   sw4RenderRanks();
-  sw4SyncSaveBtn();
+  sw4SyncSaveBtn();sw4VoidUI();
 }
 // Alias used by volume-key + voice handlers (optional precise timestamp)
 function sw4StopLane(lane,stopAt){ sw4Stop(lane,stopAt); }
+
+// 🚫 إلغاء محاولة (حادث، تعثّر، خطأ…): لا يُحفظ أي زمن لهذه الحارة، ويعود التلميذ إلى القائمة ليُعاد توقيته لاحقاً
+function sw4VoidUI(){for(var i=0;i<4;i++){var L=SW4.lanes&&SW4.lanes[i],b=document.getElementById('sw4-vd-'+i),sid=document.getElementById('sw4-sel-'+i);sid=sid&&sid.value;
+    if(!b)continue;var show=!!(L&&sid&&!L.saved&&!L.voided&&((SW4.running&&!L.frozen)||(L.frozen&&L.time!==null)));b.style.display=show?'block':'none';}
+  var fs=document.getElementById('sw4-fs-btn'),sb=document.getElementById('sw4-start-btn');if(fs){fs.style.display=SW4.running?'block':'none';}if(sb)sb.style.display=SW4.running?'none':'';}
+function sw4Void(lane){var L=SW4.lanes[lane];var sid=document.getElementById('sw4-sel-'+lane);sid=sid&&sid.value;if(!L||!sid||L.saved)return;
+  L.frozen=true;L.time=null;L.voided=true;var ui=SW4.used.indexOf(sid);if(ui!==-1)SW4.used.splice(ui,1);
+  var card=document.getElementById('sw4-lane-'+lane);if(card){card.classList.remove('sw4-run','sw4-frz');card.classList.add('sw4-void');}
+  var stp=document.getElementById('sw4-stp-'+lane);if(stp){stp.disabled=true;stp.textContent='🚫 محاولة ملغاة';stp.style.borderColor='rgba(255,89,89,.4)';stp.style.color='#ff5959';}
+  var sc=document.getElementById('sw4-sc-'+lane);if(sc){sc.textContent='لا تُحتسب';sc.style.color='#ff5959';}
+  var pbtn=document.getElementById('sw4-pbtn-'+lane);if(pbtn){pbtn.disabled=false;pbtn.innerHTML='🔄 تلميذ جديد لهذه الحارة';pbtn.style.background='rgba(0,217,126,.15)';pbtn.style.color='#00d97e';pbtn.setAttribute('onclick','sw4NextRunner('+lane+')');}
+  var s=GS(sid);toast('🚫 أُلغيت المحاولة',(s?s.name+' — ':'')+'لا تُحتسب، ويبقى في القائمة لإعادة توقيته','wa',2600);
+  sw4EndIfIdle();sw4RenderRanks();sw4SyncSaveBtn();sw4VoidUI();}
+// 🚫 خطأ في الانطلاقة: تُلغى أزمنة هذا السباق غير المحفوظة، ويبقى التلاميذ في حاراتهم جاهزين لإعادة الانطلاق
+function sw4FalseStart(){if(!SW4.running)return;SW4.running=false;cancelAnimationFrame(SW4.raf);SW4.raf=null;if(VOICE&&VOICE.active)sw4StopVoiceListen();sw4HideWhistleStatus();
+  var n=0;for(var i=0;i<4;i++){var L=SW4.lanes[i];var sid=document.getElementById('sw4-sel-'+i);sid=sid&&sid.value;if(!sid||L.saved)continue;
+    L.frozen=false;L.time=null;L.voided=false;n++;var ui=SW4.used.indexOf(sid);if(ui!==-1)SW4.used.splice(ui,1);
+    var d=document.getElementById('sw4-disp-'+i);if(d)d.textContent='00.00';var card=document.getElementById('sw4-lane-'+i);if(card){card.className='sw4-lane';}
+    var stp=document.getElementById('sw4-stp-'+i);if(stp){stp.disabled=true;stp.textContent='🏁 إيقاف الحارة';stp.style.borderColor='';stp.style.color='';}
+    var sc=document.getElementById('sw4-sc-'+i);if(sc){sc.textContent='—';sc.style.color='';}
+    var pbtn=document.getElementById('sw4-pbtn-'+i);if(pbtn){pbtn.setAttribute('onclick','openSW4Picker('+i+')');pbtn.style.background='';pbtn.style.color='';var st=GS(sid);if(st)sw4PickStu(i,sid);}}
+  var m=document.getElementById('sw4-master');if(m){m.textContent='00.00';m.style.color='rgba(255,255,255,.2)';m.style.textShadow='none';}
+  var sb=document.getElementById('sw4-start-btn');if(sb){sb.disabled=false;sb.style.opacity='1';}
+  closeSW4Picker();sw4RenderRanks();sw4SyncSaveBtn();sw4VoidUI();
+  toast('🚫 أُلغيت الانطلاقة','لم يُحتسب أي زمن ('+n+' تلميذ) — نفس التلاميذ جاهزون، اضغط «ابدأ» من جديد','wa',3200);}
+function sw4EndIfIdle(){var any=false;for(var i=0;i<4;i++){if(document.getElementById('sw4-sel-'+i)?.value&&!SW4.lanes[i].frozen){any=true;break;}}
+  if(!any&&SW4.running){SW4.running=false;cancelAnimationFrame(SW4.raf);var master=document.getElementById('sw4-master');if(master){master.style.color='#4ea5ff';master.style.textShadow='0 0 14px rgba(78,165,255,.3)';}if(VOICE&&VOICE.active)sw4StopVoiceListen();}}
 function sw4SyncSaveBtn(){
   const btn=document.getElementById('sw4-save-btn');if(!btn)return;
   let ready=false;
@@ -8801,7 +8851,8 @@ function sw4ResetState(){
   for(var q=0;q<4;q++){var rk=document.getElementById('sw4-rk-'+q);if(rk)rk.remove();}
   SW4.used=[];SW4.redo=[];
   SW4.running=false;cancelAnimationFrame(SW4.raf);SW4.raf=null;SW4.startT=0;
-  SW4.lanes=[0,1,2,3].map(()=>({frozen:false,time:null,stuId:null,saved:false}));
+  SW4.lanes=[0,1,2,3].map(()=>({frozen:false,time:null,stuId:null,saved:false,voided:false}));
+  var _fs=document.getElementById('sw4-fs-btn');if(_fs)_fs.style.display='none';var _sb=document.getElementById('sw4-start-btn');if(_sb)_sb.style.display='';
   const master=document.getElementById('sw4-master');if(master){master.textContent='00.00';master.style.color='rgba(255,255,255,.2)';master.style.textShadow='none';}
   const sb=document.getElementById('sw4-start-btn');if(sb){sb.disabled=false;sb.style.opacity='1';}
   const sv=document.getElementById('sw4-save-btn');if(sv){sv.disabled=true;sv.style.opacity='.4';}
