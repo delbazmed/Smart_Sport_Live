@@ -2654,10 +2654,10 @@ function cxVal(t,c){var cx=t.mc.cx;var v=(cx&&typeof cx[c.id]==='number')?cx[c.i
 function fmtCx(v){v=Math.round(v*100)/100;return String(v);}
 function calcMCRaw(t){if(mcModeOf(t)==='custom'){var sm=0;mcCrits().forEach(function(c){sm+=cxVal(t,c);});sm+=sesSumC(t);return Math.min(20,Math.round(sm*100)/100);}
   const behSum=(parseFloat(t.mc.discipline)||0)+(parseFloat(t.mc.participation)||0)+(parseFloat(t.mc.creativity)||0);return Math.min(20,sesArr(t).reduce((a,b)=>a+b,0)+behSum);}
-// فصل لم يبدأ بعد (بعد الفصل الحالي ولا تسجيل فيه): لا تُعرض نقاط م.م الافتراضية في الكشوف
+// الفصل الثاني/الثالث لا يُعتبر مبدوءاً إلا إذا سُجِّل فيه شيء فعلاً (حصة، غياب، رصد…) — لا يعتمد على الفصل المختار في الشاشة
 var TK_ORD={t1:0,t2:1,t3:2};
-function mcTermOpen(clsId,tk){try{if(TK_ORD[tk]<=TK_ORD[curTermSafe()])return true;var c=GC(clsId);if(c&&c.sesPtr&&c.sesPtr[tk]>0)return true;
-  return D.students.some(function(s){if(s.classId!==clsId)return false;initStu(s);var t=s.terms[tk];if(!t)return false;var m=t.mc||{};if(m.mcEntered||(m.cx&&Object.keys(m.cx).length))return true;return sesArr(t).some(function(v,i){var st=sesState(t,i);return st&&st!=='pr';});});}catch(e){return true;}}
+function mcTermOpen(clsId,tk){try{if(tk==='t1')return true;
+  return D.students.some(function(s){if(s.classId!==clsId)return false;initStu(s);var t=s.terms[tk];if(!t)return false;var m=t.mc||{};if(mcRealActivity(t))return true;if(['fard','test'].some(function(e){return t[e]&&((t[e].tr||[]).some(function(v){return v!==''&&v!=null;})||t[e].jg);}))return true;return sesArr(t).some(function(v,i){var st=sesState(t,i);return st&&st!=='pr';});});}catch(e){return true;}}
 function calcMC(t){if(mcModeOf(t)==='custom'&&!mcNeedEnter())return calcMCRaw(t);if(!t.mc.mcEntered)return null;return calcMCRaw(t);}
 function lookup(perf,g,lv,akey){const sc=D.scales[akey]?.[g]?.[lv];const ac=AF[akey];if(!sc||isNaN(perf)||perf<=0)return null;const{top,bot}=sc;let r;if(ac.t==='time'){if(perf<=top)return 20;if(perf>=bot)return 0;r=1-(perf-top)/(bot-top);}else{if(perf>=top)return 20;if(perf<=bot)return 0;r=(perf-bot)/(top-bot);}return Math.round(r*20*4)/4;}
 function bestTrial(tr,akey){const v=tr.filter(x=>x!==null&&x!==''&&!isNaN(x)).map(Number).filter(x=>AF[akey].t==='time'?x>0:true);if(!v.length)return null;return AF[akey].t==='time'?Math.min(...v):Math.max(...v);}
@@ -4364,6 +4364,10 @@ function evaEnsureDate(cid,ak,kind){if(!evaDate(cid,ak,kind))evaDate(cid,ak,kind
 function mcHasActivity(t){var m=t.mc;if(!m)return false;if(m.mcEntered)return true;
   if((m.ses||[]).some(function(v){return v!==2;}))return true;
   if(m.perfDef===false||(parseFloat(m.pb)||0)!==0||(parseFloat(m.creativity)||0)!==0||m.rbC||m.rbE||m._discTouched)return true;if(m.cx&&Object.keys(m.cx).length)return true;return false;}
+// مثل mcHasActivity لكن دون الاعتماد على mcEntered (قد يُضبط تلقائياً) — نشاط مسجَّل فعلاً فقط
+function mcRealActivity(t){var m=t.mc;if(!m)return false;
+  if((m.ses||[]).some(function(v){return v!==2;}))return true;
+  if(m.perfDef===false||(parseFloat(m.pb)||0)!==0||(parseFloat(m.creativity)||0)!==0||m.rbC||m.rbE||m._discTouched)return true;if(m.cx&&Object.keys(m.cx).length)return true;return false;}
 function mcAutoEnter(){
   if(!D||!Array.isArray(D.students)||!Array.isArray(D.classes))return false;var ch=false;
   D.classes.forEach(function(c){var stus=D.students.filter(function(s){return s.classId===c.id;});if(!stus.length)return;
@@ -5297,9 +5301,9 @@ function ttLatestSlot(cid){
     for(var i=0;i<4;i++){if((t.grid[d]||[])[i]===cid&&ttMin(t.slots[i].s)-15<=m)best=i;}
     return best<0?null:{d:d,i:best};}catch(e){return null;}
 }
+// فصل جدول التوقيت = آخر فصل سُجِّل فيه نشاط فعلي للقسم (لا الفصل المعروض في الشاشة، حتى لا تتقدّم حصص الفصل 2/3 بمجرد تصفّحهما)
 function ttTermOf(cid){
-  if(S.term==='t1'||S.term==='t2'||S.term==='t3')return S.term;
-  var c=GC(cid),best='',tk='t1';['t1','t2','t3'].forEach(function(k){var d=(c&&c.sesDate&&c.sesDate[k])||'';if(d>best){best=d;tk=k;}});return tk;
+  var c=GC(cid),tk='t1';['t2','t3'].forEach(function(k){var st=D.students.some(function(s){return s.classId===cid&&s.terms&&s.terms[k]&&(mcRealActivity(s.terms[k])||sesArr(s.terms[k]).some(function(v,i){return sesState(s.terms[k],i)!=='pr';}));});if(st)tk=k;});return tk;
 }
 function ttSlotAdvance(cid,d,i,tkIn){
   var c=GC(cid);if(!c)return false;
