@@ -2654,6 +2654,10 @@ function cxVal(t,c){var cx=t.mc.cx;var v=(cx&&typeof cx[c.id]==='number')?cx[c.i
 function fmtCx(v){v=Math.round(v*100)/100;return String(v);}
 function calcMCRaw(t){if(mcModeOf(t)==='custom'){var sm=0;mcCrits().forEach(function(c){sm+=cxVal(t,c);});sm+=sesSumC(t);return Math.min(20,Math.round(sm*100)/100);}
   const behSum=(parseFloat(t.mc.discipline)||0)+(parseFloat(t.mc.participation)||0)+(parseFloat(t.mc.creativity)||0);return Math.min(20,sesArr(t).reduce((a,b)=>a+b,0)+behSum);}
+// فصل لم يبدأ بعد (بعد الفصل الحالي ولا تسجيل فيه): لا تُعرض نقاط م.م الافتراضية في الكشوف
+var TK_ORD={t1:0,t2:1,t3:2};
+function mcTermOpen(clsId,tk){try{if(TK_ORD[tk]<=TK_ORD[curTermSafe()])return true;var c=GC(clsId);if(c&&c.sesPtr&&c.sesPtr[tk]>0)return true;
+  return D.students.some(function(s){if(s.classId!==clsId)return false;initStu(s);var t=s.terms[tk];if(!t)return false;var m=t.mc||{};if(m.mcEntered||(m.cx&&Object.keys(m.cx).length))return true;return sesArr(t).some(function(v,i){var st=sesState(t,i);return st&&st!=='pr';});});}catch(e){return true;}}
 function calcMC(t){if(mcModeOf(t)==='custom'&&!mcNeedEnter())return calcMCRaw(t);if(!t.mc.mcEntered)return null;return calcMCRaw(t);}
 function lookup(perf,g,lv,akey){const sc=D.scales[akey]?.[g]?.[lv];const ac=AF[akey];if(!sc||isNaN(perf)||perf<=0)return null;const{top,bot}=sc;let r;if(ac.t==='time'){if(perf<=top)return 20;if(perf>=bot)return 0;r=1-(perf-top)/(bot-top);}else{if(perf>=top)return 20;if(perf<=bot)return 0;r=(perf-bot)/(top-bot);}return Math.round(r*20*4)/4;}
 function bestTrial(tr,akey){const v=tr.filter(x=>x!==null&&x!==''&&!isNaN(x)).map(Number).filter(x=>AF[akey].t==='time'?x>0:true);if(!v.length)return null;return AF[akey].t==='time'?Math.min(...v):Math.max(...v);}
@@ -5182,7 +5186,7 @@ function incStatsReport(scope){
     .kp{display:flex;gap:8px;margin-bottom:6px}.kp div{flex:1;border:1px solid #bbb;border-radius:8px;text-align:center;padding:8px 4px;font-size:11px;color:#555}.kp b{display:block;font-size:20px;color:#1a6b3a}
     .sigs{display:flex;justify-content:space-between;gap:10px;margin-top:26px}.sig{flex:1;text-align:center;font-size:12px;font-weight:800}.sig small{display:block;color:#555;font-weight:600;margin-top:2px}.sig-line{border-top:1px solid #333;margin:34px 10px 4px}
     .foot{text-align:center;font-size:9px;color:#aaa;margin-top:14px}
-    .watermark{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) rotate(-35deg);font-size:70px;font-weight:900;color:rgba(26,107,58,.05);pointer-events:none;white-space:nowrap}
+    .watermark{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) rotate(-35deg);font-size:70px;font-weight:900;color:rgba(26,107,58,.028);pointer-events:none;z-index:0;white-space:nowrap}
   </style></head><body><div class="watermark">Delbaz_Med 26</div><div class="page">
     <div class="rep"><b>الجمهورية الجزائرية الديمقراطية الشعبية</b><br>وزارة التربية الوطنية</div>
     <div class="top"><div><b>${e(sch)}</b><br>مادة التربية البدنية والرياضية</div><div style="text-align:left">السنة الدراسية: ${e(yr)}<br>التاريخ: ${ttFmtD(todayKey())}</div></div>
@@ -5237,7 +5241,7 @@ function incShow(id){
     .box{border:1px solid #bbb;border-radius:6px;padding:8px 10px;font-size:12px;line-height:1.9;min-height:46px;white-space:pre-wrap}
     .sigs{display:flex;justify-content:space-between;gap:10px;margin-top:26px}.sig{flex:1;text-align:center;font-size:12px;font-weight:800}.sig small{display:block;color:#555;font-weight:600;margin-top:2px}.sig-line{border-top:1px solid #333;margin:34px 10px 4px}
     .foot{text-align:center;font-size:9px;color:#aaa;margin-top:14px}
-    .watermark{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) rotate(-35deg);font-size:70px;font-weight:900;color:rgba(26,107,58,.05);pointer-events:none;white-space:nowrap}
+    .watermark{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) rotate(-35deg);font-size:70px;font-weight:900;color:rgba(26,107,58,.028);pointer-events:none;z-index:0;white-space:nowrap}
     @media print{body{padding:0}}
   </style></head><body><div class="watermark">Delbaz_Med 26</div><div class="page">
     <div class="rep"><b>الجمهورية الجزائرية الديمقراطية الشعبية</b><br>وزارة التربية الوطنية</div>
@@ -5540,7 +5544,7 @@ function printAbsenceReport(){
     .legend{font-size:10px;color:#555;margin-bottom:14px}
     .footer{display:flex;justify-content:space-between;margin-top:20px;padding-top:12px;border-top:1px solid #ccc}
     .sig{text-align:center;flex:1}.sig-line{border-top:1px solid #333;width:80%;max-width:120px;margin:24px auto 4px}
-    .watermark{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) rotate(-35deg);font-size:70px;font-weight:900;color:rgba(26,107,58,.05);pointer-events:none;white-space:nowrap}
+    .watermark{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) rotate(-35deg);font-size:70px;font-weight:900;color:rgba(26,107,58,.028);pointer-events:none;z-index:0;white-space:nowrap}
   <\/style><\/head><body>
   <div class="watermark">Delbaz_Med 26</div>
   <div class="card">
@@ -5585,7 +5589,7 @@ function printClassStats(){
     td{border:1px solid #ccc;padding:7px 10px;font-size:12px}
     .footer{display:flex;justify-content:space-between;margin-top:20px;padding-top:12px;border-top:1px solid #ccc}
     .sig{text-align:center}.sig-line{border-top:1px solid #333;width:120px;margin:24px auto 4px}
-    .watermark{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) rotate(-35deg);font-size:70px;font-weight:900;color:rgba(26,107,58,.05);pointer-events:none;white-space:nowrap}
+    .watermark{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) rotate(-35deg);font-size:70px;font-weight:900;color:rgba(26,107,58,.028);pointer-events:none;z-index:0;white-space:nowrap}
     @media print{.no-print{display:none}}
   <\/style><\/head><body>
   <div class="watermark">Delbaz_Med 26</div>
@@ -7040,7 +7044,7 @@ function gradeSheetStyle(){return `<style>
 *{box-sizing:border-box}
 body{font-family:Arial,'Segoe UI',sans-serif;direction:rtl;margin:0;padding:0;color:#111;font-size:12px}
 .page{padding:20px 24px;max-width:900px;margin:0 auto;position:relative}
-.watermark{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) rotate(-30deg);font-size:80px;font-weight:900;color:rgba(0,150,80,.06);pointer-events:none;z-index:0;white-space:nowrap}
+.watermark{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) rotate(-30deg);font-size:80px;font-weight:900;color:rgba(0,150,80,.028);pointer-events:none;z-index:0;white-space:nowrap}
 h1{text-align:center;font-size:18px;margin:0 0 4px}
 h2{text-align:center;font-size:14px;margin:0 0 12px;color:#444;font-weight:500}
 .info-row{display:flex;justify-content:space-between;margin-bottom:14px;font-size:11px;color:#555}
@@ -7082,7 +7086,7 @@ tr:nth-child(even)td{background:#f5f5f5}
 <\/script>
 `;}
 
-function buildTermSheet(clsId, tk, tc, sch, yr){const pr=dirName()||'_______________';
+function buildTermSheet(clsId, tk, tc, sch, yr){const pr=dirName()||'_______________';const _open=mcTermOpen(clsId,tk);
   const cls=GC(clsId);if(!cls)return'';
   const stus=GSR(clsId);
   const termLabels={t1:'الفصل الأول',t2:'الفصل الثاني',t3:'الفصل الثالث'};
@@ -7093,8 +7097,8 @@ function buildTermSheet(clsId, tk, tc, sch, yr){const pr=dirName()||'___________
   stus.forEach((s,i)=>{
     initStu(s);const t=s.terms[tk];
     if(t.exempted){rows+='<tr><td>'+(i+1)+'</td><td style="text-align:right">'+leftTag(s,s.name)+'</td><td>'+(s.gender==='male'?'ذكر':'أنثى')+'</td><td class="exempt-cell" colspan="4">معفى</td></tr>';return;}
-    const mc=calcMC(t);const fard=calcEval(t,'fard',s.gender,cls.level);const test=calcEval(t,'test',s.gender,cls.level);const avg=calcTerm(t,s.gender,cls.level);
-    const gi=gradeInfo(avg);rows+='<tr><td>'+(i+1)+'</td><td style="text-align:right">'+leftTag(s,s.name)+'</td><td>'+(s.gender==='male'?'ذكر':'أنثى')+'</td><td>'+fmt(mc)+'</td><td>'+(fard!==null?fmt(fard):'—')+'</td><td>'+(test!==null?fmt(test):'—')+'</td><td style="font-weight:800;color:'+(avg!==null&&avg>=10?'#1a6b3a':'#c0392b')+'">'+(avg!==null?fmt(avg):'—')+'</td><td style="font-weight:700;color:'+(avg!==null&&avg>=10?'#1a6b3a':'#c0392b')+'">'+gi.g+'</td><td style="font-size:10px;color:#555;">'+gi.a+'</td></tr>';
+    const mc=_open?calcMC(t):null;const fard=calcEval(t,'fard',s.gender,cls.level);const test=calcEval(t,'test',s.gender,cls.level);const avg=calcTerm(t,s.gender,cls.level);
+    const gi=gradeInfo(avg);rows+='<tr><td>'+(i+1)+'</td><td style="text-align:right">'+leftTag(s,s.name)+'</td><td>'+(s.gender==='male'?'ذكر':'أنثى')+'</td><td>'+(mc!==null?fmt(mc):'—')+'</td><td>'+(fard!==null?fmt(fard):'—')+'</td><td>'+(test!==null?fmt(test):'—')+'</td><td style="font-weight:800;color:'+(avg!==null&&avg>=10?'#1a6b3a':'#c0392b')+'">'+(avg!==null?fmt(avg):'—')+'</td><td style="font-weight:700;color:'+(avg!==null&&avg>=10?'#1a6b3a':'#c0392b')+'">'+gi.g+'</td><td style="font-size:10px;color:#555;">'+gi.a+'</td></tr>';
   });
   return '<div class="page"><div class="watermark">Delbaz_Med 26</div>'+
     '<h1>كشف نقاط '+termLabels[tk]+'</h1>'+
@@ -7158,9 +7162,9 @@ function nameUnits(n){var toks=String(n||'').trim().split(/\s+/).filter(Boolean)
     buf.push(t);units.push(buf.join(' '));buf=[];});
   if(buf.length)units.push(buf.join(' '));return units;}
 // الكشوف المطبوعة: الاسم كاملاً دون حذف أي كلمة، مع تصغير الخط للأسماء الطويلة فقط
-function printName(n){var t=String(n||'').trim().replace(/\s+/g,' ');var L=t.length;if(L<=22)return t;return '<span style="font-size:'+(L<=28?'92':L<=34?'85':'78')+'%;letter-spacing:-.1px">'+t+'</span>';}
+function printName(n){var t=String(n||'').trim().replace(/\s+/g,' ');var L=t.length;if(L<=22)return t;return '<span style="font-size:'+(L<=28?'92':L<=34?'85':'78')+'%">'+t+'</span>';}
 function shortName(n){if(!n)return'';var u=nameUnits(n);return u.length>2?u[0]+' '+u[1]:String(n).trim().replace(/\\s+/g,' ');}
-function buildMCSheetCx(clsId, tk, tc, sch, yr){const pr=dirName()||'_______________';
+function buildMCSheetCx(clsId, tk, tc, sch, yr){const pr=dirName()||'_______________';const _open=mcTermOpen(clsId,tk);
   const cls=GC(clsId);if(!cls)return'';
   const stus=GSR(clsId);const cr=mcCrits();const N=mcSesN();const SM=Math.round(N*mcSesV()*100)/100;
   const termLabels={t1:'الفصل الأول',t2:'الفصل الثاني',t3:'الفصل الثالث'};
@@ -7171,22 +7175,22 @@ function buildMCSheetCx(clsId, tk, tc, sch, yr){const pr=dirName()||'___________
   let rows='';let sum=0,cnt=0;
   stus.forEach(function(s){initStu(s);const t=s.terms[tk];const nm=leftTag(s,printName(s.name));const gn=s.gender==='male'?'ذ':'أ';
     if(t.exempted){rows+='<tr><td style="text-align:right">'+nm+'</td><td>'+gn+'</td><td class="exempt-cell" colspan="'+span+'">معفى</td></tr>';return;}
-    const mc=calcMC(t);if(mc!==null){sum+=mc;cnt++;}
+    const mc=_open?calcMC(t):null;if(mc!==null){sum+=mc;cnt++;}
     let sesTd='',cnTd='';
     if(N){const ar=sesArr(t);const ab=ar.filter(function(v){return v===0;}).length;const sk=ar.filter(function(v,i){return sesState(t,i)==='sk';}).length;const ju=ar.filter(function(v,i){return sesState(t,i)==='ju';}).length;
       sesTd=ar.map(function(v,i){return showSes(t,i);}).join('')+'<td style="font-weight:700">'+(mc!==null?fmtCx(sesSumC(t)):'—')+'</td>';
       cnTd='<td style="color:#c0392b;font-weight:700">'+(ab||'0')+(ju?'<span style="color:#d35400;font-size:9px"> +'+ju+'AJ</span>':'')+'</td><td style="color:#e67e22;font-weight:700">'+(sk||'0')+'</td>';}
-    rows+='<tr><td style="text-align:right">'+nm+'</td><td>'+gn+'</td>'+sesTd+cr.map(function(c){return '<td>'+fmtCx(cxVal(t,c))+'</td>';}).join('')+cnTd+
+    rows+='<tr><td style="text-align:right">'+nm+'</td><td>'+gn+'</td>'+sesTd+cr.map(function(c){return '<td>'+(_open?fmtCx(cxVal(t,c)):'—')+'</td>';}).join('')+cnTd+
       '<td style="background:#e8f5e9;font-weight:800;color:'+(mc!==null?(mc>=10?'#1a6b3a':'#c0392b'):'#888')+'">'+(mc!==null?fmt(mc):'—')+'</td></tr>';});
   const classAvg=cnt?Math.round(sum/cnt*100)/100:null;
   return '<div class="page"><div class="watermark">Delbaz_Med 26</div>'+
     '<h1>كشف نقاط المراقبة المستمرة</h1><h2>مادة التربية البدنية والرياضية</h2>'+
     '<div class="info-row"><span><strong>الثانوية:</strong> '+sch+'</span><span><strong>القسم:</strong> '+cls.name+'</span><span><strong>التاريخ:</strong> '+todayStr()+'</span></div>'+
-    '<div class="info-row" style="margin-bottom:10px"><span>'+termLabels[tk]+'</span><span>عدد التلاميذ: '+stus.length+'</span><span>المعدل العام: '+(classAvg!==null?fmt(classAvg)+'/20':'—')+'</span>'+(mcRemaining(clsId,tk)>0?'<span style="color:#b9770e;font-weight:800">⏳ مؤقت — تبقى '+mcRemaining(clsId,tk)+' حصص (غير المسجَّلة تُحسب حضوراً)</span>':'')+'</div>'+
+    '<div class="info-row" style="margin-bottom:10px"><span>'+termLabels[tk]+'</span><span>عدد التلاميذ: '+stus.length+'</span><span>المعدل العام: '+(classAvg!==null?fmt(classAvg)+'/20':'—')+'</span>'+(!_open?'<span style="color:#888;font-weight:800">⏳ الفصل لم يبدأ بعد</span>':mcRemaining(clsId,tk)>0?'<span style="color:#b9770e;font-weight:800">⏳ مؤقت — تبقى '+mcRemaining(clsId,tk)+' حصص (غير المسجَّلة تُحسب حضوراً)</span>':'')+'</div>'+
     '<table><thead><tr><th style="min-width:100px">الاسم واللقب</th><th>ج</th>'+sesTh+cr.map(function(c){return '<th>'+escA(c.name)+'<br>/'+fmtCx(c.max)+'</th>';}).join('')+cnTh+'<th style="background:#0d3d22">م.م/20</th></tr></thead><tbody>'+rows+'</tbody></table>'+
     sigFooter(tc,pr)+'<div class="app-brand">Smart_Sport · EPS · DZ · 2026 · Delbaz_Med</div></div>';
 }
-function buildMCSheet(clsId, tk, tc, sch, yr){const pr=dirName()||'_______________';
+function buildMCSheet(clsId, tk, tc, sch, yr){const pr=dirName()||'_______________';const _open=mcTermOpen(clsId,tk);
   const cls=GC(clsId);if(!cls)return'';
   {const _f=D.students.filter(x=>x.classId===clsId)[0];if(mcModeOf(_f&&_f.terms&&_f.terms[tk]?_f.terms[tk]:null)==='custom')return buildMCSheetCx(clsId,tk,tc,sch,yr);}
   const stus=GSR(clsId);
@@ -7204,7 +7208,7 @@ function buildMCSheet(clsId, tk, tc, sch, yr){const pr=dirName()||'_____________
       rows+='<tr><td style="text-align:right">'+nm+'</td><td>'+gn+'</td><td class="exempt-cell" colspan="12">معفى</td></tr>';
       return;
     }
-    const mc=calcMC(t);
+    const mc=_open?calcMC(t):null;
     const sesSum=sesArr(t).reduce((a,b)=>a+(parseFloat(b)||0),0);
     const disc=parseFloat(t.mc.discipline)||0,part=parseFloat(t.mc.participation)||0,crea=parseFloat(t.mc.creativity)||0;
     if(mc!==null){sum+=mc;cnt++;}
@@ -7224,7 +7228,7 @@ function buildMCSheet(clsId, tk, tc, sch, yr){const pr=dirName()||'_____________
     '<h1>كشف نقاط المراقبة المستمرة</h1>'+
     '<h2>مادة التربية البدنية والرياضية</h2>'+
     '<div class="info-row"><span><strong>الثانوية:</strong> '+sch+'</span><span><strong>القسم:</strong> '+cls.name+'</span><span><strong>التاريخ:</strong> '+todayStr()+'</span></div>'+
-    '<div class="info-row" style="margin-bottom:10px"><span>'+termLabels[tk]+'</span><span>عدد التلاميذ: '+stus.length+'</span><span>المعدل العام: '+(classAvg!==null?fmt(classAvg)+'/20':'—')+'</span>'+(mcRemaining(clsId,tk)>0?'<span style="color:#b9770e;font-weight:800">⏳ مؤقت — تبقى '+mcRemaining(clsId,tk)+' حصص (غير المسجَّلة تُحسب حضوراً)</span>':'')+'</div>'+
+    '<div class="info-row" style="margin-bottom:10px"><span>'+termLabels[tk]+'</span><span>عدد التلاميذ: '+stus.length+'</span><span>المعدل العام: '+(classAvg!==null?fmt(classAvg)+'/20':'—')+'</span>'+(!_open?'<span style="color:#888;font-weight:800">⏳ الفصل لم يبدأ بعد</span>':mcRemaining(clsId,tk)>0?'<span style="color:#b9770e;font-weight:800">⏳ مؤقت — تبقى '+mcRemaining(clsId,tk)+' حصص (غير المسجَّلة تُحسب حضوراً)</span>':'')+'</div>'+
     '<table><thead><tr>'+
       '<th style="min-width:100px">الاسم واللقب</th><th>ج</th>'+
       '<th>ح1</th><th>ح2</th><th>ح3</th><th>ح4</th><th>ح5</th><th>ح6</th><th>ح7</th>'+
@@ -7670,7 +7674,7 @@ function printStudentCard(sid){
     .ann-lbl{font-size:11px;color:#555}
     .footer{display:flex;justify-content:space-between;margin-top:20px;padding-top:12px;border-top:1px solid #ccc}
     .sig{text-align:center}.sig-line{border-top:1px solid #333;width:120px;margin:24px auto 4px}
-    .watermark{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) rotate(-35deg);font-size:70px;font-weight:900;color:rgba(26,107,58,.05);pointer-events:none;white-space:nowrap}
+    .watermark{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) rotate(-35deg);font-size:70px;font-weight:900;color:rgba(26,107,58,.028);pointer-events:none;z-index:0;white-space:nowrap}
     @media print{.no-print{display:none}}
   <\/style><\/head><body>
   <div class="watermark">Delbaz_Med 26</div>
@@ -7723,7 +7727,7 @@ function printTermCard(sid,tk){
     .ann-lbl{font-size:11px;color:#555}
     .footer{display:flex;justify-content:space-between;margin-top:20px;padding-top:12px;border-top:1px solid #ccc}
     .sig{text-align:center}.sig-line{border-top:1px solid #333;width:120px;margin:24px auto 4px}
-    .watermark{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) rotate(-35deg);font-size:70px;font-weight:900;color:rgba(26,107,58,.05);pointer-events:none;white-space:nowrap}
+    .watermark{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) rotate(-35deg);font-size:70px;font-weight:900;color:rgba(26,107,58,.028);pointer-events:none;z-index:0;white-space:nowrap}
     @media print{.no-print{display:none}}
   <\/style><\/head><body>
   <div class="watermark">Delbaz_Med 26</div>
@@ -7784,7 +7788,7 @@ function printMCCard(){
     .ann-lbl{font-size:11px;color:#555}
     .footer{display:flex;justify-content:space-between;margin-top:20px;padding-top:12px;border-top:1px solid #ccc}
     .sig{text-align:center}.sig-line{border-top:1px solid #333;width:120px;margin:24px auto 4px}
-    .watermark{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) rotate(-35deg);font-size:70px;font-weight:900;color:rgba(26,107,58,.05);pointer-events:none;white-space:nowrap}
+    .watermark{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) rotate(-35deg);font-size:70px;font-weight:900;color:rgba(26,107,58,.028);pointer-events:none;z-index:0;white-space:nowrap}
     @media print{.no-print{display:none}}
   <\/style><\/head><body>
   <div class="watermark">Delbaz_Med 26</div>
@@ -7861,7 +7865,7 @@ function printEvalCard(){
     .ann-lbl{font-size:11px;color:#555}
     .footer{display:flex;justify-content:space-between;margin-top:20px;padding-top:12px;border-top:1px solid #ccc}
     .sig{text-align:center}.sig-line{border-top:1px solid #333;width:120px;margin:24px auto 4px}
-    .watermark{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) rotate(-35deg);font-size:70px;font-weight:900;color:rgba(26,107,58,.05);pointer-events:none;white-space:nowrap}
+    .watermark{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) rotate(-35deg);font-size:70px;font-weight:900;color:rgba(26,107,58,.028);pointer-events:none;z-index:0;white-space:nowrap}
     @media print{.no-print{display:none}}
   <\/style><\/head><body>
   <div class="watermark">Delbaz_Med 26</div>
