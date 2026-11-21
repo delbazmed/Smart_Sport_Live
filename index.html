@@ -4367,7 +4367,15 @@ function mcHasActivity(t){var m=t.mc;if(!m)return false;if(m.mcEntered)return tr
 // مثل mcHasActivity لكن دون الاعتماد على mcEntered (قد يُضبط تلقائياً) — نشاط مسجَّل فعلاً فقط
 function mcRealActivity(t){var m=t.mc;if(!m)return false;
   if((m.ses||[]).some(function(v){return v!==2;}))return true;
-  if(m.perfDef===false||(parseFloat(m.pb)||0)!==0||(parseFloat(m.creativity)||0)!==0||m.rbC||m.rbE||m._discTouched)return true;if(m.cx&&Object.keys(m.cx).length)return true;return false;}
+  if(m.perfDef===false||(parseFloat(m.pb)||0)!==0||m._discTouched)return true;
+  // مكافآت الأدوار (قائد/عتاد/مهام) تُضاف تلقائياً لكل الفصول — لا تُعتبر تسجيلاً فعلياً
+  var role=(m.rbC>=0.001?m.rbC:0)+(m.rbE>=0.001?m.rbE:0);
+  if((parseFloat(m.creativity)||0)-role>0.001)return true;
+  if(m.cx){var add={};['C','E'].forEach(function(k){var a=m['rbX'+k]||0,id=m['rbX'+k+'id'];if(a>=0.001&&id)add[id]=(add[id]||0)+a;});
+    if(m.tbx)Object.keys(m.tbx).forEach(function(k){var e=m.tbx[k];if(e&&e.a>=0.001&&e.c)add[e.c]=(add[e.c]||0)+e.a;});
+    var crs=mcCrits();for(var id in m.cx){if(typeof m.cx[id]!=='number')continue;var c=null;for(var q=0;q<crs.length;q++)if(crs[q].id===id)c=crs[q];if(!c)continue;
+      var base=cStart(c)==='zero'?0:c.max;var v=m.cx[id]-(add[id]||0);if(Math.abs(Math.min(c.max,Math.max(0,v))-base)>0.001&&Math.abs(m.cx[id]-base)>0.001)return true;}}
+  return false;}
 function mcAutoEnter(){
   if(!D||!Array.isArray(D.students)||!Array.isArray(D.classes))return false;var ch=false;
   D.classes.forEach(function(c){var stus=D.students.filter(function(s){return s.classId===c.id;});if(!stus.length)return;
