@@ -4171,7 +4171,11 @@ function getJsPDF(){return loadScriptOnce('lib/jspdf.umd.min.js',function(){retu
 function pdfFileName(){var t=(document.getElementById('ov-iframe-title').textContent||'تقرير');
   t=t.replace(/[\u{1F000}-\u{1FAFF}\u{2190}-\u{2BFF}\uFE0F\u200D]/gu,'').replace(/[\\\/:*?"<>|]+/g,' ').replace(/\s+/g,'_').replace(/^_+|_+$/g,'');
   if(t.length>70)t=t.slice(0,70);return (t||'تقرير')+'_'+todayKey()+'.pdf';}
-function pdfFixClone(cdoc){try{var wms=[].slice.call(cdoc.querySelectorAll('.watermark'));if(!wms.length)return;
+// html2canvas يكسر ربط الحروف العربية إذا التصقت بها أرقام أو نقطة أو + (مثل «3تسيير» و«3آ.فل01»): نضع فاصلاً شعرياً غير مرئي تقريباً بينها في نسخة الـPDF فقط
+function pdfArabicFix(root){try{var AR='\u0600-\u06FF',re1=new RegExp('([0-9+.])(['+AR+'])','g'),re2=new RegExp('(['+AR+'])([0-9+.])','g');
+  var w=root.ownerDocument.createTreeWalker(root,4,null),n,list=[];while((n=w.nextNode()))list.push(n);
+  list.forEach(function(t){var v=t.nodeValue;if(!v||!/[0-9+.]/.test(v)||!/[\u0600-\u06FF]/.test(v))return;var nv=v.replace(re1,'$1\u200a$2').replace(re2,'$1\u200a$2');if(nv!==v)t.nodeValue=nv;});}catch(e){}}
+function pdfFixClone(cdoc){try{pdfArabicFix(cdoc.body);}catch(e){}try{var wms=[].slice.call(cdoc.querySelectorAll('.watermark'));if(!wms.length)return;
   wms.forEach(function(w){if(w.closest&&w.closest('.page'))w.style.position='absolute';});
   if(!(wms[0].closest&&wms[0].closest('.page'))){[].slice.call(cdoc.querySelectorAll('.card')).forEach(function(cd){cd.style.position='relative';var w=wms[0].cloneNode(true);w.style.position='absolute';cd.appendChild(w);});}}catch(e){}}
 function pdfAddCanvas(pdf,jsP,cv,rowB){
@@ -4896,6 +4900,38 @@ function ttData(){
 }
 function ttMin(hm){var p=String(hm||'').split(':');return (+p[0])*60+(+p[1]||0);}
 function ttHas(){var t=D.timetable;if(!t||!t.grid)return false;for(var d in t.grid){if((t.grid[d]||[]).some(function(x){return x&&GC(x);}))return true;}return false;}
+// 🖨️ استعمال الزمن بالنموذج الرسمي: كل فترة (ساعتان) تُقسَّم إلى ساعتين في الجدول، صباحاً ومساءً
+function ttMin(x){var p=String(x||'0:0').split(':');return (+p[0])*60+(+p[1]||0);}
+function ttHM(m){var h=Math.floor(m/60),mm=m%60;return (h<10?'0':'')+h+':'+(mm<10?'0':'')+mm;}
+function ttPrintRows(t){var rows=[];t.slots.forEach(function(sl,si){var a=ttMin(sl.s),b=ttMin(sl.e);if(!(b>a))return;var dur=b-a;
+    if(dur>=100){var m1=a+60,m2=dur>=125?m1+(dur-120):m1;rows.push({a:a,b:m1,si:si});rows.push({a:m2,b:b,si:si});}else rows.push({a:a,b:b,si:si});});
+  rows.sort(function(x,y){return x.a-y.a||x.b-y.b;});var u=[];rows.forEach(function(x){var l=u[u.length-1];if(l&&l.a===x.a&&l.b===x.b){l.sis.push(x.si);}else u.push({a:x.a,b:x.b,sis:[x.si]});});return u;}
+function ttPrintHtml(){var t=ttData();var rows=ttPrintRows(t);var cn=function(id){var c=id&&GC(id);return c?'<bdi>'+escA(c.name)+'</bdi>':'';};
+  var hrs={},order=[];for(var d=0;d<5;d++)t.slots.forEach(function(sl,si){var id=t.grid[d][si];if(!id||!GC(id))return;var h=Math.round((ttMin(sl.e)-ttMin(sl.s))/60*2)/2;if(h<=0)return;if(!(id in hrs)){hrs[id]=0;order.push(id);}hrs[id]+=h;});
+  order=D.classes.map(function(c){return c.id;}).filter(function(id){return id in hrs;});
+  var vol=0;order.forEach(function(id){vol+=hrs[id];});
+  var sec=function(title,list){if(!list.length)return '';var r='<tr class="tsec"><td class="tt">'+title+'</td><td></td><td></td><td></td><td></td><td></td></tr>';
+    list.forEach(function(x){r+='<tr><td class="tt" dir="ltr">'+ttHM(x.b)+'-'+ttHM(x.a)+'</td>';for(var d=0;d<5;d++){var id=null;x.sis.forEach(function(si){if(!id&&t.grid[d][si])id=t.grid[d][si];});r+='<td>'+cn(id)+'</td>';}r+='</tr>';});return r;};
+  var am=rows.filter(function(x){return x.a<12*60+30;}),pm=rows.filter(function(x){return x.a>=12*60+30;});
+  var cls='';var half=Math.max(3,Math.ceil(order.length/2));for(var i=0;i<half;i++){var A=order[i],B=order[i+half];
+    cls+='<tr><td>'+(A?cn(A):'')+'</td><td>'+(A?'ت البدنية والرياضية':'')+'</td><td>'+(A?hrs[A]:'')+'</td><td class="sp"></td><td>'+(B?cn(B):'')+'</td><td>'+(B?'ت البدنية والرياضية':'')+'</td><td>'+(B?hrs[B]:'')+'</td></tr>';}
+  var sch=escA(D.settings.school||''),wil=escA(wilayaName()||''),yr=escA(D.settings.year||'');
+  return '<style>.ttp{font-family:Arial,"Segoe UI",sans-serif;color:#000;max-width:900px;margin:0 auto;padding:22px 26px}'+
+   '.ttp h1{font-size:20px;text-align:center;text-decoration:underline;margin:0}.ttp h2{font-size:17px;text-align:center;margin:2px 0 10px}.ttp .hd{display:flex;justify-content:space-between;align-items:flex-end;font-weight:700;font-size:14px}'+
+   '.ttp h3{font-size:22px;text-align:center;margin:8px 0 12px;font-weight:900}.ttp .inf{display:grid;grid-template-columns:1fr auto;gap:6px 30px;font-weight:700;font-size:15px;margin-bottom:12px}'+
+   '.ttp table{width:100%;border-collapse:collapse;margin-bottom:10px;background:#fff}.ttp td,.ttp th{border:1.5px solid #000;padding:6px 4px;text-align:center;font-size:13.5px;font-weight:700;height:24px;background:#fff;color:#000}'+
+   '.ttp th{font-weight:700}.ttp td.tt{text-align:right;padding-right:8px;white-space:nowrap}.ttp tr.tsec td{border-top:3px double #000}.ttp td.sp{border-top:none;border-bottom:none;width:10px;padding:0}'+
+   '.ttp .sig{margin-top:14px;text-align:center;width:40%;font-weight:700}.ttp .brand{text-align:center;font-size:9px;color:#999;margin-top:26px;font-family:Arial,sans-serif}</style>'+
+   '<div class="ttp" data-nofit="1"><h1>الجمهورية الجزائرية الديمقراطية الشعبية</h1><h2>وزارة التربية الوطنية</h2>'+
+   '<div class="hd"><div>'+sch+'<br>'+(wil?'ولاية '+wil.replace(/^ولاية\s*/,''):'')+'</div><div style="font-size:12px">السنة الدراسية <b dir="ltr">'+yr+'</b></div></div>'+
+   '<h3>إستعمال الزمن</h3>'+
+   '<div class="inf"><div>الإسم و اللقب :&nbsp; '+escA(D.settings.teacher||'')+'</div><div></div><div>الوظيفة :&nbsp; '+escA(D.settings.ttJob||'أستاذ التعليم الثانوي')+'</div><div>الدرجة : '+escA(D.settings.ttDeg||'')+'</div>'+
+   '<div>مادة التدريس :&nbsp; ت البدنية والرياضية</div><div>الحجم الساعي : '+vol+'</div></div>'+
+   '<table><tr><th>التوقيت</th>'+TT_DAYS.map(function(x){return '<th>'+x+'</th>';}).join('')+'</tr>'+sec('الفترة الصباحية',am)+sec('الفترة المسائية',pm)+'</table>'+
+   '<table><tr><th>الأقسام</th><th>المادة</th><th>ح.الساعي</th><td class="sp"></td><th>الأقسام</th><th>المادة</th><th>ح.الساعي</th></tr>'+cls+'</table>'+
+   '<div class="sig">مدير المؤسسة</div><div style="height:70px"></div><div class="brand">Smart_Sport · EPS · DZ · 2026 · Delbaz_Med</div></div>';}
+function ttPrint(){var t=ttData();var any=false;for(var d=0;d<5;d++)if(t.grid[d].some(Boolean))any=true;if(!any){toast('تنبيه','أدخل الأقسام في جدول التوقيت أولاً','wa');return;}
+  openGradeSheetPDF(ttPrintHtml(),'استعمال الزمن — '+(D.settings.teacher||''));}
 function rTimetable(){
   var el=document.getElementById('tt-body');if(!el)return;var t=ttData();
   var clsOpts=function(sel){return '<option value="">—</option>'+D.classes.map(function(c){return '<option value="'+c.id+'"'+(c.id===sel?' selected':'')+'>'+c.name+'</option>';}).join('');};
@@ -4912,6 +4948,10 @@ function rTimetable(){
     t.slots.forEach(function(sl,i){h+='<div><div style="font-size:9px;color:var(--tx3);font-weight:700;margin-bottom:2px"><span dir="ltr">'+sl.s+'–'+sl.e+'</span></div><select class="sinp" style="width:100%;padding:7px;font-size:12px" onchange="ttSetCell('+d+','+i+',this.value)">'+clsOpts(t.grid[d][i])+'</select></div>';});
     h+='</div></div>';
   });
+  h+='<div style="margin:14px 0 6px;font-size:12px;font-weight:900;color:var(--tx)">🖨️ طباعة استعمال الزمن (النموذج الرسمي)</div>'+
+    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:6px"><div><div style="font-size:9px;color:var(--tx3);font-weight:700;margin-bottom:2px">الوظيفة</div><input class="sinp" id="tt-job" style="width:100%;padding:7px;font-size:12px" value="'+escA(D.settings.ttJob||'أستاذ التعليم الثانوي')+'" onchange="D.settings.ttJob=this.value.trim();SD()"></div>'+
+    '<div><div style="font-size:9px;color:var(--tx3);font-weight:700;margin-bottom:2px">الدرجة</div><input class="sinp" id="tt-deg" style="width:100%;padding:7px;font-size:12px" value="'+escA(D.settings.ttDeg||'')+'" placeholder="0" onchange="D.settings.ttDeg=this.value.trim();SD()"></div></div>'+
+    '<button class="btn btn-g btn-fw" onclick="ttPrint()" style="margin-bottom:14px">🖨️ طباعة / ⬇️ تحميل PDF</button>';
   h+=ttStopsHtml(t);
   h+='<div style="font-size:10px;color:var(--tx3);line-height:1.7">💡 عند فتح التطبيق أثناء حصة (أو قبلها بـ 15 دقيقة) يفتح مباشرة على قسمها</div>';
   el.innerHTML=h;
