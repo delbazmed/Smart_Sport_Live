@@ -41,6 +41,7 @@ function shouldCache(req, resp){
   const same = u.origin === self.location.origin;
   if(!same && CACHE_HOSTS.indexOf(u.hostname) === -1) return false;    // Firestore/Auth/googleapis وغيرها: لا تُحفظ
   if(!resp) return false;
+  if(same && /\.pdf$/i.test(u.pathname)) return false;                // الدليل المصوَّر (ملف كبير) لا يُحفظ في الذاكرة
   if(resp.status === 206) return false;                                 // استجابات جزئية لا تُحفظ
   if(resp.type === 'opaque') return !same;                              // مكتبات CDN (no-cors) مسموحة
   return resp.ok;

@@ -1387,6 +1387,7 @@ body{max-width:480px;margin:0 auto;display:flex;flex-direction:column;-webkit-fo
         <div style="font-size:13px;font-weight:800;margin-bottom:6px;color:var(--blu)">Smart_Sport — دليل الاستخدام الكامل</div>
         <div style="font-size:11px;color:var(--tx2);font-weight:500;margin-bottom:14px;line-height:1.7">شرح جميع الخصائص من إضافة الأقسام والتلاميذ حتى تصدير النتائج وإرسالها عبر واتساب.</div>
         <button class="btn btn-fw" style="background:var(--blub);color:var(--blu);border:1px solid rgba(79,142,255,.25)" onclick="openGuide()"><svg style="width:17px;height:17px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>فتح وتحميل الدليل PDF</button>
+        <button class="btn btn-fw" style="margin-top:10px;background:linear-gradient(135deg,rgba(225,29,72,.12),rgba(225,29,72,.04));color:#e11d48;border:1px solid rgba(225,29,72,.3)" onclick="guideBookDl(this)">📕 تحميل الدليل المصوَّر PDF · 34 صفحة</button>
       </div>
     </div>
     </div></div>
@@ -1858,6 +1859,7 @@ body{max-width:480px;margin:0 auto;display:flex;flex-direction:column;-webkit-fo
 #ov-guide .gd-b{flex:1;padding:13px 6px;border:none;border-radius:14px;font-family:var(--ff);font-size:13px;font-weight:900;cursor:pointer}
 #ov-guide .gd-r{background:linear-gradient(135deg,#c0392b,#e74c3c);color:#fff;flex:1.2}
 #ov-guide .gd-g{background:#00d97e;color:#04140a}
+#ov-guide .gd-m{background:#1e3a8a;color:#fff}
 </style>
 <div id="ov-guide">
   <div class="gd-hd">
@@ -1869,6 +1871,7 @@ body{max-width:480px;margin:0 auto;display:flex;flex-direction:column;-webkit-fo
   <div class="gd-ft">
     <button id="gd-pdf" class="gd-b gd-r" onclick="guidePdf()">⬇️ تحميل PDF</button>
     <button class="gd-b gd-g" onclick="guidePrint()">🖨️ طباعة</button>
+    <button class="gd-b gd-m" onclick="guideBookDl(this)">📕 المصوَّر</button>
   </div>
 </div>
 
@@ -6929,6 +6932,19 @@ function faqOpen(id,el){var f=FAQ.filter(function(x){return x.id===id;})[0];if(!
 function guideGoSec(n){guideClear();setTimeout(function(){var d=document.getElementById('guideFrame').contentDocument,e=d&&d.getElementById('s'+n);if(e)e.scrollIntoView();},60);}
 function guideClear(){var q=document.getElementById('gd-q');if(q)q.value='';guideSearch('');}
 function guidePrint(){guideClear();try{window.frames['guideFrame'].focus();window.frames['guideFrame'].print();}catch(e){toast('تنبيه','تعذّرت الطباعة من هذه النافذة','wa');}}
+var GUIDE_BOOK='docs/Smart_Sport_Guide.pdf';
+async function guideBookDl(btn){
+  var old=btn?btn.innerHTML:'';if(btn){if(btn.disabled)return;btn.disabled=true;btn.innerHTML='⏳ جارٍ التحميل…';}
+  try{
+    var r=await fetch(GUIDE_BOOK+'?v='+((typeof CHANGELOG!=='undefined'&&CHANGELOG.version)||''),{cache:'no-store'});
+    if(!r.ok)throw new Error(r.status);
+    var b=await r.blob(),u=URL.createObjectURL(b),a=document.createElement('a');
+    a.href=u;a.download='دليل_المستخدم_Smart_Sport.pdf';document.body.appendChild(a);a.click();a.remove();
+    setTimeout(function(){URL.revokeObjectURL(u);},60000);
+    toast('📕 الدليل المصوَّر','تم تنزيل الملف ('+(b.size/1048576).toFixed(1)+' م.ب) — تجده في التنزيلات');
+  }catch(e){toast('⚠️ تعذّر التحميل','يحتاج تنزيل الدليل المصوَّر اتصالاً بالإنترنت، أعد المحاولة');}
+  finally{if(btn){btn.disabled=false;btn.innerHTML=old;}}
+}
 async function guidePdf(){
   guideClear();var fr=document.getElementById('guideFrame'),d=fr&&fr.contentDocument;if(!d||!d.body)return;
   var tops=[].slice.call(d.querySelectorAll('.top,#faq-box'));tops.forEach(function(e){e.style.display='none';});
