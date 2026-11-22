@@ -72,7 +72,10 @@ input:focus{outline:none;border-color:var(--vio);background:rgba(167,139,250,.07
 .tc-mini .mi{font-size:17px}
 .tc-mini .mv{font-size:17px;font-weight:900;line-height:1}
 .tc-mini .ml{font-size:10px;color:var(--tx3);font-weight:700;margin-top:1px}
-.tc-sync{font-size:10.5px;color:var(--tx3);font-weight:600;display:flex;align-items:center;gap:6px;border-top:1px solid var(--bd);padding-top:10px}
+.tc-idle{display:inline-block;white-space:nowrap;margin-top:4px;font-size:10.5px;font-weight:800;color:#ffb020;background:rgba(255,176,32,.12);border:1px solid rgba(255,176,32,.35);border-radius:999px;padding:2px 9px;margin-inline-start:6px}
+.tc-del{margin-inline-start:auto;flex:none;padding:6px 11px;border-radius:10px;border:1px solid rgba(255,89,89,.35);background:rgba(255,89,89,.1);color:var(--red);font-family:var(--ff);font-size:11.5px;font-weight:800;cursor:pointer}
+.tc-flt{display:flex;gap:6px;margin:0 0 10px}.tc-flt button{flex:1;padding:8px;border-radius:10px;border:1px solid var(--bd);background:transparent;color:var(--tx3);font-family:var(--ff);font-size:12px;font-weight:800;cursor:pointer}.tc-flt button.on{border-color:var(--grn);color:var(--grn);background:rgba(0,217,126,.1)}
+.tc-sync{flex-wrap:wrap;font-size:10.5px;color:var(--tx3);font-weight:600;display:flex;align-items:center;gap:6px;border-top:1px solid var(--bd);padding-top:10px}
 .tc-sync b{color:var(--tx2);font-weight:700}
 
 /* EMPTY / LOADING */
@@ -133,6 +136,7 @@ input:focus{outline:none;border-color:var(--vio);background:rgba(167,139,250,.07
       <button id="btn-refresh" class="btn btn-ghost">🔄 تحديث</button>
     </div>
 
+    <div class="tc-flt"><button id="f-all" class="on" onclick="setFlt(0)">الكل</button><button id="f-idle" onclick="setFlt(1)">💤 غير النشطين فقط</button></div>
     <div id="list"><div class="spin"></div></div>
 
     <div class="foot">
@@ -159,7 +163,7 @@ function showFatal(msg){
   console.error(msg);
 }
 
-let initializeApp, getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged, getFirestore, collection, getDocs;
+let initializeApp, getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged, getFirestore, collection, getDocs, doc, deleteDoc;
 let app, auth, db, fbReady=false;
 
 function login(){
@@ -189,7 +193,7 @@ if(location.protocol==='file:'){
 try{
   ({ initializeApp } = await import("https://www.gstatic.com/firebasejs/12.14.0/firebase-app.js"));
   ({ getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } = await import("https://www.gstatic.com/firebasejs/12.14.0/firebase-auth.js"));
-  ({ getFirestore, collection, getDocs } = await import("https://www.gstatic.com/firebasejs/12.14.0/firebase-firestore.js"));
+  ({ getFirestore, collection, getDocs, doc, deleteDoc } = await import("https://www.gstatic.com/firebasejs/12.14.0/firebase-firestore.js"));
   app = initializeApp(firebaseConfig);
   auth = getAuth(app);
   db = getFirestore(app);
@@ -208,6 +212,15 @@ try{
 function esc(s){ return String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
 function initial(s){ s=(s||'').trim(); return s?s[0]:'؟'; }
 
+var USG={};var FLT=0;var IDLE_DAYS=7;
+function setFlt(v){FLT=v;document.getElementById('f-all').classList.toggle('on',!v);document.getElementById('f-idle').classList.toggle('on',!!v);document.querySelectorAll('#list .tcard').forEach(function(c){c.style.display=(!v||c.dataset.idle==='1')?'':'none';});}
+async function delTeacher(uid,email){
+  if(!confirm('حذف البيانات السحابية لـ\n'+email+'\n\nتُحذف أقسامه وتلاميذه وسجل دخوله من السحابة نهائياً.\nلا يُمسّ شيء على هاتفه، وإن عاد للتطبيق تُرفع بياناته من جديد.\n\nتأكيد الحذف؟'))return;
+  try{await deleteDoc(doc(db,'teachers',uid));try{await deleteDoc(doc(db,'usage',uid));}catch(e){}
+    var c=document.getElementById('tc-'+uid);if(c)c.remove();loadData();}
+  catch(e){alert('تعذّر الحذف: '+(e.code||e.message)+'\n\nأضف السطر allow delete: if isDev(); في قواعد Firestore (كتلة teachers وكتلة usage).');}
+}
+window.setFlt=setFlt;window.delTeacher=delTeacher;
 async function loadUsage(){
   var ul=document.getElementById('ulist');
   try{
@@ -216,6 +229,7 @@ async function loadUsage(){
     snap.forEach(function(d){
       const x=d.data();const ms=(x.lastSeen&&x.lastSeen.toMillis)?x.lastSeen.toMillis():0;
       visits+=(x.visits||0);if(ms>=wk)act++;
+      USG[d.id]={visits:x.visits||0,ms:ms};
       rows.push({email:x.email||d.id,name:x.name||'',school:x.school||'',visits:x.visits||0,ms:ms,ver:x.ver||'',joined:x.joined||''});
     });
     rows.sort(function(a,b){return b.ms-a.ms;});
@@ -229,12 +243,12 @@ async function loadUsage(){
   }
 }
 async function loadData(){
-  loadUsage();
+  await loadUsage();
   var list=document.getElementById('list');
   list.innerHTML='<div class="skel"></div><div class="skel"></div>';
   try{
     const snap=await getDocs(collection(db,'teachers'));
-    let totalClasses=0,totalStudents=0,cards='';
+    let totalClasses=0,totalStudents=0,cards='',nIdle=0;
     snap.forEach(docu=>{
       const d=docu.data();
       let parsed={};
@@ -251,25 +265,29 @@ async function loadData(){
         try{ when=d.updatedAt.toDate().toLocaleString('ar-DZ',{dateStyle:'medium',timeStyle:'short'}); }
         catch(e){ when=d.updatedAt.toDate().toLocaleString('ar'); }
       }
-      cards+=`<div class="tcard">
+      const syncMs=(d.updatedAt&&d.updatedAt.toMillis)?d.updatedAt.toMillis():0;const u=USG[docu.id]||{};const lastMs=Math.max(syncMs,u.ms||0);
+      const idle=!lastMs||(Date.now()-lastMs)>IDLE_DAYS*864e5;const days=lastMs?Math.floor((Date.now()-lastMs)/864e5):null;if(idle)nIdle++;
+      cards+=`<div class="tcard" id="tc-${esc(docu.id)}" data-idle="${idle?1:0}">
         <div class="tc-top">
-          <div class="tc-av">${esc(initial(name))}</div>
+          <div class="tc-av">${esc(initial(st.teacher||''))}</div>
           <div class="tc-id">
             <div class="tc-name">${esc(name)}</div>
             <div class="tc-mail">${esc(d.email||docu.id)}</div>
           </div>
+          <button class="tc-del" onclick="delTeacher('${esc(docu.id)}','${esc(d.email||docu.id)}')">🗑️ حذف</button>
         </div>
         <div class="tc-school">🏫 ${esc(school)}${year?' · '+esc(year):''}</div>
         <div class="tc-grid">
           <div class="tc-mini"><span class="mi">📚</span><div><div class="mv">${cls}</div><div class="ml">قسم</div></div></div>
           <div class="tc-mini"><span class="mi">🎓</span><div><div class="mv">${stu}</div><div class="ml">تلميذ</div></div></div>
         </div>
-        <div class="tc-sync">🕓 آخر مزامنة: <b>${esc(when)}</b></div>
+        <div class="tc-sync">🕓 آخر مزامنة: <b>${esc(when)}</b>${idle?`<span class="tc-idle">💤 غير نشط${days!==null?' · '+days+' يوماً':''}${u.visits?' · '+u.visits+' دخول':''}</span>`:''}</div>
       </div>`;
     });
-    document.getElementById('n-teachers').textContent=snap.size;
+    document.getElementById('n-teachers').textContent=snap.size;document.getElementById('f-idle').textContent='💤 غير النشطين فقط ('+nIdle+')';
     document.getElementById('n-classes').textContent=totalClasses;
     document.getElementById('n-students').textContent=totalStudents;
+    setTimeout(function(){setFlt(FLT);},0);
     list.innerHTML=cards||'<div class="empty"><div class="ic">📭</div><div class="t">لا يوجد أساتذة بعد</div><div class="s">سيظهر الأساتذة هنا بعد تسجيلهم ورفع بياناتهم</div></div>';
   }catch(e){
     list.innerHTML='<div class="empty"><div class="ic">⚠️</div><div class="t">تعذّر تحميل البيانات</div><div class="s">'+esc(e.code||e.message)+'<br>تأكد أن بريدك مُدرج كمطوّر في قواعد الأمان</div></div>';
