@@ -34,6 +34,13 @@
           }
         ]
       }
+    ],
+    "redirects": [
+      {
+        "source": "/apk",
+        "destination": "https://drive.google.com/uc?export=download&id=1jG8jL0a5xYYuXMqlQYkQGIMZuTnMtkKv",
+        "type": 302
+      }
     ]
   }
 }
