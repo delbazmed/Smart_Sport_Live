@@ -1,0 +1,8 @@
+[{
+  "relation": ["delegate_permission/common.handle_all_urls"],
+  "target": {
+    "namespace": "android_app",
+    "package_name": "app.web.smartsport32_b6d0a.twa",
+    "sha256_cert_fingerprints": ["F0:2E:8E:50:21:9F:6C:2C:E9:2C:02:FD:21:EB:84:44:84:0A:69:1E:5C:82:A8:2B:6F:C0:C0:91:C8:C6:34:3A"]
+  }
+}]

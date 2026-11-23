@@ -2,7 +2,7 @@
 // v2.3: يحفظ ملفات التطبيق ومكتبات Excel/PDF والخطوط للعمل دون إنترنت،
 //       ولا يحفظ طلبات المزامنة وتسجيل الدخول (Firebase/Google APIs) حتى لا تتضخم الذاكرة
 const CACHE = 'smart-eps-v62';   // الاسم نفسه عمداً: حتى لا تُمسح المكتبات المحفوظة حالياً
-const APP_VERSION = '2.19.4';
+const APP_VERSION = '2.19.5';
 
 // المواقع الخارجية المسموح بحفظها (مكتبات وخطوط فقط)
 const CACHE_HOSTS = [
@@ -41,7 +41,7 @@ function shouldCache(req, resp){
   const same = u.origin === self.location.origin;
   if(!same && CACHE_HOSTS.indexOf(u.hostname) === -1) return false;    // Firestore/Auth/googleapis وغيرها: لا تُحفظ
   if(!resp) return false;
-  if(same && /\.pdf$/i.test(u.pathname)) return false;                // الدليل المصوَّر (ملف كبير) لا يُحفظ في الذاكرة
+  if(same && /\.(pdf|apk)$/i.test(u.pathname)) return false;                // الدليل المصوَّر (ملف كبير) لا يُحفظ في الذاكرة
   if(resp.status === 206) return false;                                 // استجابات جزئية لا تُحفظ
   if(resp.type === 'opaque') return !same;                              // مكتبات CDN (no-cors) مسموحة
   return resp.ok;

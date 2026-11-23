@@ -3,7 +3,9 @@
     "public": ".",
     "ignore": [
       "firebase.json",
-      "**/.*",
+      "**/.git/**",
+      "**/.github/**",
+      "**/.firebaserc",
       "**/node_modules/**"
     ],
     "headers": [
