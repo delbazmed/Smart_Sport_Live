@@ -8613,7 +8613,7 @@ function sw4EvRender(i){var el=document.getElementById('sw4-ev-'+i);if(!el)retur
   h+='<div style="width:100%;display:grid;grid-template-columns:1fr 1fr;gap:6px">'+PERF_BANDS.map(function(b,k){var on=(p===b.lo||p===b.hi);return sw4EvBtn(on,b.n+(on&&p===b.hi&&!def?' +':''),b.lo+'–'+b.hi,"perfTap('"+s.id+"','"+tk+"',"+k+",'sw')",on&&def);}).join('')+'</div>';
   var z=(p===0||p==null);
   h+='<button onclick="perfZero(\''+s.id+'\',\''+tk+'\',\'sw\')" style="width:100%;padding:6px;border-radius:10px;border:1.5px dashed '+(z?'#34d399':'rgba(255,255,255,.18)')+';background:none;color:'+(z?'#34d399':'#94a3b8')+';font-family:var(--ff);font-size:11px;font-weight:800">بدون تقدير (0)</button>';
-  h+='<div style="font-size:11px;color:#94a3b8;text-align:center;line-height:1.6">لمسة ثانية = «زائد»'+(def?' · المتقطّع = افتراضي':'')+'<br>المشاركة في م.م: <b style="color:#34d399;font-size:14px">'+(mc.participation!=null?fmtBeh(mc.participation):'—')+' / 2</b></div>';
+  h+='<div style="font-size:11px;color:#94a3b8;text-align:center;line-height:1.6">لمسة ثانية = «زائد»<br>المشاركة في م.م: <b style="color:#34d399;font-size:14px">'+(mc.participation!=null?fmtBeh(mc.participation):'—')+' / 2</b></div>';
   el.innerHTML=h;}
 function sw4CxApply(i,cid,nv){var sel=document.getElementById('sw4-sel-'+i);var s=sel&&GS(sel.value);var c=mcCrits().filter(function(x){return x.id===cid;})[0];if(!s||!c)return;
   var tk=SW4.term||curTermSafe();if(isLocked(tk))return;initStu(s);var t=s.terms[tk];if(t.exempted)return;
