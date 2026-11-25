@@ -3149,10 +3149,10 @@ function adjBeh(k,d){if(isLocked())return;const s=GS(S.sid);initStu(s);const t=s
 function updMCTot(){const s=GS(S.sid);const t=s.terms[S.term];const el=document.getElementById('mc-tot');if(el){var rm=mcRemaining(s.classId,S.term);el.textContent=fmt(calcMCRaw(t))+(rm>0?' ⏳':'');el.title=rm>0?'مؤقت — تبقى '+rm+' حصص':'';}}
 // هل ينقص التلميذَ هذا العنصر في هذا الفصل؟ (المعفى لا يُعتبر ناقصاً)
 // ⚠️ عدّاد الغيابات بجانب الاسم (فصل مختار أو مجموع السنة في وضع «س»)
-// 📊 عدّاد حضور الحصة الحالية (غير المعفيين)
+// 📊 عدّاد حضور الحصة الحالية (غير المعفيين؛ والمعفى يُحسب في الغياب فقط إن سُجِّل غائباً)
 function sesCounterTxt(cid,tk){
   var idx=curSesIdx(cid,tk),p=0,a=0,m=0;
-  var j=0;GSA(cid).forEach(function(s){initStu(s);var t=s.terms[tk];if(!t||t.exempted)return;var st=sesState(t,idx);if(st==='ab')a++;else if(st==='ju')j++;else if(st==='sk')m++;else p++;});
+  var j=0;GSA(cid).forEach(function(s){initStu(s);var t=s.terms[tk];if(!t)return;var st=sesState(t,idx);if(t.exempted){if(st==='ab')a++;else if(st==='ju')j++;return;}if(st==='ab')a++;else if(st==='ju')j++;else if(st==='sk')m++;else p++;});
   return '✅ حاضر '+p+' · <span style="color:'+(a?'var(--red)':'inherit')+'">🔴 غائب '+a+'</span>'+(j?' · <span style="color:#ff9f43">🟠 مبرّر '+j+'</span>':'')+' · <span style="color:'+(m?'var(--gold)':'inherit')+'">🤒 مريض '+m+'</span>';
 }
 function updSesCounter(){var e=document.getElementById('ses-counter');if(e&&S.cid&&curHomeMode()!=='annual')e.innerHTML=sesCounterTxt(S.cid,curTermSafe());}
