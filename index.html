@@ -948,7 +948,7 @@ body{max-width:480px;margin:0 auto;display:flex;flex-direction:column;-webkit-fo
     </div>
     <div style="height:90px"></div>
   </div>
-  <div style="position:fixed;bottom:0;left:50%;transform:translateX(-50%);max-width:480px;width:100%;padding:10px 18px 18px;background:linear-gradient(to top,var(--bg) 60%,transparent);z-index:40">
+  <div id="ev-kbbar" style="position:fixed;bottom:0;left:50%;transform:translateX(-50%);max-width:480px;width:100%;padding:10px 18px 18px;background:linear-gradient(to top,var(--bg) 60%,transparent);z-index:40">
     <div style="display:flex;gap:8px">
       <button onclick="saveEvalPrev()" style="flex:1;padding:15px;border-radius:16px;background:var(--p2);color:var(--gold);border:1.5px solid var(--gold);font-family:var(--ff);font-weight:800;font-size:14px;cursor:pointer">→ السابق</button>
       <button onclick="saveEval()" style="flex:1;padding:15px;border-radius:16px;background:var(--gold);color:var(--bg);border:none;font-family:var(--ff);font-weight:800;font-size:14px;cursor:pointer;box-shadow:0 8px 28px rgba(245,185,50,.3)">✔ حفظ</button>
@@ -7391,10 +7391,17 @@ function buildFETSheet(clsId, tk, et, tc, sch, yr){const pr=dirName()||'________
 }
 
 // 🖌️ سمة «النبراس» للكشوف: إطار كحلي/ذهبي + رؤوس أعمدة عمودية (يُضاف فقط للكشوف ذات الجداول)
+// ⌨️ شريط «السابق · حفظ · التالي» في شاشة الفرض/الاختبار يرتفع فوق لوحة المفاتيح
+(function(){var vv=window.visualViewport;if(!vv)return;function pos(){var b=document.getElementById('ev-kbbar');if(!b)return;var kb=Math.round(window.innerHeight-vv.height-vv.offsetTop);if(kb<80)kb=0;
+  b.style.bottom=kb+'px';b.style.paddingBottom=kb?'8px':'18px';b.style.background=kb?'var(--bg)':'linear-gradient(to top,var(--bg) 60%,transparent)';b.style.boxShadow=kb?'0 -4px 14px rgba(0,0,0,.12)':'none';
+  if(kb){var a=document.activeElement;if(a&&a.tagName==='INPUT'&&b.offsetParent!==null){var r=a.getBoundingClientRect(),lim=vv.height-b.offsetHeight-10;if(r.bottom>lim)window.scrollBy(0,r.bottom-lim);}}}
+  vv.addEventListener('resize',pos);vv.addEventListener('scroll',pos);document.addEventListener('focusin',function(){setTimeout(pos,350);});})();
 function sheetThemeHead(html){if(thGet()!=='nb'||/data-nofit|iv-pg/.test(html)||!/<table/.test(html))return '';
   return '<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Kufi+Arabic:wght@400;500;700;800&display=swap"><style>'+SHEET_NB_CSS+'<\/style>'+
   '<script>document.addEventListener("DOMContentLoaded",function(){[].forEach.call(document.querySelectorAll("thead th"),function(th){if(+th.getAttribute("colspan")>1||th.querySelector("span.thv-s"))return;var t=th.textContent.trim();if(t.length<4||/الاسم|اللقب|الرقم/.test(t))return;th.classList.add("thv");th.innerHTML="<span class=\\"thv-s\\">"+th.innerHTML+"</span>";});[].forEach.call(document.querySelectorAll("tbody td"),function(td){if(td.style.textAlign==="right")td.classList.add("nbname");});});<\/script>';}
 var SHEET_NB_CSS=`body{font-family:'Noto Kufi Arabic','Tajawal',Arial,sans-serif}
+@media screen{.page{display:table;width:100%}}
+.page .watermark{position:absolute}
 .page{border:.25em solid #c9a227;outline:.5em solid #0f2d4f;outline-offset:.25em;margin:1.2em auto;border-radius:.5em;background:#fffdf6}
 h1{background:linear-gradient(135deg,#0f2d4f,#1d4e7a);color:#fff;border-radius:1.1em 1.1em .3em .3em;padding:.7em .8em;border-bottom:.3em solid #d9b44a;margin:0;-webkit-print-color-adjust:exact;print-color-adjust:exact}
 h2{background:linear-gradient(90deg,transparent,#f3e6b8,transparent);color:#0f2d4f;padding:.3em;margin:0 0 .7em;font-weight:800}
