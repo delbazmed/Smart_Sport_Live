@@ -65,10 +65,10 @@ if(firebaseConfig.apiKey){
 <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&family=Bebas+Neue&display=swap" rel="stylesheet">
 <script>
 /* 🔤 2.4.0: اختيار الخط لكل جهاز (localStorage: ss_font) — يُحمَّل الخط المختار وحده */
-var FTS={orig:{n:'الأصلي (Tajawal)',q:''},amiri:{n:'Amiri (نسخ تقليدي)',q:'Amiri:wght@400;700',fam:"'Amiri','Tajawal',serif"},noto:{n:'Noto Sans Arabic',q:'Noto+Sans+Arabic:wght@400;500;700;800;900',fam:"'Noto Sans Arabic','Tajawal',sans-serif"},plex:{n:'IBM Plex Sans Arabic',q:'IBM+Plex+Sans+Arabic:wght@400;500;700',fam:"'IBM Plex Sans Arabic','Tajawal',sans-serif"}};
+var FTS={orig:{n:'الأصلي (Tajawal)',q:''},amiri:{n:'Amiri (نسخ تقليدي)',q:'Amiri:wght@400;700',fam:"'Amiri','Tajawal',serif"},noto:{n:'Noto Sans Arabic',q:'Noto+Sans+Arabic:wght@400;500;700;800;900',fam:"'Noto Sans Arabic','Tajawal',sans-serif"},plex:{n:'IBM Plex Sans Arabic',q:'IBM+Plex+Sans+Arabic:wght@400;500;700',fam:"'IBM Plex Sans Arabic','Tajawal',sans-serif"},kufi:{n:'Noto Kufi (كوفي حديث)',q:'Noto+Kufi+Arabic:wght@400;500;700;800;900',fam:"'Noto Kufi Arabic','Tajawal',sans-serif"}};
 function ftGet(){var o={};try{o=JSON.parse(localStorage.getItem('ss_font')||'{}')||{};}catch(e){}return {f:FTS[o.f]?o.f:'orig',s:o.s==='names'?'names':'all'};}
 function ftLink(id,q){var l=document.getElementById(id);if(!l){l=document.createElement('link');l.id=id;l.rel='stylesheet';document.head.appendChild(l);}var u='https://fonts.googleapis.com/css2?'+q+'&display=swap';if(l.getAttribute('href')!==u)l.setAttribute('href',u);}
-function ftApply(){var o=ftGet(),c=document.documentElement.classList;['ft-amiri','ft-noto','ft-plex','ft-s-all','ft-s-names'].forEach(function(k){c.remove(k);});
+function ftApply(){var o=ftGet(),c=document.documentElement.classList;['ft-amiri','ft-noto','ft-plex','ft-kufi','ft-s-all','ft-s-names'].forEach(function(k){c.remove(k);});
   if(o.f!=='orig'){c.add('ft-'+o.f,'ft-s-'+o.s);ftLink('ft-link','family='+FTS[o.f].q);}}
 ftApply();
 var FBS={orig:'الأصلي',1:'غائر',2:'بارز',3:'خط سفلي'};
@@ -81,14 +81,42 @@ clApply();
 function fsGet(){var v='';try{v=localStorage.getItem('ss_fsize')||'';}catch(e){}return v==='l'||v==='xl'?v:'m';}
 function fsApply(){var c=document.documentElement.classList,v=fsGet();c.remove('fs-l','fs-xl');if(v!=='m')c.add('fs-'+v);}
 fsApply();
-var UI_KEYS=['ss_font','ss_fieldbg','ss_color','ss_fsize'];
+function thGet(){var v='';try{v=localStorage.getItem('ss_theme')||'';}catch(e){}return v==='nb'?'nb':'orig';}
+function thApply(){document.documentElement.classList.toggle('th-nb',thGet()==='nb');}
+thApply();
+var UI_KEYS=['ss_font','ss_fieldbg','ss_color','ss_fsize','ss_theme'];
 function uiSnap(){var o={};UI_KEYS.forEach(function(k){try{var v=localStorage.getItem(k);if(v)o[k]=v;}catch(e){}});return o;}
-function uiRestore(ui){if(!ui||typeof ui!=='object')return;var has=false;UI_KEYS.forEach(function(k){try{if(localStorage.getItem(k))has=true;}catch(e){}});if(has)return;UI_KEYS.forEach(function(k){if(typeof ui[k]==='string'){try{localStorage.setItem(k,ui[k]);}catch(e){}}});try{ftApply();fbApply();clApply();fsApply();}catch(e){}}
+function uiRestore(ui){if(!ui||typeof ui!=='object')return;var has=false;UI_KEYS.forEach(function(k){try{if(localStorage.getItem(k))has=true;}catch(e){}});if(has)return;UI_KEYS.forEach(function(k){if(typeof ui[k]==='string'){try{localStorage.setItem(k,ui[k]);}catch(e){}}});try{ftApply();fbApply();clApply();fsApply();thApply();}catch(e){}}
 </script>
 <style id="ft-css">
+/* 🎨 سمة «النبراس»: كحلي + ذهبي + أخضر زمردي (الوضع النهاري) */
+html.th-nb body.light{--bg:#eaf0f6;--p1:#ffffff;--p2:#f6f8fb;--p3:#e8eef5;--p4:#d5dfea;--ln:rgba(15,45,79,.12);--ln2:rgba(15,45,79,.22);--tx:#0f2440;--tx2:#334a66;--tx3:#5b6f88;--g:#1d6b4f;--g2:#15553e;--gb:rgba(29,107,79,.12);--gold:#b8901e;--gob:rgba(201,162,39,.16);--blu:#1d4e89;--red:#c0392b;--nv1:#0f2d4f;--nv2:#1d4e7a;--au1:#d9b44a;--au2:#b8901e;--cream:#fbf7e8}
+html.th-nb body.light .hdr{background:linear-gradient(135deg,var(--nv1),var(--nv2));border-bottom:3px solid var(--au1);box-shadow:0 4px 14px rgba(15,45,79,.25)}
+html.th-nb body.light .hdr *{color:#fff}
+html.th-nb body.light .hdr .hb{background:rgba(255,255,255,.1);border:1px solid rgba(217,180,74,.45)}
+html.th-nb body.light .hbrand,html.th-nb body.light .hbrand *{color:#fff!important}
+html.th-nb body.light .ctab{background:#fff;border:1.5px solid #d5dfea;box-shadow:0 3px 0 #d5dfea;color:var(--nv1)}
+html.th-nb body.light .ctab.on{background:linear-gradient(135deg,var(--nv1),var(--nv2));color:#fff;border-color:var(--au1);box-shadow:0 3px 0 var(--au2)}
+html.th-nb body.light .ctab.on *{color:#fff}
+html.th-nb body.light .ctadd{background:linear-gradient(135deg,var(--au1),var(--au2));color:#fff;border:none}
+html.th-nb body.light .srow-wrap{background:#fff;border:1px solid #dfe6ef;border-top:3px solid var(--au1);box-shadow:0 4px 0 #d5dfea,0 8px 18px rgba(15,45,79,.06);border-radius:18px;margin:0 14px 12px;overflow:hidden}
+html.th-nb body.light .srow{background:transparent}
+html.th-nb body.light .snum{color:var(--au2);font-weight:900}
+html.th-nb body.light .sav{background:linear-gradient(135deg,var(--nv1),var(--nv2))!important;color:#fff!important;border:2px solid var(--au1)}
+html.th-nb body.light .sna{color:var(--nv1)}
+html.th-nb body.light .pcard{background:var(--cream);border:1px solid #ead9a0}
+html.th-nb body.light .sact-btn{background:#fff;border:1.5px solid #d5dfea;color:var(--nv1);box-shadow:0 2px 0 #d5dfea}
+html.th-nb body.light .bnav{background:linear-gradient(135deg,var(--nv1),var(--nv2));border-top:3px solid var(--au1)}
+html.th-nb body.light .bnav .ni{color:rgba(255,255,255,.7)}
+html.th-nb body.light .bnav .ni.on,html.th-nb body.light .bnav .ni.on *{color:var(--au1)}
+html.th-nb body.light .ni.on{background:rgba(217,180,74,.16)!important}
+html.th-nb body.light .stuhdr,html.th-nb body.light .stt{color:var(--nv1)}
+html.th-nb body.light #hbody > div:not(.srows){box-shadow:0 4px 0 #d5dfea,0 8px 18px rgba(15,45,79,.06)}
+
 html.ft-amiri{--ffx:'Amiri','Tajawal',serif}
 html.ft-noto{--ffx:'Noto Sans Arabic','Tajawal',sans-serif}
 html.ft-plex{--ffx:'IBM Plex Sans Arabic','Tajawal',sans-serif}
+html.ft-kufi{--ffx:'Noto Kufi Arabic','Tajawal',sans-serif}
 html.ft-s-all{--ff:var(--ffx)}
 html.ft-s-all body{font-family:var(--ffx)}
 html.ft-s-names .sna,html.ft-s-names .lt-row .nm,html.ft-s-names #va-list>div>div:nth-child(2),html.ft-s-names #dn-list>div>div:nth-child(2)>div:first-child,html.ft-s-names #abc-body td:first-child,html.ft-s-names #sh-nm{font-family:var(--ffx)!important}
@@ -1273,7 +1301,9 @@ body{max-width:480px;margin:0 auto;display:flex;flex-direction:column;-webkit-fo
     <div class="setsec">
       <div class="ey" style="margin-bottom:12px">🎨 المظهر</div>
       <div class="setc" id="app-body">
-        <div style="font-size:11px;color:var(--tx3);font-weight:700;margin:0 0 8px">🔤 نوع الخط:</div>
+        <div style="font-size:11px;color:var(--tx3);font-weight:700;margin:0 0 6px">🖌️ سمة التطبيق والكشوف:</div>
+        <div class="ftsc" id="th-opts"></div>
+        <div style="font-size:11px;color:var(--tx3);font-weight:700;margin:14px 0 8px">🔤 نوع الخط:</div>
         <div id="ft-opts"></div>
         <div style="font-size:11px;color:var(--tx3);font-weight:700;margin:6px 0 6px">يُطبَّق على:</div>
         <div class="ftsc" id="ft-scope"></div>
@@ -4178,7 +4208,10 @@ function pdfFileName(){var t=(document.getElementById('ov-iframe-title').textCon
 function pdfArabicFix(root){try{var AR='\u0600-\u06FF',re1=new RegExp('([0-9+.])(['+AR+'])','g'),re2=new RegExp('(['+AR+'])([0-9+.])','g');
   var w=root.ownerDocument.createTreeWalker(root,4,null),n,list=[];while((n=w.nextNode()))list.push(n);
   list.forEach(function(t){var v=t.nodeValue;if(!v||!/[0-9+.]/.test(v)||!/[\u0600-\u06FF]/.test(v))return;var nv=v.replace(re1,'$1\u200a$2').replace(re2,'$1\u200a$2');if(nv!==v)t.nodeValue=nv;});}catch(e){}}
-function pdfFixClone(cdoc){try{pdfArabicFix(cdoc.body);}catch(e){}try{var wms=[].slice.call(cdoc.querySelectorAll('.watermark'));if(!wms.length)return;
+function pdfVertHeads(cdoc){try{[].forEach.call(cdoc.querySelectorAll('th.thv span.thv-s'),function(sp){var txt=sp.textContent.replace(/\u200A/g,'').trim();if(!txt)return;var fs=parseFloat(cdoc.defaultView.getComputedStyle(sp).fontSize)||11;var font='800 '+fs+'px "Noto Kufi Arabic",Tajawal,Arial,sans-serif';
+  var c=document.createElement('canvas'),x=c.getContext('2d');x.font=font;var w=Math.ceil(x.measureText(txt).width)+6,h=Math.ceil(fs*1.6),k=3;c.width=h*k;c.height=w*k;x=c.getContext('2d');x.scale(k,k);x.translate(h/2,w/2);x.rotate(-Math.PI/2);x.font=font;x.fillStyle='#ffffff';x.textAlign='center';x.textBaseline='middle';try{x.direction='rtl';}catch(e){}x.fillText(txt,0,0);
+  var im=cdoc.createElement('img');im.src=c.toDataURL('image/png');im.style.cssText='display:inline-block;width:'+h+'px;height:'+w+'px;vertical-align:middle';sp.parentNode.replaceChild(im,sp);});}catch(e){}}
+function pdfFixClone(cdoc){pdfVertHeads(cdoc);try{pdfArabicFix(cdoc.body);}catch(e){}try{var wms=[].slice.call(cdoc.querySelectorAll('.watermark'));if(!wms.length)return;
   wms.forEach(function(w){if(w.closest&&w.closest('.page'))w.style.position='absolute';});
   if(!(wms[0].closest&&wms[0].closest('.page'))){[].slice.call(cdoc.querySelectorAll('.card')).forEach(function(cd){cd.style.position='relative';var w=wms[0].cloneNode(true);w.style.position='absolute';cd.appendChild(w);});}}catch(e){}}
 function pdfAddCanvas(pdf,jsP,cv,rowB){
@@ -5835,7 +5868,7 @@ function exportColWord(){
 // SETTINGS
 // 🔤 2.4.0: واجهة اختيار الخط
 function rFont(){
-  var o=ftGet();try{rFieldBg();rColorUi();rFsUi();}catch(e){}
+  var o=ftGet();try{rFieldBg();rColorUi();rFsUi();rThemeUi();}catch(e){}
   ftLink('ft-prev','family=Amiri:wght@700&family=Noto+Sans+Arabic:wght@700&family=IBM+Plex+Sans+Arabic:wght@700');
   var el=document.getElementById('ft-opts');if(!el)return;
   var h='';
@@ -5852,6 +5885,10 @@ function fbSet(k){try{if(k==='orig')localStorage.removeItem('ss_fieldbg');else l
 var CLS={orig:'الأصلي',on:'ملوّن هادئ',strong:'ملوّن واضح'};
 function rColorUi(){var el=document.getElementById('cl-opts');if(!el)return;var v=clGet(),h='';Object.keys(CLS).forEach(function(k){h+='<button class="'+(v===k?'on':'')+'" onclick="clSet(\''+k+'\')">'+CLS[k]+'</button>';});el.innerHTML=h;}
 function clSet(k){try{if(k==='orig')localStorage.removeItem('ss_color');else localStorage.setItem('ss_color',k);}catch(e){}clApply();rColorUi();toast('🎨 ألوان الواجهة',CLS[k],'su',1400);}
+var THS={orig:'الأصلية',nb:'النبراس (كحلي وذهبي)'};
+function rThemeUi(){var el=document.getElementById('th-opts');if(!el)return;var v=thGet(),h='';Object.keys(THS).forEach(function(k){h+='<button class="'+(v===k?'on':'')+'" onclick="thSet(\''+k+'\')">'+THS[k]+'</button>';});el.innerHTML=h;}
+function thSet(k){try{if(k==='orig')localStorage.removeItem('ss_theme');else localStorage.setItem('ss_theme',k);}catch(e){}thApply();rThemeUi();
+  if(k==='nb'&&!document.body.classList.contains('light')){try{toggleTheme();}catch(e){}toast('🖌️ النبراس','سمة نهارية — تم التحويل إلى الوضع النهاري','su',2200);}else toast('🖌️ سمة التطبيق',THS[k],'su',1400);}
 var FSZ={m:'عادي',l:'كبير',xl:'أكبر'};
 function rFsUi(){var el=document.getElementById('fs-opts');if(!el)return;var v=fsGet(),h='';Object.keys(FSZ).forEach(function(k){h+='<button class="'+(v===k?'on':'')+'" onclick="fsSet(\''+k+'\')">'+FSZ[k]+'</button>';});el.innerHTML=h;}
 function fsSet(k){try{if(k==='m')localStorage.removeItem('ss_fsize');else localStorage.setItem('ss_fsize',k);}catch(e){}fsApply();rFsUi();toast('🔠 حجم الأسماء',FSZ[k],'su',1400);}
@@ -7353,8 +7390,30 @@ function buildFETSheet(clsId, tk, et, tc, sch, yr){const pr=dirName()||'________
     '<div class="app-brand">Smart_Sport · EPS · DZ · 2026 · Delbaz_Med</div></div>';
 }
 
+// 🖌️ سمة «النبراس» للكشوف: إطار كحلي/ذهبي + رؤوس أعمدة عمودية (يُضاف فقط للكشوف ذات الجداول)
+function sheetThemeHead(html){if(thGet()!=='nb'||/data-nofit|iv-pg/.test(html)||!/<table/.test(html))return '';
+  return '<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Kufi+Arabic:wght@400;500;700;800&display=swap"><style>'+SHEET_NB_CSS+'<\/style>'+
+  '<script>document.addEventListener("DOMContentLoaded",function(){[].forEach.call(document.querySelectorAll("thead th"),function(th){if(+th.getAttribute("colspan")>1||th.querySelector("span.thv-s"))return;var t=th.textContent.trim();if(t.length<4||/الاسم|اللقب|الرقم/.test(t))return;th.classList.add("thv");th.innerHTML="<span class=\\"thv-s\\">"+th.innerHTML+"</span>";});[].forEach.call(document.querySelectorAll("tbody td"),function(td){if(td.style.textAlign==="right")td.classList.add("nbname");});});<\/script>';}
+var SHEET_NB_CSS=`body{font-family:'Noto Kufi Arabic','Tajawal',Arial,sans-serif}
+.page{border:.25em solid #c9a227;outline:.5em solid #0f2d4f;outline-offset:.25em;margin:1.2em auto;border-radius:.5em;background:#fffdf6}
+h1{background:linear-gradient(135deg,#0f2d4f,#1d4e7a);color:#fff;border-radius:1.1em 1.1em .3em .3em;padding:.7em .8em;border-bottom:.3em solid #d9b44a;margin:0;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+h2{background:linear-gradient(90deg,transparent,#f3e6b8,transparent);color:#0f2d4f;padding:.3em;margin:0 0 .7em;font-weight:800}
+.info-row{background:#fbf7e8;border:1px solid #e6d396;border-radius:.8em;padding:.35em 1em;margin-bottom:.6em;color:#0f2d4f}
+th{background:#0f2d4f;color:#fff;border:1px solid #c9a227;font-weight:800}
+th.thv{padding:.5em .15em;vertical-align:middle}
+th.thv span.thv-s{display:inline-block;writing-mode:vertical-rl;transform:rotate(180deg);white-space:nowrap;line-height:1.15;font-size:.95em}
+td{border:1px solid #e0cf8f;line-height:1.25;padding-top:.3em;padding-bottom:.3em}
+th{line-height:1.25}
+tbody tr:nth-child(even) td{background:#fbf7e8}
+td.nbname{font-weight:800;color:#0f2d4f}
+.footer{border-top:none;gap:1em}
+.sig-box{flex:1;border:1.5px solid #c9a227;border-radius:1.1em;padding:.6em;background:#fbf7e8;color:#0f2d4f;font-weight:800}
+.sig-line{border-top:1px dashed #b8901e}
+.watermark{color:rgba(15,45,79,.035)}
+@media print{.page{margin:0 auto}}
+`;
 function openGradeSheetPDF(html, title){
-  var _gs=gradeSheetStyle();if(/data-nofit/.test(html))_gs=_gs.replace(/<script>[\s\S]*?<\/script>/,'');
+  var _gs=gradeSheetStyle()+sheetThemeHead(html);if(/data-nofit/.test(html))_gs=_gs.replace(/<script>[\s\S]*?<\/script>/,'');
   const full='<!DOCTYPE html><html dir="rtl" lang="ar"><head><meta charset="UTF-8"><title>'+title+'</title>'+_gs+'<\/head><body>'+html+'<\/body><\/html>';
   const ov=document.getElementById('ov-iframe');
   document.getElementById('ov-iframe-title').textContent=title;
