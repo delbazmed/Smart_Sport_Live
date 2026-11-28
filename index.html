@@ -937,6 +937,7 @@ body{max-width:480px;margin:0 auto;display:flex;flex-direction:column;-webkit-fo
     <div class="gdsec">
       <div class="gdg" id="gdg"></div>
       <div style="margin-top:10px;font-size:10px;color:var(--tx3);text-align:center;font-weight:500">D=10 · C=13 · B=16 · A=18→20 | سلم موحد لجميع الأنشطة الجماعية</div>
+      <button id="ev-jcopy" onclick="jCopyFardToTest()" style="display:none;width:100%;margin-top:10px;padding:12px;background:rgba(79,142,255,.08);border:1.5px dashed var(--blu);border-radius:var(--r);color:var(--blu);font-family:var(--ff);font-size:13px;font-weight:900;cursor:pointer;line-height:1.5">📥 تحويل نقاط النشاط الجماعي من الفرض إلى الاختبار<br><span style="font-size:11px;font-weight:700;color:var(--tx3)">للقسم كاملاً · نفس النقطة · تبقى نقطة الاختبار إذا كانت أحسن</span></button>
       <button onclick="openTGFromEv()" style="width:100%;margin-top:10px;padding:12px;background:rgba(79,142,255,.12);border:1px solid rgba(79,142,255,.35);border-radius:var(--r);color:var(--blu);font-family:var(--ff);font-size:12px;font-weight:800;cursor:pointer">👥 تنقيط جماعي للقسم</button>
     </div>
     <div id="ev-perf"></div>
@@ -1623,7 +1624,7 @@ body{max-width:480px;margin:0 auto;display:flex;flex-direction:column;-webkit-fo
 
 <div class="ov" id="ov-mce">
   <div class="ov-box" style="max-width:460px">
-    <div class="ov-hd"><span>📋 معايير م.م المخصَّصة</span><button onclick="closeOv('ov-mce')" class="ov-cl">✕</button></div>
+    <div class="ov-hd"><span id="mce-ttl">📋 معايير م.م المخصَّصة</span><button onclick="closeOv('ov-mce')" class="ov-cl">✕</button></div>
     <div id="mce-body" style="padding:14px 16px;max-height:72vh;overflow-y:auto"></div>
   </div>
 </div>
@@ -2572,7 +2573,8 @@ function hideLeft(){return !window.__keepLeft&&lsGet('ss_hideLeft')==='1';}
 function GSR(cid){return D.students.filter(s=>s.classId===cid&&!(hideLeft()&&s.left));}
 function GSA(cid){return D.students.filter(s=>s.classId===cid&&!s.left);}
 function leftTag(s,nm){return s&&s.left?nm+' (غادر '+fmtDM(s.left)+')':nm;}
-function initStu(s){if(!s.terms)s.terms={};['t1','t2','t3'].forEach(k=>{if(!s.terms[k])s.terms[k]={exempted:false,actF:null,actJ:null,mc:{ses:[2,2,2,2,2,2,2],discipline:2,participation:0,creativity:0,mcEntered:false,_discTouched:false},fard:{tr:[],jg:null},test:{tr:[],jg:null}};else{var _mc=s.terms[k].mc;if(_mc.mcEntered===undefined)_mc.mcEntered=false;if(_mc.discipline===undefined||_mc.discipline===null)_mc.discipline=2;else if(_mc.discipline===0&&!_mc._discTouched)_mc.discipline=2;if(_mc.ses&&_mc.ses.length&&_mc.ses.every(function(v){return v===0;}))_mc.ses=[2,2,2,2,2,2,2];}var _m=s.terms[k].mc;if(typeof _m.perf!=='number'){if(typeof _m.pb!=='number')_m.pb=parseFloat(_m.participation)||0;_m.perf=(typeof perfDefault==='function')?perfDefault():0;_m.perfDef=true;_m.participation=Math.min(2,Math.round((_m.perf+_m.pb)*100)/100);}});}
+function initStu(s){_initStu(s);try{var _c=GC(s.classId),_l=_c?(_c.level||''):'';['t1','t2','t3'].forEach(function(k){var t=s.terms[k];if(t&&t._lv!==_l)Object.defineProperty(t,'_lv',{value:_l,writable:true,configurable:true,enumerable:false});});}catch(e){}}
+function _initStu(s){if(!s.terms)s.terms={};['t1','t2','t3'].forEach(k=>{if(!s.terms[k])s.terms[k]={exempted:false,actF:null,actJ:null,mc:{ses:[2,2,2,2,2,2,2],discipline:2,participation:0,creativity:0,mcEntered:false,_discTouched:false},fard:{tr:[],jg:null},test:{tr:[],jg:null}};else{var _mc=s.terms[k].mc;if(_mc.mcEntered===undefined)_mc.mcEntered=false;if(_mc.discipline===undefined||_mc.discipline===null)_mc.discipline=2;else if(_mc.discipline===0&&!_mc._discTouched)_mc.discipline=2;if(_mc.ses&&_mc.ses.length&&_mc.ses.every(function(v){return v===0;}))_mc.ses=[2,2,2,2,2,2,2];}var _m=s.terms[k].mc;if(typeof _m.perf!=='number'){if(typeof _m.pb!=='number')_m.pb=parseFloat(_m.participation)||0;_m.perf=(typeof perfDefault==='function')?perfDefault():0;_m.perfDef=true;_m.participation=Math.min(2,Math.round((_m.perf+_m.pb)*100)/100);}});}
 function uid(){return '_'+Date.now()+'_'+Math.random().toString(36).slice(2,6);}
 // Guarantee every student is fully initialized (discipline always defaults to 2)
 // ═══ 2.7.1 · تعقيم البيانات عند الحدود (حماية من حقن HTML) ═══
@@ -2612,26 +2614,36 @@ function normalizeAll(){
   if(D&&Array.isArray(D.students)){D.students.forEach(function(s){initStu(s);});try{mcAutoEnter();evaAutoFromTest();}catch(e){}}
 }
 // ═══ م.م المخصَّصة (2.0.0) ═══
-function mcCrits(){var c=D&&D.settings&&D.settings.mcCrit;return Array.isArray(c)?c:[];}
-function mcSesCfg(){var q=D&&D.settings&&D.settings.mcSes;var n=(q&&q.n>0)?Math.min(12,Math.floor(q.n)):0;var v=(q&&q.v>0)?q.v:2;return{n:n,v:v};}
+// 🎓 حسب المستوى: «الأولى والثانية» = الإعدادات الأساسية · «الثالثة» = D.settings.mcLv.g3 (عند التفعيل)
+var MCK=null,MCED_K='a';
+function mcLvOn(){var l=D&&D.settings&&D.settings.mcLv;return !!(l&&l.on&&l.g3);}
+function isLv3(lv){return /3/.test(String(lv||''));}
+function mcKeyCls(cid){if(cid&&typeof cid==='object')cid=cid.id;var c=cid&&GC(cid);return(mcLvOn()&&c&&isLv3(c.level))?'g3':'a';}
+function mcKeyT(t){return(t&&t._lv!==undefined)?((mcLvOn()&&isLv3(t._lv))?'g3':'a'):null;}
+function mcSrc(){var k=MCK||mcKeyCls(typeof S!=='undefined'&&S?S.cid:null);return(k==='g3'&&mcLvOn())?D.settings.mcLv.g3:((D&&D.settings)||{});}
+function mcAs(k,fn){if(!k)return fn();var o=MCK;MCK=k;try{return fn();}finally{MCK=o;}}
+function mcAsT(t,fn){return mcAs(mcKeyT(t),fn);}
+var MC_LV_KEYS=['mcCrit','mcSes','mcStart','mcTasks','mcQuick','mcBtns','mcRoleC','mcRoleE'];
+function mcCrits(){var c=mcSrc().mcCrit;return Array.isArray(c)?c:[];}
+function mcSesCfg(){var q=mcSrc().mcSes;var n=(q&&q.n>0)?Math.min(12,Math.floor(q.n)):0;var v=(q&&q.v>0)?q.v:2;return{n:n,v:v};}
 function mcSesN(){return mcSesCfg().n;}
 function mcSesV(){return mcSesCfg().v;}
-function cStart(c){return(c.st==='zero'||c.st==='full')?c.st:(D.settings.mcStart==='zero'?'zero':'full');}
+function cStart(c){return(c.st==='zero'||c.st==='full')?c.st:(mcSrc().mcStart==='zero'?'zero':'full');}
 function cDec(c){return c.dec>0?c.dec:(c.step>0?c.step:0.5);}
 function cInc(c){return c.inc>0?c.inc:(c.step>0?c.step:0.5);}
 function cMin(c){return Math.min(cDec(c),cInc(c));}
-function mcTasks(){var t=D&&D.settings&&D.settings.mcTasks;return Array.isArray(t)?t:[];}
-function stuTasks(s){return (s&&Array.isArray(s.tasks))?s.tasks.filter(function(id){return mcTasks().some(function(t){return t.id===id;});}):[];}
+function mcTasks(){var t=mcSrc().mcTasks;return Array.isArray(t)?t:[];}
+function stuTasks(s){return mcAs(s?mcKeyCls(s.classId):null,function(){return (s&&Array.isArray(s.tasks))?s.tasks.filter(function(id){return mcTasks().some(function(t){return t.id===id;});}):[];});}
 function cMode(c){return c.md==='val'?'val':'step';}
 function cType(c){return cMode(c)==='val'?'val':(cStart(c)==='zero'?'inc':'dec');}
-function cxqMap(){var o={inc:null,dec:null},q=(D&&D.settings&&D.settings.mcQuick)||{},cr=mcCrits();
+function cxqMap(){var o={inc:null,dec:null},q=mcSrc().mcQuick||{},cr=mcCrits();
   ['inc','dec'].forEach(function(k){var list=cr.filter(function(x){return cType(x)===k;});var id=q[k];
     if(id===null){o[k]=null;return;}o[k]=list.filter(function(x){return x.id===id;})[0]||list[0]||null;
     var so=lsGet('ss_cxq_'+k);var pk=so&&list.filter(function(x){return x.id===so;})[0];if(pk)o[k]=pk;});return o;}
 var BTN_COL={g:['🟢','أخضر'],y:['🟡','أصفر'],b:['🔵','أزرق'],n:['🟤','بني'],w:['⚪','أبيض'],k:['⚫','أسود']};
 // أزرار مخصَّصة: [{c:معيار,k:لون}] حتى 4؛ الاتجاه يُؤخذ من نوع المعيار (يبدأ من الصفر = زيادة، يبدأ كاملاً = نقصان). غيابها = السلوك القديم (أخضر/أصفر)
 function roleBtnOn(){return !(D&&D.settings&&D.settings.hideRoleBtn);}
-function mcBtnsCfg(){var b=D&&D.settings&&D.settings.mcBtns;if(!Array.isArray(b))return null;var cr=mcCrits();
+function mcBtnsCfg(){var b=mcSrc().mcBtns;if(!Array.isArray(b))return null;var cr=mcCrits();
   return b.filter(function(x){var c=cr.filter(function(y){return y.id===x.c;})[0];return c&&(cType(c)==='inc'||cType(c)==='dec')&&BTN_COL[x.k];}).slice(0,4);}
 function cxqPickT(k,id){lsSet('ss_cxq_'+k,id);rHome();}
 function cxqVals(){return mcCrits().filter(function(x){return cType(x)==='val';});}
@@ -2674,23 +2686,23 @@ function cxqInput(sid,el){var c=mcCrits().filter(function(x){return x.id===el.ge
   v=Math.round(Math.round(Math.max(0,Math.min(c.max,v))/cMin(c))*cMin(c)*100)/100;cxqApply(sid,c,v,true);el.value=fmtCx(cxVal(stu.terms[curTermSafe()],c));}
 function mcNeedEnter(){return mcCrits().some(function(c){return cStart(c)==='zero';});}
 function mcCritOk(c){c=c||mcCrits();if(!c.length)return false;var x=mcSesN()*mcSesV();for(var i=0;i<c.length;i++){if(!(c[i].max>0))return false;x+=c[i].max;}return Math.abs(x-20)<0.001;}
-function mcModeOf(t){var m=(t&&t.mc&&t.mc.fz)||(D&&D.settings&&D.settings.mcMode)||'default';return(m==='custom'&&mcCritOk())?'custom':'default';}
+function mcModeOf(t){return mcAsT(t,function(){var m=(t&&t.mc&&t.mc.fz)||(D&&D.settings&&D.settings.mcMode)||'default';return(m==='custom'&&mcCritOk())?'custom':'default';});}
 function mcCustom(){return mcModeOf(null)==='custom';}
 function mcAttOn(){return true;}
 function sesCapG(){return mcCustom()?(mcSesN()||7):7;}
-function sesLenT(t){return mcModeOf(t)==='custom'?(mcSesN()||7):7;}
+function sesLenT(t){return mcAsT(t,function(){return mcModeOf(t)==='custom'?(mcSesN()||7):7;});}
 function sesArr(t){if(!t.mc.ses)t.mc.ses=[];var a=t.mc.ses,L=sesLenT(t);while(a.length<L)a.push(2);return a.length>L?a.slice(0,L):a;}
-function sesPts(t,i){var st=sesState(t,i),v=mcSesV();return st==='ab'?0:(st==='pr'?v:Math.round(v/2*100)/100);}
-function sesSumC(t){var n=mcSesN(),x=0;for(var i=0;i<n;i++)x+=sesPts(t,i);return Math.round(x*100)/100;}
-function cxVal(t,c){var cx=t.mc.cx;var v=(cx&&typeof cx[c.id]==='number')?cx[c.id]:(cStart(c)==='zero'?0:c.max);return Math.max(0,Math.min(c.max,v));}
+function sesPts(t,i){var st=sesState(t,i),v=mcAsT(t,mcSesV);return st==='ab'?0:(st==='pr'?v:Math.round(v/2*100)/100);}
+function sesSumC(t){var n=mcAsT(t,mcSesN),x=0;for(var i=0;i<n;i++)x+=sesPts(t,i);return Math.round(x*100)/100;}
+function cxVal(t,c){var cx=t.mc.cx;var v=(cx&&typeof cx[c.id]==='number')?cx[c.id]:(mcAsT(t,function(){return cStart(c);})==='zero'?0:c.max);return Math.max(0,Math.min(c.max,v));}
 function fmtCx(v){v=Math.round(v*100)/100;return String(v);}
-function calcMCRaw(t){if(mcModeOf(t)==='custom'){var sm=0;mcCrits().forEach(function(c){sm+=cxVal(t,c);});sm+=sesSumC(t);return Math.min(20,Math.round(sm*100)/100);}
+function calcMCRaw(t){if(mcModeOf(t)==='custom'){var sm=0;mcAsT(t,mcCrits).forEach(function(c){sm+=cxVal(t,c);});sm+=sesSumC(t);return Math.min(20,Math.round(sm*100)/100);}
   const behSum=(parseFloat(t.mc.discipline)||0)+(parseFloat(t.mc.participation)||0)+(parseFloat(t.mc.creativity)||0);return Math.min(20,sesArr(t).reduce((a,b)=>a+b,0)+behSum);}
 // الفصل الثاني/الثالث لا يُعتبر مبدوءاً إلا إذا سُجِّل فيه شيء فعلاً (حصة، غياب، رصد…) — لا يعتمد على الفصل المختار في الشاشة
 var TK_ORD={t1:0,t2:1,t3:2};
 function mcTermOpen(clsId,tk){try{if(tk==='t1')return true;
   return D.students.some(function(s){if(s.classId!==clsId)return false;initStu(s);var t=s.terms[tk];if(!t)return false;var m=t.mc||{};if(mcRealActivity(t))return true;if(['fard','test'].some(function(e){return t[e]&&((t[e].tr||[]).some(function(v){return v!==''&&v!=null;})||t[e].jg);}))return true;return sesArr(t).some(function(v,i){var st=sesState(t,i);return st&&st!=='pr';});});}catch(e){return true;}}
-function calcMC(t){if(mcModeOf(t)==='custom'&&!mcNeedEnter())return calcMCRaw(t);if(!t.mc.mcEntered)return null;return calcMCRaw(t);}
+function calcMC(t){if(mcModeOf(t)==='custom'&&!mcAsT(t,mcNeedEnter))return calcMCRaw(t);if(!t.mc.mcEntered)return null;return calcMCRaw(t);}
 function lookup(perf,g,lv,akey){const sc=D.scales[akey]?.[g]?.[lv];const ac=AF[akey];if(!sc||isNaN(perf)||perf<=0)return null;const{top,bot}=sc;let r;if(ac.t==='time'){if(perf<=top)return 20;if(perf>=bot)return 0;r=1-(perf-top)/(bot-top);}else{if(perf>=top)return 20;if(perf<=bot)return 0;r=(perf-bot)/(top-bot);}return Math.round(r*20*4)/4;}
 function bestTrial(tr,akey){const v=tr.filter(x=>x!==null&&x!==''&&!isNaN(x)).map(Number).filter(x=>AF[akey].t==='time'?x>0:true);if(!v.length)return null;return AF[akey].t==='time'?Math.min(...v):Math.max(...v);}
 function calcFardi(t,et,g,lv){const ev=t[et];const akey=t.actF;if(!akey)return null;const best=bestTrial(ev.tr,akey);return best!==null?lookup(best,g,lv,akey):null;}
@@ -3623,7 +3635,23 @@ function updCompactRow(s){try{var r=document.querySelector('.srow-wrap[data-sid=
 // 📋 م.م المخصَّصة — اختيار الطريقة + محرر المعايير (2.0.0)
 // ═══════════════════════════════════════════════════════
 function setPerfRepl(v){D.settings.perfRepl=!!v;SD();rMcCard();toast('تم الحفظ','');}
-function rMcCard(){var el=document.getElementById('mc-mode-card');if(!el)return;var cu=mcCustom(),ok=mcCritOk();
+function mcLvSum(k){return mcAs(k,function(){return mcCritOk()?(mcSesN()+' حصص · '+mcCrits().length+' معايير'):'⚠️ غير مكتملة';});}
+function mcLvUi(){if(!mcCustom()&&!mcLvOn())return '';var on=mcLvOn();
+  var b=function(sel,t,sub,fn){return '<button onclick="'+fn+'" style="flex:1;min-width:0;padding:9px 6px;border-radius:10px;font-family:var(--ff);font-weight:900;font-size:12px;cursor:pointer;border:1.5px solid '+(sel?'var(--g)':'var(--ln)')+';background:'+(sel?'rgba(0,217,126,.12)':'var(--p2)')+';color:'+(sel?'var(--g)':'var(--tx2)')+'">'+t+(sub?'<br><span style="font-size:10px;font-weight:700;color:var(--tx3)">'+sub+'</span>':'')+'</button>';};
+  var h='<div style="margin-top:10px;padding:10px;background:var(--p3);border:1px solid var(--ln);border-radius:12px"><div style="font-size:11px;font-weight:900;color:var(--tx2);margin-bottom:8px">🎓 المعايير حسب المستوى</div>'+
+    '<div style="display:flex;gap:6px">'+b(!on,'🟰 نفس المعايير','لكل المستويات',"mcLvSet(false)")+b(on,'🎓 منفصلة','1 و2 ث · 3 ث',"mcLvSet(true)")+'</div>';
+  if(on)h+='<div style="font-size:11px;font-weight:800;color:var(--tx3);margin:10px 0 6px">اختر المجموعة لعرض معاييرها وتعديلها:</div><div style="display:flex;gap:6px">'+b(MCED_K!=='g3','📘 الأولى والثانية',mcLvSum('a'),"mcEdPick('a')")+b(MCED_K==='g3','📕 الثالثة ثانوي',mcLvSum('g3'),"mcEdPick('g3')")+'</div>';
+  return h+'</div>';}
+function mcEdPick(k){MCED_K=k==='g3'?'g3':'a';rMcCard();}
+async function mcLvSet(on){if(on===mcLvOn())return;var st=D.settings;
+  if(on){var ok=await dlgConfirm({tone:'blu',icon:'🎓',title:'معايير منفصلة حسب المستوى',sub:'مجموعتان: «الأولى والثانية ثانوي» و«الثالثة ثانوي»',rows:[['📋','تُنسخ معاييرك الحالية إلى المجموعتين معاً — لا تتغيّر أي نقطة الآن'],['✏️','ثم تعدّل معايير كل مجموعة وحدها من «✏️ المعايير»'],['🏫','كل قسم يأخذ معايير مستواه تلقائياً في م.م والكشوف والرصد']],confirmText:'تفعيل'});if(!ok)return;
+    snapshot('م.م حسب المستوى');var g3=(st.mcLv&&st.mcLv.g3)||null;if(!g3){g3={};MC_LV_KEYS.forEach(function(k){if(st[k]!==undefined)g3[k]=JSON.parse(JSON.stringify(st[k]));});}
+    st.mcLv={on:true,g3:g3};MCED_K='g3';}
+  else{var ok2=await dlgConfirm({tone:'warn',icon:'🟰',title:'نفس المعايير لكل المستويات',sub:'أقسام الثالثة ثانوي تعود لمعايير «الأولى والثانية»',rows:[['💾','معايير الثالثة تبقى محفوظة وتعود إن فعّلت الفصل من جديد'],['📋','تُحسب م.م أقسام الثالثة بالمعايير المشتركة']],confirmText:'تأكيد'});if(!ok2)return;
+    snapshot('م.م حسب المستوى');st.mcLv.on=false;MCED_K='a';}
+  SD();try{rActs();}catch(e){}try{rHome();}catch(e){}toast('🎓 م.م حسب المستوى',on?'مفعّلة — عدّل معايير كل مجموعة':'نفس المعايير لكل المستويات','su',2200);}
+function rMcCard(){return mcAs(mcLvOn()?MCED_K:null,_rMcCard);}
+function _rMcCard(){var el=document.getElementById('mc-mode-card');if(!el)return;var cu=mcCustom(),ok=mcCritOk();
   var opt=function(on,ic,t,sub,fn){return '<button onclick="'+fn+'" style="flex:1;padding:11px 8px;border-radius:12px;border:1.5px solid '+(on?'var(--g)':'var(--ln)')+';background:'+(on?'rgba(0,217,126,.12)':'var(--p3)')+';color:'+(on?'var(--g)':'var(--tx2)')+';font-family:var(--ff);cursor:pointer;text-align:center"><div style="font-size:18px">'+ic+'</div><div style="font-size:12px;font-weight:900;margin-top:2px">'+t+'</div><div style="font-size:10px;font-weight:600;opacity:.8;margin-top:2px">'+sub+'</div></button>';};
   var h='<div style="margin-bottom:16px;padding:14px;background:var(--p2);border:1.5px solid var(--ln);border-radius:16px">'+
     '<div style="font-size:14px;font-weight:900;color:var(--blu);margin-bottom:4px">📋 المراقبة المستمرة</div>'+
@@ -3631,7 +3659,8 @@ function rMcCard(){var el=document.getElementById('mc-mode-card');if(!el)return;
     '<div style="display:flex;gap:8px">'+opt(!cu,'📊','م.م الافتراضية','حضور 14 + سلوك 6',"mcPickMode('default')")+opt(cu,'🎛️','م.م المخصَّصة',ok?(mcSesN()+' حصص + '+mcCrits().length+' معايير'):'حصصك ومعاييرك',"mcPickMode('custom')")+'</div>';
   var _pr=!!(D.settings&&D.settings.perfRepl);h+='<div style="margin-top:10px;padding:10px;background:var(--p3);border:1px solid var(--ln);border-radius:12px"><div style="font-size:11px;font-weight:900;color:var(--tx2);margin-bottom:6px">⭐ عند اختيار مستوى المشاركة (ضعيف…ممتاز)</div><div style="display:flex;gap:6px">'+[[false,'➕ تُضاف إليه مكافأة الزر'],[true,'🔄 يحلّ محلّ المكافأة']].map(function(o){var on=_pr===o[0];return '<button onclick="setPerfRepl('+o[0]+')" style="flex:1;padding:9px 6px;border-radius:10px;border:1.5px solid '+(on?'var(--g)':'var(--ln)')+';background:'+(on?'rgba(0,217,126,.12)':'transparent')+';color:'+(on?'var(--g)':'var(--tx3)')+';font-family:var(--ff);font-size:11px;font-weight:800;cursor:pointer">'+o[1]+'</button>';}).join('')+'</div></div>';
   if(ok){h+='<div style="margin-top:10px;display:flex;flex-wrap:wrap;gap:5px">'+(mcSesN()?'<span style="padding:4px 9px;border-radius:8px;background:var(--p3);border:1px solid var(--ln);font-size:11px;font-weight:800;color:var(--tx2)">الحصص <b style="color:var(--g)">'+mcSesN()+'×'+fmtCx(mcSesV())+'</b></span>':'')+mcCrits().map(function(c){return '<span style="padding:4px 9px;border-radius:8px;background:var(--p3);border:1px solid var(--ln);font-size:11px;font-weight:800;color:var(--tx2)">'+escA(c.name)+' <b style="color:var(--g)">/'+fmtCx(c.max)+'</b></span>';}).join('')+'</div>';}
-  h+='<button onclick="openMcEd(false)" style="width:100%;margin-top:10px;padding:10px;border-radius:10px;border:1px solid rgba(79,142,255,.3);background:rgba(79,142,255,.1);color:var(--blu);font-family:var(--ff);font-size:12px;font-weight:800;cursor:pointer">✏️ '+(ok?'تعديل المعايير':'إنشاء المعايير')+'</button></div>';
+  h+=mcLvUi();
+  h+='<button onclick="openMcEd(false)" style="width:100%;margin-top:10px;padding:10px;border-radius:10px;border:1px solid rgba(79,142,255,.3);background:rgba(79,142,255,.1);color:var(--blu);font-family:var(--ff);font-size:12px;font-weight:800;cursor:pointer">✏️ '+(ok?'تعديل المعايير':'إنشاء المعايير')+(mcLvOn()?(MCED_K==='g3'?' — الثالثة ثانوي':' — الأولى والثانية'):'')+'</button></div>';
   el.innerHTML=h;}
 async function mcPickMode(m){var cur=mcCustom()?'custom':'default';if(m===cur)return;
   if(m==='custom'&&!mcCritOk()){openMcEd(true);return;}
@@ -3647,7 +3676,10 @@ function mcApplyMode(m){var old=mcCustom()?'custom':'default';snapshot('تغيي
   try{rActs();}catch(e){}try{rHome();}catch(e){}
   toast(m==='custom'?'🎛️ م.م المخصَّصة':'📊 م.م الافتراضية','تم التحويل — البيانات القديمة محفوظة','su',2500);}
 var MCE=null;
-function openMcEd(from){var st=D.settings;var sc=mcSesCfg();var fresh=!mcCrits().length;
+function mcEdSt(){return (MCED_K==='g3'&&mcLvOn())?D.settings.mcLv.g3:D.settings;}
+function mcEdTitle(){try{document.getElementById('mce-ttl').textContent='📋 معايير م.م المخصَّصة'+(mcLvOn()?(MCED_K==='g3'?' · الثالثة ثانوي':' · الأولى والثانية'):'');}catch(e){}}
+function openMcEd(from){var r=mcAs(MCED_K,function(){return _openMcEd(from);});mcEdTitle();return r;}
+function _openMcEd(from){var st=mcEdSt();var sc=mcSesCfg();var fresh=!mcCrits().length;
   MCE={crit:mcCrits().map(function(c){return{id:c.id,name:c.name,max:c.max,st:cStart(c),dec:cDec(c),inc:cInc(c),md:cMode(c)};}),sn:fresh?7:sc.n,sv:sc.v,
     hrb:!!st.hideRoleBtn,rc:Object.assign({crit:'',val:1},st.mcRoleC||{}),re:Object.assign({crit:'',val:1},st.mcRoleE||{}),tasks:mcTasks().map(function(t){return{id:t.id,name:t.name,crit:t.crit,val:t.val};}),quick:(function(){var m=cxqMap();return{inc:m.inc?m.inc.id:null,dec:m.dec?m.dec.id:null,val:m.val?m.val.id:null};})(),edit:null,from:!!from,btnsDirty:false};
   MCE.btns=(function(){var cf=mcBtnsCfg();if(cf)return cf.map(function(x){return{c:x.c,k:x.k};});var q=MCE.quick,o=[];if(q.inc)o.push({c:q.inc,k:'g'});if(q.dec)o.push({c:q.dec,k:'y'});return o;})();
@@ -3722,16 +3754,17 @@ function mceSaveOne(){var n=(document.getElementById('mce-n').value||'').trim(),
   m=Math.round(m*100)/100;
   if(MCE.edit==='new')MCE.crit.push({id:'c'+Date.now().toString(36)+MCE.crit.length,name:n,max:m,st:stt,dec:dc,inc:ic,md:mdv});
   else{var c=MCE.crit[MCE.edit];c.name=n;c.max=m;c.st=stt;c.dec=dc;c.inc=ic;c.md=mdv;}
-  MCE.edit=null;rMce();}
+  MCE.edit=null;try{document.getElementById('mce-ttl').textContent='📋 معايير م.م المخصَّصة'+(mcLvOn()?(MCED_K==='g3'?' · الثالثة ثانوي':' · الأولى والثانية'):'');}catch(e){}rMce();}
 function mceSesDropped(oldN,newN){var hit=false;if(newN>=oldN)return false;D.students.forEach(function(s){initStu(s);['t1','t2','t3'].forEach(function(tk){var t=s.terms[tk];for(var i=newN;i<oldN;i++){if(t&&t.mc&&t.mc.ses&&t.mc.ses[i]!==undefined&&t.mc.ses[i]!==2)hit=true;}});});return hit;}
-async function mceSaveAll(){if(!MCE||MCE.edit!==null||mceTot()!==20||!MCE.crit.length)return;
+async function mceSaveAll(){var _o=MCK;MCK=MCED_K;try{return await _mceSaveAll();}finally{MCK=_o;}}
+async function _mceSaveAll(){if(!MCE||MCE.edit!==null||mceTot()!==20||!MCE.crit.length)return;
   var old=mcCrits(),shrink=old.some(function(o){var n=MCE.crit.filter(function(c){return c.id===o.id;})[0];return !n||n.max<o.max;});
   var oldN=mcSesN(),dropped=mcCustom()&&mceSesDropped(oldN,MCE.sn);
   if(mcCustom()&&(shrink||dropped)){var rws=[];if(shrink)rws.push(['✂️','قيم التلاميذ في المعايير المحذوفة تُمسح، والقيم الأكبر من الحد الجديد تُقصّ إليه']);if(dropped)rws.push(['🏃','الحصص الزائدة المسجَّلة فيها غياب أو مرض تُهمل من الحساب']);rws.push(['↩️','يمكن التراجع بزر ↩️ ما دام التطبيق مفتوحاً']);
     var ok=await dlgConfirm({tone:'warn',icon:'⚠️',title:'تعديل الإعداد',sub:'تغيير يمسّ بيانات مسجَّلة',rows:rws,confirmText:'متابعة الحفظ'});if(!ok)return;}
   snapshot('إعداد م.م المخصَّصة');
   var ids={};MCE.crit.forEach(function(c){ids[c.id]=1;});
-  var st=D.settings;st.mcCrit=MCE.crit.map(function(c){return{id:c.id,name:c.name,max:c.max,st:c.st,dec:c.dec,inc:c.inc,md:c.md||'step',step:Math.min(c.dec,c.inc)};});
+  var st=mcEdSt();st.mcCrit=MCE.crit.map(function(c){return{id:c.id,name:c.name,max:c.max,st:c.st,dec:c.dec,inc:c.inc,md:c.md||'step',step:Math.min(c.dec,c.inc)};});
   st.mcSes={n:MCE.sn,v:MCE.sv};delete st.mcAtt;st.hideRoleBtn=!!MCE.hrb;
   if(MCE.btnsDirty){st.mcBtns=MCE.btns.filter(function(b){var c=MCE.crit.filter(function(x){return x.id===b.c;})[0];return c&&(cType(c)==='inc'||cType(c)==='dec')&&BTN_COL[b.k];}).slice(0,4).map(function(b){return{c:b.c,k:b.k};});
     ['inc','dec'].forEach(function(k){var f=st.mcBtns.filter(function(b){var c=MCE.crit.filter(function(x){return x.id===b.c;})[0];return cType(c)===k;})[0];if(f)MCE.quick[k]=f.c;});}
@@ -3739,7 +3772,7 @@ async function mceSaveAll(){if(!MCE||MCE.edit!==null||mceTot()!==20||!MCE.crit.l
   st.mcTasks=MCE.tasks.filter(function(t){return (t.name||'').trim()&&ids[t.crit];}).map(function(t){return{id:t.id,name:t.name.trim(),crit:t.crit,val:parseFloat(t.val)||0.5};});
   st.mcRoleC=(MCE.rc.crit&&ids[MCE.rc.crit])?{crit:MCE.rc.crit,val:parseFloat(MCE.rc.val)||1}:null;
   st.mcRoleE=(MCE.re.crit&&ids[MCE.re.crit])?{crit:MCE.re.crit,val:parseFloat(MCE.re.val)||1}:null;
-  if(MCE.sn>0)D.classes.forEach(function(cl){if(cl.sesPtr)['t1','t2','t3'].forEach(function(k){if(typeof cl.sesPtr[k]==='number'&&cl.sesPtr[k]>MCE.sn-1)cl.sesPtr[k]=MCE.sn-1;});});
+  if(MCE.sn>0)D.classes.filter(function(cl){return mcKeyCls(cl.id)===(mcLvOn()?MCED_K:'a')||!mcLvOn();}).forEach(function(cl){if(cl.sesPtr)['t1','t2','t3'].forEach(function(k){if(typeof cl.sesPtr[k]==='number'&&cl.sesPtr[k]>MCE.sn-1)cl.sesPtr[k]=MCE.sn-1;});});
   cxResyncAll();SD();var from=MCE.from;closeOv('ov-mce');MCE=null;
   try{rActs();}catch(e){}try{if(S.scr==='home')rHome();}catch(e){}
   if(!mcCustom()&&(from||true)){toast('💾 حُفظ الإعداد','اختر «م.م المخصَّصة» لتفعيلها','su',2600);if(from)mcPickMode('custom');}
@@ -4620,6 +4653,7 @@ function saveMC(){if(isLocked())return;const s=GS(S.sid);s.terms[S.term].mc.mcEn
 // EVAL
 function openEval(sid,tk,et){
   S.sid=sid;S.term=tk;S.etype=et;chronoReset();rfrmSave(sid);
+  var _jb=document.getElementById('ev-jcopy');if(_jb)_jb.style.display=et==='test'?'':'none';
   setTimeout(()=>{
     const s=GS(sid);const t=s.terms[tk];
     const hasPhone=s&&s.phone;
@@ -4758,7 +4792,22 @@ function rGrade(){
   }).join('');
 }
 function selGr(label){if(isLocked())return;const s=GS(S.sid);const t=s.terms[S.term];t[S.etype].jg=label;SD();rGrade();updEv();}
-function updEv(){const s=GS(S.sid);const c=GC(s.classId);const t=s.terms[S.term];const fs=t.actF?calcFardi(t,S.etype,s.gender,c.level):null;document.getElementById('ev-fsc').textContent=fs!==null?fmt(fs):'—';const js=calcJama3i(t,S.etype);document.getElementById('ev-jsc').textContent=js!==null?js:'—';const tot=calcEval(t,S.etype,s.gender,c.level);document.getElementById('ev-tot').textContent=tot!==null?fmt(tot):'—';}
+// 📥 تحويل نقاط النشاط الجماعي من الفرض إلى الاختبار (للقسم كاملاً؛ تبقى نقطة الاختبار إن كانت أحسن)
+async function jCopyFardToTest(){var s0=GS(S.sid);if(!s0)return;var cid=s0.classId,tk=S.term;if(isLocked(tk))return;
+  var sc=function(l){var g=CG.find(function(x){return x.l===l;});return g?g.s:null;};
+  var mv=[],keep=0,none=0,ex=0;GSR(cid).forEach(function(s){if(s.left)return;initStu(s);var t=s.terms[tk];if(t.exempted||isAllEx(s)){ex++;return;}
+    var fj=t.fard.jg,fs=sc(fj);if(fs===null){none++;return;}var ts=sc(t.test.jg);if(ts!==null&&ts>=fs){keep++;return;}mv.push(s);});
+  var cls=GC(cid);
+  if(!mv.length){toast('📥 لا شيء للتحويل',keep?('نقاط الاختبار أحسن أو مساوية ('+keep+')'):'لا توجد نقاط نشاط جماعي في الفرض','wa',2600);return;}
+  var rows=[['✅','<b>'+mv.length+'</b> تلميذاً ← تُحوَّل نقطة النشاط الجماعي من الفرض إلى الاختبار']];
+  if(keep)rows.push(['⏭️','<b>'+keep+'</b> نقطتهم في الاختبار أحسن أو مساوية ← تبقى كما هي']);
+  if(none)rows.push(['➖','<b>'+none+'</b> بدون نقطة نشاط جماعي في الفرض']);
+  if(ex)rows.push(['🚫','<b>'+ex+'</b> معفى ← يُتخطّى']);
+  rows.push(['↩️','يمكن التراجع بزر ↩️']);
+  var ok=await dlgConfirm({tone:'blu',icon:'📥',title:'تحويل نقاط النشاط الجماعي',sub:(cls?cls.name+' · ':'')+TLB[tk]+' · من الفرض إلى الاختبار',rows:rows,confirmText:'تحويل'});if(!ok)return;
+  snapshot('تحويل نقاط النشاط الجماعي');mv.forEach(function(s){s.terms[tk].test.jg=s.terms[tk].fard.jg;});SD();
+  try{rGrade();updEv();}catch(e){}toast('📥 تم التحويل',mv.length+' تلميذاً — من الفرض إلى الاختبار','su',2600);}
+function updEv(){var _jb=document.getElementById('ev-jcopy');if(_jb)_jb.style.display=S.etype==='test'?'':'none';const s=GS(S.sid);const c=GC(s.classId);const t=s.terms[S.term];const fs=t.actF?calcFardi(t,S.etype,s.gender,c.level):null;document.getElementById('ev-fsc').textContent=fs!==null?fmt(fs):'—';const js=calcJama3i(t,S.etype);document.getElementById('ev-jsc').textContent=js!==null?js:'—';const tot=calcEval(t,S.etype,s.gender,c.level);document.getElementById('ev-tot').textContent=tot!==null?fmt(tot):'—';}
 function saveEval(){if(isLocked())return;snapshot('نقطة تقييم');SD();toast('تم الحفظ','نقطة '+(S.etype==='fard'?'الفرض':'الاختبار')+' محفوظة');setTimeout(()=>nav('s-stu'),400);}
 
 // ANNUAL
@@ -7391,6 +7440,15 @@ function buildFETSheet(clsId, tk, et, tc, sch, yr){const pr=dirName()||'________
 }
 
 // 🖌️ سمة «النبراس» للكشوف: إطار كحلي/ذهبي + رؤوس أعمدة عمودية (يُضاف فقط للكشوف ذات الجداول)
+// 🎓 سياق المستوى للدوال التي تخص قسماً بعينه أو تلميذاً بعينه
+(function(){var W=function(n,kf){var f=window[n];if(typeof f!=='function')return;window[n]=function(){var a=arguments,self=this;var k=null;try{k=kf.apply(null,a);}catch(e){}return mcAs(k,function(){return f.apply(self,a);});};};
+  var byCid=function(c){return mcKeyCls(c);};
+  ['mcRemaining','curSesIdx','advanceSes','retreatSes','askNewSession','ttCatchAsk','ttSlotAdvance','buildMCSheetCx','blankPage','sesDayOf','buildTermSheet','buildAnnualSheet'].forEach(function(n){W(n,byCid);});
+  var bySid=function(){var s=S&&S.sid&&GS(S.sid);return s?mcKeyCls(s.classId):null;};
+  ['rMC','adjCx','togSes','updMCTot','saveMC','saveMCNext','saveMCPrev','resetMC','printMCCard','mcsMark','mcsUndo'].forEach(function(n){W(n,bySid);});
+  var byStu=function(sid){var s=GS(sid);return s?mcKeyCls(s.classId):null;};
+  ['cxqDo','cxqInput','cxqApply','toggleTask','openRoleMenu'].forEach(function(n){W(n,byStu);});
+})();
 // ⌨️ شريط «السابق · حفظ · التالي» في شاشة الفرض/الاختبار يرتفع فوق لوحة المفاتيح
 (function(){var vv=window.visualViewport;if(!vv)return;function pos(){var b=document.getElementById('ev-kbbar');if(!b)return;var kb=Math.round(window.innerHeight-vv.height-vv.offsetTop);if(kb<80)kb=0;
   b.style.bottom=kb+'px';b.style.paddingBottom=kb?'8px':'18px';b.style.background=kb?'var(--bg)':'linear-gradient(to top,var(--bg) 60%,transparent)';b.style.boxShadow=kb?'0 -4px 14px rgba(0,0,0,.12)':'none';
@@ -9843,7 +9901,8 @@ function syncRoleBonus(s){if(!s)return;initStu(s);['t1','t2','t3'].forEach(funct
   mc.creativity=Math.round(cr*100)/100;});
   try{syncRoleBonusCx(s);}catch(e){}}
 function cxUndoRoles(s,tk){var mc=s.terms[tk].mc;if(!mc.cx)mc.cx={};if(mc.tbx){Object.keys(mc.tbx).forEach(function(k){var e=mc.tbx[k];if(e&&e.a>=0.001&&e.c&&typeof mc.cx[e.c]==='number')mc.cx[e.c]=Math.max(0,Math.round((mc.cx[e.c]-e.a)*100)/100);});mc.tbx={};}['C','E'].forEach(function(k){var has=mc['rbX'+k]||0,cid=mc['rbX'+k+'id'];if(has>=0.001&&cid&&typeof mc.cx[cid]==='number')mc.cx[cid]=Math.max(0,Math.round((mc.cx[cid]-has)*100)/100);mc['rbX'+k]=0;mc['rbX'+k+'id']=null;});}
-function syncRoleBonusCx(s){if(!s||!mcCritOk())return;initStu(s);var cfg=D.settings;
+function syncRoleBonusCx(s){return mcAs(s?mcKeyCls(s.classId):null,function(){return _syncRoleBonusCx(s);});}
+function _syncRoleBonusCx(s){if(!s||!mcCritOk())return;initStu(s);var cfg=mcSrc();
   ['t1','t2','t3'].forEach(function(tk){if(D.locked||termLocked(tk))return;var t=s.terms[tk],mc=t.mc;if(!mc.cx)mc.cx={};
     [['C',!!s.captain,cfg.mcRoleC],['E',!!s.equipment,cfg.mcRoleE]].forEach(function(p){var key='rbX'+p[0],has=mc[key]||0;
       if(p[1]&&!has&&p[2]&&p[2].crit){var c=mcCrits().filter(function(x){return x.id===p[2].crit;})[0];
@@ -9854,10 +9913,10 @@ function syncRoleBonusCx(s){if(!s||!mcCritOk())return;initStu(s);var cfg=D.setti
       if(want&&!has&&tk2.crit){var c=mcCrits().filter(function(x){return x.id===tk2.crit;})[0];if(c){var cur=cxVal(t,c);var add=Math.round(Math.min(parseFloat(tk2.val)||0,Math.max(0,c.max-cur))*100)/100;if(add>0)mc.cx[c.id]=Math.round((cur+add)*100)/100;mc.tbx[tk2.id]={a:add||0.0001,c:c.id};}}
       else if(!want&&has){if(has.a>=0.001&&has.c&&typeof mc.cx[has.c]==='number')mc.cx[has.c]=Math.max(0,Math.round((mc.cx[has.c]-has.a)*100)/100);delete mc.tbx[tk2.id];}});
     Object.keys(mc.tbx).forEach(function(k){if(!mcTasks().some(function(x){return x.id===k;})){var e=mc.tbx[k];if(e&&e.a>=0.001&&e.c&&typeof mc.cx[e.c]==='number')mc.cx[e.c]=Math.max(0,Math.round((mc.cx[e.c]-e.a)*100)/100);delete mc.tbx[k];}});});}
-function cxResyncAll(){var ids={};mcCrits().forEach(function(c){ids[c.id]=c;});
-  D.students.forEach(function(s){initStu(s);['t1','t2','t3'].forEach(function(tk){if(D.locked||termLocked(tk))return;var mc=s.terms[tk].mc;cxUndoRoles(s,tk);
+function cxResyncAll(){
+  D.students.forEach(function(s){mcAs(mcKeyCls(s.classId),function(){var ids={};mcCrits().forEach(function(c){ids[c.id]=c;});initStu(s);['t1','t2','t3'].forEach(function(tk){if(D.locked||termLocked(tk))return;var mc=s.terms[tk].mc;cxUndoRoles(s,tk);
     Object.keys(mc.cx).forEach(function(k){if(!ids[k])delete mc.cx[k];else if(typeof mc.cx[k]==='number')mc.cx[k]=Math.max(0,Math.min(ids[k].max,mc.cx[k]));});});
-    syncRoleBonusCx(s);});}
+    syncRoleBonusCx(s);});});}
 function toggleTask(sid,tid){var stu=GS(sid);if(!stu)return;if(D.locked){isLocked();return;}initStu(stu);var tsk=mcTasks().filter(function(x){return x.id===tid;})[0];if(!tsk)return;
   var a=stuTasks(stu);var i=a.indexOf(tid);var had=i>=0;if(had)a.splice(i,1);else a.push(tid);stu.tasks=a;
   syncRoleBonusCx(stu);snapshot('مهمة تنظيمية');SD();try{rHome();}catch(e){}
