@@ -81,10 +81,11 @@ clApply();
 function fsGet(){var v='';try{v=localStorage.getItem('ss_fsize')||'';}catch(e){}return v==='l'||v==='xl'?v:'m';}
 function fsApply(){var c=document.documentElement.classList,v=fsGet();c.remove('fs-l','fs-xl');if(v!=='m')c.add('fs-'+v);}
 fsApply();
-function thGet(){var v='';try{v=localStorage.getItem('ss_theme')||'';}catch(e){}return v==='nb'?'nb':'orig';}
+try{if(localStorage.getItem('ss_theme')==='nb'){localStorage.setItem('ss_skin','nb');localStorage.setItem('ss_theme','light');}}catch(e){}
+function thGet(){var v='';try{v=localStorage.getItem('ss_skin')||'';}catch(e){}return v==='nb'?'nb':'orig';}
 function thApply(){document.documentElement.classList.toggle('th-nb',thGet()==='nb');}
 thApply();
-var UI_KEYS=['ss_font','ss_fieldbg','ss_color','ss_fsize','ss_theme'];
+var UI_KEYS=['ss_font','ss_fieldbg','ss_color','ss_fsize','ss_skin'];
 function uiSnap(){var o={};UI_KEYS.forEach(function(k){try{var v=localStorage.getItem(k);if(v)o[k]=v;}catch(e){}});return o;}
 function uiRestore(ui){if(!ui||typeof ui!=='object')return;var has=false;UI_KEYS.forEach(function(k){try{if(localStorage.getItem(k))has=true;}catch(e){}});if(has)return;UI_KEYS.forEach(function(k){if(typeof ui[k]==='string'){try{localStorage.setItem(k,ui[k]);}catch(e){}}});try{ftApply();fbApply();clApply();fsApply();thApply();}catch(e){}}
 </script>
@@ -861,7 +862,7 @@ body{max-width:480px;margin:0 auto;display:flex;flex-direction:column;-webkit-fo
         <button class="btn btn-g" onclick="saveMCNext()" style="flex:1">التالي ←</button>
       </div>
       <button onclick="printMCCard()" style="width:100%;margin-top:10px;padding:12px;background:rgba(79,142,255,.12);border:1px solid rgba(79,142,255,.3);border-radius:var(--r);color:var(--blu);font-family:var(--ff);font-size:12px;font-weight:800;cursor:pointer">🪪 بطاقة م.م</button>
-      <div id="mc-svrow" style="display:flex;gap:6px;margin-top:8px"><button id="sv-btn-mc" onclick="svToggle('mc')" style="flex:1;padding:12px;background:linear-gradient(135deg,#5b21b6,#8b5cf6);border:none;border-radius:var(--r);color:#fff;font-family:var(--ff);font-size:12px;font-weight:800;cursor:pointer">🎙️ تقييم الأداء بالصوت</button><button id="sv-lang-mc" onclick="svLang()" style="padding:12px 10px;background:var(--p3);border:1px solid var(--ln);border-radius:var(--r);color:var(--tx2);font-family:var(--ff);font-size:12px;font-weight:800;cursor:pointer">ع</button></div>
+      <div id="mc-svrow" style="display:none;gap:6px;margin-top:8px"><button id="sv-btn-mc" onclick="svToggle('mc')" style="flex:1;padding:12px;background:linear-gradient(135deg,#5b21b6,#8b5cf6);border:none;border-radius:var(--r);color:#fff;font-family:var(--ff);font-size:12px;font-weight:800;cursor:pointer">🎙️ تقييم الأداء بالصوت</button><button id="sv-lang-mc" onclick="svLang()" style="padding:12px 10px;background:var(--p3);border:1px solid var(--ln);border-radius:var(--r);color:var(--tx2);font-family:var(--ff);font-size:12px;font-weight:800;cursor:pointer">ع</button></div>
       <div id="sv-st-mc" style="min-height:18px;text-align:center;font-size:12px;font-weight:800;color:var(--g);margin-top:6px"></div>
       <button onclick="resetMC()" style="width:100%;margin-top:10px;padding:11px;background:var(--rb);border:1px solid rgba(255,89,89,.3);border-radius:var(--r);color:var(--red);font-family:var(--ff);font-size:12px;font-weight:800;cursor:pointer">↺ إعادة م.م للحالة الأصلية (هذا الفصل)</button>
     </div>
@@ -3134,7 +3135,7 @@ function rMC(){
   const s=GS(S.sid);initStu(s);const t=s.terms[S.term];
   document.getElementById('mc-sub').textContent=s.name+' · '+TLB[S.term];
   var _cu=(mcModeOf(t)==='custom');
-  ['mc-vbtn','mc-svrow','sv-st-mc'].forEach(function(i){var e=document.getElementById(i);if(e)e.style.display=_cu?'none':'';});var _l1d=document.getElementById('mc-l1');if(_l1d&&!_cu)_l1d.style.display='';
+  ['mc-vbtn','sv-st-mc'].forEach(function(i){var e=document.getElementById(i);if(e)e.style.display=_cu?'none':'';});var _l1d=document.getElementById('mc-l1');if(_l1d&&!_cu)_l1d.style.display='';
   (function(){var e=document.getElementById('mc-l2');if(e){e.style.display=_cu?'none':'';}var g=document.getElementById('ssg');if(g&&!_cu)g.style.display='flex';var v=document.getElementById('voice-panel');if(v&&_cu)v.style.display='none';})();
   if(!_cu){var _vb0=document.getElementById('mc-vbtn');if(_vb0){_vb0.onclick=toggleVoicePanel;_vb0.style.background='';}}
   if(_cu){
@@ -4976,10 +4977,13 @@ function toggleAcc(k){
 // 🗓️ جدول التوقيت الأسبوعي (الأحد→الخميس × 4 فترات قابلة للتعديل)
 // ═══════════════════════════════════════════════════════
 var TT_DAYS=['الأحد','الإثنين','الثلاثاء','الأربعاء','الخميس'];
+// 🕐 الفترة السابقة مباشرة (حصة = فترتان متتاليتان): 4 فترات = الترتيب · 5 فترات (مساء متداخل) = نهاية تساوي البداية
+function ttPrevIdx(t,i){if(t.slots.length!==5)return i-1;for(var j=0;j<i;j++){if(t.slots[j].e===t.slots[i].s)return j;}return -1;}
+function ttNewBlock(t,g,i,cid){var j=ttPrevIdx(t,i);return !(j>=0&&g[j]===cid);}
 function ttData(){
   if(!D.timetable)D.timetable={};var t=D.timetable;
-  if(!t.slots||t.slots.length!==4)t.slots=[{s:'08:00',e:'10:00'},{s:'10:00',e:'12:00'},{s:'13:30',e:'15:30'},{s:'15:30',e:'17:30'}];
-  if(!t.grid)t.grid={};for(var d=0;d<5;d++){if(!t.grid[d]||t.grid[d].length!==4)t.grid[d]=[null,null,null,null];}
+  if(!t.slots||(t.slots.length!==4&&t.slots.length!==5))t.slots=[{s:'08:00',e:'10:00'},{s:'10:00',e:'12:00'},{s:'13:30',e:'15:30'},{s:'15:30',e:'17:30'}];
+  var N=t.slots.length;if(!t.grid)t.grid={};for(var d=0;d<5;d++){var g=t.grid[d];if(!Array.isArray(g))g=[];while(g.length<N)g.push(null);if(g.length>N)g=g.slice(0,N);t.grid[d]=g;}
   if(!Array.isArray(t.stops))t.stops=[];
   return t;
 }
@@ -5023,7 +5027,7 @@ function rTimetable(){
   var h='<div style="font-size:12px;font-weight:900;color:var(--tx);margin:4px 0 8px">⏰ أوقات الفترات (عدّلها حسب مؤسستك)</div>';
   t.slots.forEach(function(sl,i){h+='<div style="display:flex;align-items:center;gap:6px;margin-bottom:6px"><span style="font-size:11px;font-weight:800;color:var(--tx3);min-width:58px">الفترة '+(i+1)+'</span><input type="time" class="sinp" value="'+sl.s+'" onchange="ttSetSlot('+i+',\'s\',this.value)" style="flex:1"><span style="color:var(--tx3)">←</span><input type="time" class="sinp" value="'+sl.e+'" onchange="ttSetSlot('+i+',\'e\',this.value)" style="flex:1"></div>';});
   h+='<div style="display:flex;gap:6px;flex-wrap:wrap;margin:4px 0 14px"><span style="font-size:10px;color:var(--tx3);font-weight:700;align-self:center">المساء جاهز:</span>'+
-    '<button onclick="ttPreset(\'13:30\',\'15:30\',\'17:30\')" class="ttp"><span dir="ltr">13:30→17:30</span></button>'+
+    '<button onclick="ttPreset5()" class="ttp"><span dir="ltr">13:30→17:30</span></button>'+
     '<button onclick="ttPreset(\'14:00\',\'16:00\',\'18:00\')" class="ttp"><span dir="ltr">14:00→18:00</span></button>'+
     '<button onclick="ttPreset(\'13:30\',\'15:30\',\'16:30\',\'14:30\')" class="ttp"><span dir="ltr">13:30→16:30</span></button></div>';
   if(!D.classes.length){h+='<div style="font-size:12px;color:var(--tx3);text-align:center;padding:10px">أضف أقساماً أولاً</div>';el.innerHTML=h;return;}
@@ -5083,7 +5087,7 @@ function ttMissed(cid,last){
     for(var dt=new Date(from.getTime()+86400000);dt<to;dt=new Date(dt.getTime()+86400000)){
       if((dt-from)>400*86400000)return 0;var d=dt.getDay();if(d>4)continue;
       var k=dt.getFullYear()+'-'+String(dt.getMonth()+1).padStart(2,'0')+'-'+String(dt.getDate()).padStart(2,'0');if(ttInStop(k))continue;
-      var g=t.grid[d]||[];for(var i=0;i<4;i++){if(g[i]===cid&&(i===0||g[i-1]!==cid))n++;}}
+      var g=t.grid[d]||[];for(var i=0;i<t.slots.length;i++){if(g[i]===cid&&ttNewBlock(t,g,i,cid))n++;}}
     return n;}catch(e){return 0;}
 }
 var TTC=null;
@@ -5408,20 +5412,28 @@ function incShow(id){
   document.getElementById('pdfFrame').srcdoc=html;
 }
 function ttSetSlot(i,k,v){var t=ttData();if(!v)return;t.slots[i][k]=v;SD();}
-function ttPreset(a,b,e,s4){var t=ttData();s4=s4||b;t.slots[2]={s:a,e:b};t.slots[3]={s:s4,e:e};SD();rTimetable();toast('⏰ تم','أوقات المساء: '+a+'–'+b+' · '+s4+'–'+e,'su',2400);}
+async function ttPreset(a,b,e,s4){var t=ttData();s4=s4||b;
+  if(t.slots.length===5){var used=[];for(var d=0;d<5;d++){var x=t.grid[d][3];if(x&&GC(x))used.push(['📅',TT_DAYS[d]+': '+escA(GC(x).name)]);}
+    if(used.length){var ok=await dlgConfirm({tone:'warn',icon:'⏰',title:'حذف فترة '+t.slots[3].s+'–'+t.slots[3].e,sub:'هذا التوقيت فيه 4 فترات فقط — الأقسام المبرمجة في هذه الفترة تُحذف من الجدول',rows:used,confirmText:'متابعة'});if(!ok)return;}
+    for(var d2=0;d2<5;d2++)t.grid[d2].splice(3,1);t.slots.splice(3,1);}  // 5 → 4: تُحذف الفترة الوسطى 14:30–16:30
+  t.slots[2]={s:a,e:b};t.slots[3]={s:s4,e:e};SD();rTimetable();toast('⏰ تم','أوقات المساء: '+a+'–'+b+' · '+s4+'–'+e,'su',2400);}
+// 13:30→17:30: ثلاث فترات مسائية متداخلة 13:30–15:30 · 14:30–16:30 · 15:30–17:30 (5 فترات في اليوم)
+async function ttPreset5(){var t=ttData();
+  if(t.slots.length===4){for(var d=0;d<5;d++){t.grid[d].splice(3,0,null);}t.slots.splice(3,0,{s:'14:30',e:'16:30'});}
+  t.slots[2]={s:'13:30',e:'15:30'};t.slots[3]={s:'14:30',e:'16:30'};t.slots[4]={s:'15:30',e:'17:30'};SD();rTimetable();toast('⏰ تم','المساء: 13:30–15:30 · 14:30–16:30 · 15:30–17:30','su',2600);}
 function ttSetCell(d,i,v){var t=ttData();t.grid[d][i]=v||null;SD();}
 // الحصة الآن (أو خلال 15 دقيقة قبلها)
 function ttNow(){
   if(!ttHas())return null;var t=D.timetable,now=new Date(),d=now.getDay();if(d>4)return null;
   var m=now.getHours()*60+now.getMinutes();
-  for(var i=0;i<4;i++){var cid=(t.grid[d]||[])[i];if(!cid||!GC(cid))continue;var s=ttMin(t.slots[i].s),e=ttMin(t.slots[i].e);if(m>=s-15&&m<e)return {cid:cid,d:d,i:i,s:t.slots[i].s,e:t.slots[i].e};}
+  for(var i=0;i<t.slots.length;i++){var cid=(t.grid[d]||[])[i];if(!cid||!GC(cid))continue;var s=ttMin(t.slots[i].s),e=ttMin(t.slots[i].e);if(m>=s-15&&m<e)return {cid:cid,d:d,i:i,s:t.slots[i].s,e:t.slots[i].e};}
   return null;
 }
 // الحصة التالية خلال الأسبوع
 function ttNext(){
   if(!ttHas())return null;var t=D.timetable,now=new Date();
   for(var k=0;k<8;k++){var dt=new Date(now.getTime()+k*86400000),d=dt.getDay();if(d>4)continue;
-    for(var i=0;i<4;i++){var cid=(t.grid[d]||[])[i];if(!cid||!GC(cid))continue;var st=ttMin(t.slots[i].s);
+    for(var i=0;i<t.slots.length;i++){var cid=(t.grid[d]||[])[i];if(!cid||!GC(cid))continue;var st=ttMin(t.slots[i].s);
       if(k===0&&st<=now.getHours()*60+now.getMinutes())continue;
       return {cid:cid,d:d,i:i,s:t.slots[i].s,today:k===0,tomorrow:k===1};}}
   return null;
@@ -5429,10 +5441,10 @@ function ttNext(){
 // 🗓️ 2.3.3: التقدّم الآلي لرقم الحصة يتبع «جدول التوقيت»: كل ظهور لـ «حصة الآن» لقسم = حصة جديدة لذلك القسم وحده
 // الفترتان المتتاليتان لنفس القسم في اليوم = حصة واحدة · مفتاح الفترة محفوظ في القسم (c.ttAdv) فلا يتقدّم مرتين
 function ttInTT(cid){try{if(!ttHas())return false;var g=D.timetable.grid;for(var d in g){if((g[d]||[]).indexOf(cid)>=0)return true;}}catch(e){}return false;}
-function ttBlockStart(d,i,cid){var g=(D.timetable.grid[d]||[]);while(i>0&&g[i-1]===cid)i--;return i;}
+function ttBlockStart(d,i,cid){var t=ttData(),g=(t.grid[d]||[]);for(var k=0;k<5;k++){var j=ttPrevIdx(t,i);if(j>=0&&g[j]===cid)i=j;else break;}return i;}
 function ttLatestSlot(cid){
   try{var t=ttData(),now=new Date(),d=now.getDay();if(d>4)return null;var m=now.getHours()*60+now.getMinutes(),best=-1;
-    for(var i=0;i<4;i++){if((t.grid[d]||[])[i]===cid&&ttMin(t.slots[i].s)-15<=m)best=i;}
+    for(var i=0;i<t.slots.length;i++){if((t.grid[d]||[])[i]===cid&&ttMin(t.slots[i].s)-15<=m)best=i;}
     return best<0?null:{d:d,i:best};}catch(e){return null;}
 }
 // فصل جدول التوقيت = آخر فصل سُجِّل فيه نشاط فعلي للقسم (لا الفصل المعروض في الشاشة، حتى لا تتقدّم حصص الفصل 2/3 بمجرد تصفّحهما)
@@ -5585,7 +5597,7 @@ function abcHour(cid,dk){
     if(!dk||!D.timetable||!D.timetable.grid)return '';
     var d=new Date(dk+'T12:00:00').getDay();if(isNaN(d)||d>4)return '';
     var t=ttData(),first=-1,last=-1;
-    for(var i=0;i<4;i++){if((t.grid[d]||[])[i]===cid){if(first<0)first=i;last=i;}}
+    for(var i=0;i<t.slots.length;i++){if((t.grid[d]||[])[i]===cid){if(first<0||ttMin(t.slots[i].s)<ttMin(t.slots[first].s))first=i;if(last<0||ttMin(t.slots[i].e)>ttMin(t.slots[last].e))last=i;}}
     if(first<0)return '';
     return t.slots[first].s+'–'+t.slots[last].e;
   }catch(e){return '';}
@@ -5936,7 +5948,7 @@ function rColorUi(){var el=document.getElementById('cl-opts');if(!el)return;var 
 function clSet(k){try{if(k==='orig')localStorage.removeItem('ss_color');else localStorage.setItem('ss_color',k);}catch(e){}clApply();rColorUi();toast('🎨 ألوان الواجهة',CLS[k],'su',1400);}
 var THS={orig:'الأصلية',nb:'النبراس (كحلي وذهبي)'};
 function rThemeUi(){var el=document.getElementById('th-opts');if(!el)return;var v=thGet(),h='';Object.keys(THS).forEach(function(k){h+='<button class="'+(v===k?'on':'')+'" onclick="thSet(\''+k+'\')">'+THS[k]+'</button>';});el.innerHTML=h;}
-function thSet(k){try{if(k==='orig')localStorage.removeItem('ss_theme');else localStorage.setItem('ss_theme',k);}catch(e){}thApply();rThemeUi();
+function thSet(k){try{if(k==='orig')localStorage.removeItem('ss_skin');else localStorage.setItem('ss_skin',k);}catch(e){}thApply();rThemeUi();
   if(k==='nb'&&!document.body.classList.contains('light')){try{toggleTheme();}catch(e){}toast('🖌️ النبراس','سمة نهارية — تم التحويل إلى الوضع النهاري','su',2200);}else toast('🖌️ سمة التطبيق',THS[k],'su',1400);}
 var FSZ={m:'عادي',l:'كبير',xl:'أكبر'};
 function rFsUi(){var el=document.getElementById('fs-opts');if(!el)return;var v=fsGet(),h='';Object.keys(FSZ).forEach(function(k){h+='<button class="'+(v===k?'on':'')+'" onclick="fsSet(\''+k+'\')">'+FSZ[k]+'</button>';});el.innerHTML=h;}
@@ -9565,7 +9577,7 @@ function markSesDate(cid,tk,noDay){var c=GC(cid);if(!c)return;if(!c.sesDate)c.se
 function ttClassDates(cid,fromK,toK){var out=[];try{if(!ttInTT(cid))return out;var t=ttData();var from=new Date(fromK+'T12:00:00'),to=new Date(toK+'T12:00:00');if(isNaN(from)||isNaN(to))return out;
   for(var dt=new Date(from.getTime());dt<=to&&out.length<400;dt=new Date(dt.getTime()+86400000)){var d=dt.getDay();if(d>4)continue;
     var k=dt.getFullYear()+'-'+String(dt.getMonth()+1).padStart(2,'0')+'-'+String(dt.getDate()).padStart(2,'0');if(ttInStop(k))continue;
-    var g=t.grid[d]||[];for(var i=0;i<4;i++){if(g[i]===cid&&(i===0||g[i-1]!==cid)){out.push(k);break;}}}}catch(e){}return out;}
+    var g=t.grid[d]||[];for(var i=0;i<t.slots.length;i++){if(g[i]===cid&&ttNewBlock(t,g,i,cid)){out.push(k);break;}}}}catch(e){}return out;}
 function sesDateFmt(k){var p=String(k||'').split('-');return p.length===3?(+p[2])+'/'+(+p[1])+'/'+p[0]:'';}
 var SDATE=null;
 function sdateTermStart(tk){var y=parseInt(String((D.settings&&D.settings.year)||'').slice(0,4),10);if(!(y>2000))y=new Date().getFullYear()-(new Date().getMonth()<7?1:0);
